@@ -105,7 +105,7 @@ services:
       NEXTAUTH_URL: https://developer.gerege.mn
       NEXTAUTH_SECRET: gerege-dev-portal-secret-change-me-2026
       EID_CLIENT_ID: gerege-developer-portal
-      EID_CLIENT_SECRET: dev-secret-local
+      EID_CLIENT_SECRET: gerege-sso-secret-2026
       DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
     ports:
       - "127.0.0.1:3002:3000"
@@ -126,7 +126,7 @@ services:
       NEXTAUTH_URL: https://test.gerege.mn
       NEXTAUTH_SECRET: gerege-test-sandbox-secret-change-me-2026
       EID_CLIENT_ID: dev-test-client
-      EID_CLIENT_SECRET: dev-secret-local
+      EID_CLIENT_SECRET: gerege-sso-secret-2026
     ports:
       - "127.0.0.1:3003:3000"
     networks:
