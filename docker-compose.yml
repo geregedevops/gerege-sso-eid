@@ -125,8 +125,8 @@ services:
       NEXT_PUBLIC_SANDBOX_URL: https://sandbox.gerege.mn
       NEXTAUTH_URL: https://test.gerege.mn
       NEXTAUTH_SECRET: gerege-test-sandbox-secret-change-me-2026
-      EID_CLIENT_ID: dev-test-client
-      EID_CLIENT_SECRET: gerege-sso-secret-2026
+      EID_CLIENT_ID: cmnokjo8p0004v0ctdmssbr82
+      EID_CLIENT_SECRET: IbwsUqtOtCoxpdlFvLulHbVVlFgHlSLOYUeS7avvnjk
     ports:
       - "127.0.0.1:3003:3000"
     networks:
