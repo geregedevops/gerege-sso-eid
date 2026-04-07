@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Developer {
+  id         String   @id @default(cuid())
+  sub        String   @unique
+  name       String
+  givenName  String
+  familyName String
+  certSerial String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  apps    App[]
+  tenants TenantMember[]
+
+  @@map("dev_developers")
+}
+
+model App {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  logoUrl      String?
+  clientId     String   @unique @default(cuid())
+  secretHash   String
+  redirectUris String[]
+  scopes       String[] @default(["openid", "profile"])
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  developerId String
+  developer   Developer @relation(fields: [developerId], references: [id])
+  tenantId    String?
+  tenant      Tenant?   @relation(fields: [tenantId], references: [id])
+
+  @@index([developerId])
+  @@map("dev_apps")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("starter")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  members TenantMember[]
+  apps    App[]
+
+  @@map("dev_tenants")
+}
+
+model TenantMember {
+  tenantId    String
+  developerId String
+  role        String   @default("member")
+  createdAt   DateTime @default(now())
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  developer Developer @relation(fields: [developerId], references: [id])
+
+  @@id([tenantId, developerId])
+  @@map("dev_tenant_members")
+}
