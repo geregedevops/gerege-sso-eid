@@ -42,6 +42,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", indexHandler(cfg))
+	mux.HandleFunc("GET /docs", docsHandler)
 	mux.HandleFunc("GET /verify", verifyHandler(cfg))
 	mux.HandleFunc("GET /authorized", authorizedHandler(cfg))
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
@@ -343,6 +344,13 @@ func getCitizenData(cfg config, accessToken string) (map[string]string, string, 
 	return result, string(rawJSONBytes), nil
 }
 
+// --- Docs handler ---
+
+func docsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(docsPage))
+}
+
 // --- HTML rendering ---
 
 func renderResult(w http.ResponseWriter, citizen map[string]string, rawJSON string) {
@@ -465,6 +473,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   </div>
   <div class="nav-links">
     <a href="/">Тойм</a>
+    <a href="/docs">Холболтын заавар</a>
     <a href="/health">Health</a>
   </div>
 </nav>
@@ -587,6 +596,216 @@ p{color:#64748b;font-size:14px;line-height:1.7;margin-bottom:28px;word-break:bre
   <h1>%s</h1>
   <p>%s</p>
   <a href="/" class="btn">Буцах</a>
+</div>
+</body>
+</html>`
+
+const docsPage = `<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAN Gateway — Холболтын заавар</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b1120;color:#e2e8f0;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:#fff}
+.nav-logo svg{width:32px;height:32px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{color:#94a3b8;font-size:13px;text-decoration:none;font-weight:500}
+.nav-links a:hover{color:#fff}
+.nav-links a.active{color:#60a5fa}
+.container{max-width:800px;margin:0 auto;padding:48px 24px}
+h1{font-size:36px;font-weight:800;color:#fff;margin-bottom:8px}
+.subtitle{color:#94a3b8;font-size:16px;margin-bottom:40px}
+h2{font-size:22px;font-weight:700;color:#fff;margin:40px 0 16px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+h2:first-of-type{border-top:none;margin-top:0}
+h3{font-size:16px;font-weight:600;color:#e2e8f0;margin:24px 0 8px}
+p{color:#94a3b8;font-size:14px;line-height:1.8;margin-bottom:12px}
+code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;font-size:13px;color:#60a5fa;font-family:'SF Mono',Monaco,monospace}
+pre{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;margin:16px 0;overflow-x:auto;font-size:13px;line-height:1.7;color:#e2e8f0;font-family:'SF Mono',Monaco,monospace}
+.step{display:flex;gap:16px;margin:20px 0;padding:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.step-num{width:36px;height:36px;min-width:36px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
+.step-content h3{margin:0 0 6px;font-size:15px}
+.step-content p{margin:0;font-size:13px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th{text-align:left;padding:10px 14px;background:rgba(255,255,255,.04);color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,.08)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:#e2e8f0}
+td code{color:#60a5fa}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge.get{background:rgba(34,197,94,.1);color:#4ade80}
+.badge.required{background:rgba(239,68,68,.1);color:#f87171}
+.badge.optional{background:rgba(250,204,21,.1);color:#fbbf24}
+.note{padding:16px 20px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.15);border-radius:10px;margin:16px 0;font-size:13px;color:#93c5fd;line-height:1.7}
+.footer{text-align:center;padding:48px 24px 32px;font-size:12px;color:#475569}
+.footer a{color:#60a5fa;text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="800" font-size="11">DAN</text></svg>
+    DAN Gateway
+  </div>
+  <div class="nav-links">
+    <a href="/">Тойм</a>
+    <a href="/docs" class="active">Холболтын заавар</a>
+    <a href="/health">Health</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>3-р талын систем холбох заавар</h1>
+  <p class="subtitle">DAN Gateway-р дамжуулан sso.gov.mn-аас иргэний мэдээлэл авах</p>
+
+  <h2>Ерөнхий бүтэц</h2>
+  <p>Таны систем DAN Gateway-г ашиглан sso.gov.mn-тай шууд холбогдохгүйгээр иргэний мэдээллийг баталгаажуулж авна. OAuth2 бүртгэл, client_id, client_secret хэрэггүй — зөвхөн нэг URL дуудахад хангалттай.</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>Хэрэглэгчийг DAN Gateway руу чиглүүлэх</h3>
+      <p>Таны системээс хэрэглэгчийг <code>dan.gerege.mn/verify</code> руу redirect хийнэ. <code>callback_url</code> параметрт өөрийн callback endpoint-г зааж өгнө.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>Хэрэглэгч sso.gov.mn-р нэвтрэх</h3>
+      <p>DAN Gateway автоматаар sso.gov.mn руу чиглүүлнэ. Хэрэглэгч ДАН-аар нэвтэрнэ.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>Callback URL руу иргэний мэдээлэл буцна</h3>
+      <p>Амжилттай нэвтэрсний дараа DAN Gateway таны <code>callback_url</code> руу иргэний мэдээллийг query parameter-ээр дамжуулж redirect хийнэ.</p>
+    </div>
+  </div>
+
+  <h2>API Reference</h2>
+
+  <h3><span class="badge get">GET</span> /verify</h3>
+  <p>DAN баталгаажуулалт эхлүүлэх endpoint. Хэрэглэгчийг энэ URL руу redirect хийнэ.</p>
+
+  <table>
+    <thead><tr><th>Параметр</th><th>Тайлбар</th><th>Заавал</th></tr></thead>
+    <tbody>
+      <tr><td><code>callback_url</code></td><td>Иргэний мэдээлэл буцаах URL. Баталгаажуулалт амжилттай болсны дараа энэ URL руу redirect хийнэ.</td><td><span class="badge required">заавал</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Жишээ URL</h3>
+  <pre>https://dan.gerege.mn/verify?callback_url=https%3A%2F%2Fmyapp.mn%2Fapi%2Fdan%2Fcallback</pre>
+
+  <h3>HTML товчны жишээ</h3>
+  <pre>&lt;a href="https://dan.gerege.mn/verify?callback_url=https%3A%2F%2Fmyapp.mn%2Fapi%2Fdan%2Fcallback"&gt;
+  DAN Verify
+&lt;/a&gt;</pre>
+
+  <h2>Callback Response</h2>
+  <p>Амжилттай баталгаажуулалтын дараа таны <code>callback_url</code> руу дараах query parameter-ууд дамжина:</p>
+
+  <table>
+    <thead><tr><th>Параметр</th><th>Тайлбар</th><th>Жишээ</th></tr></thead>
+    <tbody>
+      <tr><td><code>reg_no</code></td><td>Регистрийн дугаар</td><td>АБ12345678</td></tr>
+      <tr><td><code>given_name</code></td><td>Нэр</td><td>БАТБОЛД</td></tr>
+      <tr><td><code>family_name</code></td><td>Овог</td><td>Дорж</td></tr>
+      <tr><td><code>surname</code></td><td>Ургийн овог</td><td>Боржигон</td></tr>
+      <tr><td><code>civil_id</code></td><td>Иргэний ID</td><td>110012345678</td></tr>
+      <tr><td><code>gender</code></td><td>Хүйс</td><td>Эрэгтэй</td></tr>
+      <tr><td><code>birth_date</code></td><td>Төрсөн огноо</td><td>1990-01-15 00:00</td></tr>
+      <tr><td><code>birth_place</code></td><td>Төрсөн газар</td><td>Улаанбаатар,Баянгол</td></tr>
+      <tr><td><code>nationality</code></td><td>Үндэс</td><td>Халх</td></tr>
+      <tr><td><code>aimag_name</code></td><td>Аймаг/Хот</td><td>Улаанбаатар</td></tr>
+      <tr><td><code>aimag_code</code></td><td>Аймаг код</td><td>11</td></tr>
+      <tr><td><code>sum_name</code></td><td>Сум/Дүүрэг</td><td>Хан-Уул</td></tr>
+      <tr><td><code>sum_code</code></td><td>Сум код</td><td>22</td></tr>
+      <tr><td><code>bag_name</code></td><td>Баг/Хороо</td><td>1-р хороо</td></tr>
+      <tr><td><code>bag_code</code></td><td>Баг код</td><td>01</td></tr>
+      <tr><td><code>address_detail</code></td><td>Хаягийн дэлгэрэнгүй</td><td>59/17</td></tr>
+      <tr><td><code>passport_address</code></td><td>Паспортын хаяг</td><td>УБ, Хан-Уул, 1-р хороо ...</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Callback URL жишээ</h3>
+  <pre>https://myapp.mn/api/dan/callback?reg_no=АБ12345678&amp;given_name=БАТБОЛД&amp;family_name=Дорж&amp;civil_id=110012345678&amp;gender=Эрэгтэй&amp;birth_date=1990-01-15+00%3A00&amp;nationality=Халх&amp;aimag_name=Улаанбаатар&amp;sum_name=Хан-Уул&amp;bag_name=1-р+хороо&amp;address_detail=59%2F17</pre>
+
+  <h2>Callback Handler жишээ</h2>
+
+  <h3>Next.js (TypeScript)</h3>
+  <pre>// app/api/dan/callback/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const params = req.nextUrl.searchParams;
+  const regNo = params.get("reg_no");
+  const givenName = params.get("given_name");
+  const familyName = params.get("family_name");
+  const civilId = params.get("civil_id");
+
+  if (!regNo) {
+    return NextResponse.redirect("/login?error=dan_failed");
+  }
+
+  // Иргэний мэдээллийг DB-д хадгалах, session үүсгэх гэх мэт
+  // await db.upsertCitizen({ regNo, givenName, familyName, civilId });
+
+  return NextResponse.redirect("/dashboard");
+}</pre>
+
+  <h3>Go (net/http)</h3>
+  <pre>func danCallback(w http.ResponseWriter, r *http.Request) {
+    regNo := r.URL.Query().Get("reg_no")
+    givenName := r.URL.Query().Get("given_name")
+    familyName := r.URL.Query().Get("family_name")
+    civilId := r.URL.Query().Get("civil_id")
+
+    if regNo == "" {
+        http.Redirect(w, r, "/login?error=dan_failed", 302)
+        return
+    }
+
+    // Иргэний мэдээллийг боловсруулах
+    // ...
+
+    http.Redirect(w, r, "/dashboard", 302)
+}</pre>
+
+  <h3>Python (Flask)</h3>
+  <pre>@app.route("/api/dan/callback")
+def dan_callback():
+    reg_no = request.args.get("reg_no")
+    given_name = request.args.get("given_name")
+    family_name = request.args.get("family_name")
+    civil_id = request.args.get("civil_id")
+
+    if not reg_no:
+        return redirect("/login?error=dan_failed")
+
+    # Иргэний мэдээллийг боловсруулах
+    # ...
+
+    return redirect("/dashboard")</pre>
+
+  <div class="note">
+    <strong>Анхааруулга:</strong> callback_url нь HTTPS протоколтой, нийтэд нээлттэй URL байх ёстой. localhost дээр ажиллахгүй. Туршилтын зорилгоор <code>test.gerege.mn</code> ашиглаж болно.
+  </div>
+
+  <h2>Алдааны тохиолдол</h2>
+  <p>Хэрэв хэрэглэгч sso.gov.mn дээр нэвтрэлтээ цуцалсан, эсвэл алдаа гарсан бол таны callback_url руу redirect хийгдэхгүй. Хэрэглэгч DAN Gateway-ийн алдааны хуудас дээр үлдэнэ.</p>
+
+  <h2>Туршилт</h2>
+  <p>Доорх линкээр DAN Verify-г шууд туршиж болно:</p>
+  <pre>https://dan.gerege.mn/verify?callback_url=https%3A%2F%2Ftest.gerege.mn%2Fapi%2Fdan%2Fcallback</pre>
+</div>
+
+<div class="footer">
+  <a href="https://gerege.mn">gerege.mn</a> &middot; <a href="https://dan.gov.mn">dan.gov.mn</a>
 </div>
 </body>
 </html>`
