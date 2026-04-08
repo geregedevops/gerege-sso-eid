@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -25,6 +26,14 @@ const fields = [
 ];
 
 export default function DANResultFullPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Уншиж байна...</div>}>
+      <DANResultFullContent />
+    </Suspense>
+  );
+}
+
+function DANResultFullContent() {
   const searchParams = useSearchParams();
   const [photo, setPhoto] = useState<string | null>(null);
 
