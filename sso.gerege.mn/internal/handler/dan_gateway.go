@@ -143,12 +143,12 @@ func (h *Handler) danGetCitizenData(accessToken string) (map[string]string, erro
 		"client_id":    {h.cfg.DANClientID},
 		"client_secret": {h.cfg.DANClientSecret},
 		"scope":        {h.cfg.DANScope},
-		"access_token": {accessToken},
 	}.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("create service request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	resp, err := client.Do(req)
 	if err != nil {
