@@ -54,18 +54,32 @@ services:
       EID_BASE_URL: https://e-id.mn
       OCSP_URL: ""
       CA_ISSUING_URL: ""
-      DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
-      DAN_CLIENT_SECRET: ZWZmNWFkMDkwZTdkYWU2MTI4YzQyZDYzOGY0NGM4ZThiMmYxMTBhYzE1MTI0NGExOGU5Zjg4ZDZmNzU0NjRhYzI3MGJhMDM3MjU2MjEyZWI2OGZkYTk5NzIyM2EzNDI5OTRjZjQ0NjY2YWZhMTBhMTdmODM5Mzk5M2RhMDY3YjU=
-      DAN_SCOPE: W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d
-      DAN_CALLBACK_URI: http://dan.gerege.mn/authorized
-      DAN_TOKEN_URL: https://sso.gov.mn/oauth2/token
-      DAN_SERVICE_URL: https://sso.gov.mn/oauth2/api/v1/service
       PORT: 8443
       DEV_MODE: "true"
     volumes:
       - ./keys:/etc/gerege/sso:ro
     ports:
       - "127.0.0.1:8443:8443"
+    networks:
+      - gerege
+
+  # === DAN Gateway (Go) ===
+  dan:
+    build:
+      context: ./dan.gerege.mn
+      dockerfile: Dockerfile
+    container_name: gerege-dan
+    restart: unless-stopped
+    environment:
+      DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
+      DAN_CLIENT_SECRET: ZWZmNWFkMDkwZTdkYWU2MTI4YzQyZDYzOGY0NGM4ZThiMmYxMTBhYzE1MTI0NGExOGU5Zjg4ZDZmNzU0NjRhYzI3MGJhMDM3MjU2MjEyZWI2OGZkYTk5NzIyM2EzNDI5OTRjZjQ0NjY2YWZhMTBhMTdmODM5Mzk5M2RhMDY3YjU=
+      DAN_SCOPE: W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d
+      DAN_CALLBACK_URI: http://dan.gerege.mn/authorized
+      DAN_TOKEN_URL: https://sso.gov.mn/oauth2/token
+      DAN_SERVICE_URL: https://sso.gov.mn/oauth2/api/v1/service
+      PORT: 8444
+    ports:
+      - "127.0.0.1:8444:8444"
     networks:
       - gerege
 
@@ -148,6 +162,7 @@ services:
       - api
       - developer
       - test
+      - dan
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro

@@ -151,12 +151,6 @@ func testHandler(t *testing.T) (*Handler, *mockDB, *mockCache, *ecdsa.PrivateKey
 		DB:               db,
 		Cache:            cache,
 		TokenIssuer:      issuer,
-		DANClientID:     "test-dan-client",
-		DANClientSecret: "test-secret",
-		DANScope:        "test-scope",
-		DANCallbackURI:  "http://dan.gerege.mn/authorized",
-		DANTokenURL:     "https://sso.gov.mn/oauth2/token",
-		DANServiceURL:   "https://sso.gov.mn/oauth2/api/v1/service",
 	})
 	return h, db, cache, privKey
 }
@@ -356,26 +350,6 @@ func TestAuthorize_EID_RedirectsToEID(t *testing.T) {
 	loc := rec.Header().Get("Location")
 	if !strings.HasPrefix(loc, "https://e-id.mn/auth") {
 		t.Fatalf("expected redirect to e-id.mn, got %s", loc)
-	}
-}
-
-func TestAuthorize_DAN_RedirectsToSSOGovMN(t *testing.T) {
-	h, db, _, _ := testHandler(t)
-	addTestClient(db, "c1", "secret", []string{"http://app.test/callback"})
-
-	req := httptest.NewRequest("GET", "/oauth/authorize?client_id=c1&redirect_uri=http://app.test/callback&response_type=code&scope=openid%20profile&auth_method=dan", nil)
-	rec := httptest.NewRecorder()
-	h.Authorize(rec, req)
-
-	if rec.Code != http.StatusFound {
-		t.Fatalf("expected 302, got %d", rec.Code)
-	}
-	loc := rec.Header().Get("Location")
-	if !strings.HasPrefix(loc, "https://sso.gov.mn/login") {
-		t.Fatalf("expected redirect to sso.gov.mn, got %s", loc)
-	}
-	if !strings.Contains(loc, "client_id=test-dan-client") {
-		t.Fatalf("expected DAN client_id in redirect, got %s", loc)
 	}
 }
 
@@ -694,46 +668,6 @@ func TestToken_Success_EID(t *testing.T) {
 	}
 }
 
-func TestToken_Success_DAN(t *testing.T) {
-	h, db, cache, _ := testHandler(t)
-	addTestClient(db, "c1", "secret", []string{"http://app.test/callback"})
-
-	codeData := model.AuthCode{
-		Sub:         "AA12345678",
-		Name:        "Бат",
-		GivenName:   "Бат",
-		FamilyName:  "",
-		RegNo:       "AA12345678",
-		ClientID:    "c1",
-		RedirectURI: "http://app.test/callback",
-		Scope:       "openid profile",
-		Nonce:       "nonce456",
-		Surname:     "Дорж",
-		Gender:      "male",
-		BirthDate:   "1990-01-01",
-	}
-	cache.Set(context.Background(), "code:dancode", codeData, 5*time.Minute)
-
-	form := url.Values{
-		"grant_type":    {"authorization_code"},
-		"code":          {"dancode"},
-		"client_id":     {"c1"},
-		"client_secret": {"secret"},
-	}
-	req := httptest.NewRequest("POST", "/oauth/token", strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	rec := httptest.NewRecorder()
-	h.Token(rec, req)
-
-	if rec.Code != 200 {
-		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
-	}
-	body := parseJSON(t, rec)
-	if body["access_token"] == nil {
-		t.Fatal("expected access_token")
-	}
-}
-
 func TestToken_BasicAuth(t *testing.T) {
 	h, db, cache, _ := testHandler(t)
 	addTestClient(db, "c1", "secret", []string{"http://app.test/callback"})
@@ -1038,114 +972,6 @@ func TestRevoke_Success(t *testing.T) {
 }
 
 // --- DAN Callback ---
-
-func TestDANCallback_MissingSession(t *testing.T) {
-	h, _, _, _ := testHandler(t)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /callback/dan/{session}", h.DANCallback)
-
-	req := httptest.NewRequest("GET", "/callback/dan/nonexistent?reg_no=AA12345678", nil)
-	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
-
-	if rec.Code != 400 {
-		t.Fatalf("expected 400, got %d", rec.Code)
-	}
-}
-
-func TestDANCallback_Success(t *testing.T) {
-	h, _, cache, _ := testHandler(t)
-
-	session := model.AuthSession{
-		ClientID:    "c1",
-		RedirectURI: "http://app.test/callback",
-		Scope:       "openid profile",
-		State:       "danstate",
-		Nonce:       "dannonce",
-		AuthMethod:  "dan",
-	}
-	cache.Set(context.Background(), "sso:dansess", session, 10*time.Minute)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /callback/dan/{session}", h.DANCallback)
-
-	req := httptest.NewRequest("GET", "/callback/dan/dansess?reg_no=AA12345678&surname=Дорж&given_name=Бат&gender=male&birth_date=1990-01-01", nil)
-	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusFound {
-		t.Fatalf("expected 302, got %d: %s", rec.Code, rec.Body.String())
-	}
-	loc := rec.Header().Get("Location")
-	if !strings.HasPrefix(loc, "http://app.test/callback?code=") {
-		t.Fatalf("expected redirect with code, got %s", loc)
-	}
-	if !strings.Contains(loc, "state=danstate") {
-		t.Fatalf("expected state, got %s", loc)
-	}
-}
-
-func TestDANCallback_NoRegNo(t *testing.T) {
-	h, _, cache, _ := testHandler(t)
-
-	session := model.AuthSession{
-		ClientID:    "c1",
-		RedirectURI: "http://app.test/callback",
-		State:       "st",
-	}
-	cache.Set(context.Background(), "sso:dansess2", session, 10*time.Minute)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /callback/dan/{session}", h.DANCallback)
-
-	req := httptest.NewRequest("GET", "/callback/dan/dansess2", nil)
-	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusFound {
-		t.Fatalf("expected 302, got %d", rec.Code)
-	}
-	loc := rec.Header().Get("Location")
-	if !strings.Contains(loc, "error=access_denied") {
-		t.Fatalf("expected access_denied, got %s", loc)
-	}
-}
-
-// --- DAN Gateway ---
-
-func TestDANGatewayAuthorized_MissingCode(t *testing.T) {
-	h, _, _, _ := testHandler(t)
-	req := httptest.NewRequest("GET", "/authorized?state=abc", nil)
-	rec := httptest.NewRecorder()
-	h.DANGatewayAuthorized(rec, req)
-
-	if rec.Code != 400 {
-		t.Fatalf("expected 400, got %d", rec.Code)
-	}
-}
-
-func TestDANGatewayAuthorized_MissingState(t *testing.T) {
-	h, _, _, _ := testHandler(t)
-	req := httptest.NewRequest("GET", "/authorized?code=abc", nil)
-	rec := httptest.NewRecorder()
-	h.DANGatewayAuthorized(rec, req)
-
-	if rec.Code != 400 {
-		t.Fatalf("expected 400, got %d", rec.Code)
-	}
-}
-
-func TestDANGatewayAuthorized_InvalidState(t *testing.T) {
-	h, _, _, _ := testHandler(t)
-	req := httptest.NewRequest("GET", "/authorized?code=abc&state=not-base64!!!", nil)
-	rec := httptest.NewRecorder()
-	h.DANGatewayAuthorized(rec, req)
-
-	if rec.Code != 400 {
-		t.Fatalf("expected 400, got %d", rec.Code)
-	}
-}
 
 // --- Index ---
 

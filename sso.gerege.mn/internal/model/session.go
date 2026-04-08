@@ -7,7 +7,6 @@ type AuthSession struct {
 	Scope       string `json:"scope"`
 	State       string `json:"state"`
 	Nonce       string `json:"nonce"`
-	AuthMethod  string `json:"auth_method,omitempty"` // "eid" (default) or "dan"
 }
 
 // AuthCode is stored in Redis after e-id.mn or DAN callback
@@ -22,18 +21,6 @@ type AuthCode struct {
 	RedirectURI string `json:"redirect_uri"`
 	Scope       string `json:"scope"`
 	Nonce       string `json:"nonce"`
-	// DAN citizen data
-	Surname       string `json:"surname,omitempty"`
-	CivilID       string `json:"civil_id,omitempty"`
-	Gender        string `json:"gender,omitempty"`
-	BirthDate     string `json:"birth_date,omitempty"`
-	Nationality   string `json:"nationality,omitempty"`
-	PhoneNo       string `json:"phone_no,omitempty"`
-	Email         string `json:"email,omitempty"`
-	AimagName     string `json:"aimag_name,omitempty"`
-	SumName       string `json:"sum_name,omitempty"`
-	BagName       string `json:"bag_name,omitempty"`
-	AddressDetail string `json:"address_detail,omitempty"`
 }
 
 // AccessTokenData is stored in Redis for opaque access tokens

@@ -24,27 +24,6 @@ export default async function LoginPage() {
             e-ID Mongolia-р нэвтрэх
           </button>
         </form>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-surface px-2 text-slate-500">эсвэл</span>
-          </div>
-        </div>
-        <form
-          action={async () => {
-            "use server";
-            await signIn("gerege-sso", { redirectTo: "/sandbox" }, { auth_method: "dan" });
-          }}
-        >
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 transition-colors"
-          >
-            DAN нэвтрэх (sso.gov.mn)
-          </button>
-        </form>
       </div>
     </main>
   );

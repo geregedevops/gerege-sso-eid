@@ -12,6 +12,8 @@ import (
 	"sso.gerege.mn/internal/model"
 )
 
+// NOTE: auth_method=dan is no longer handled here. DAN is a standalone service at dan.gerege.mn.
+
 func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	clientID := q.Get("client_id")
@@ -20,7 +22,6 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 	scope := q.Get("scope")
 	state := q.Get("state")
 	nonce := q.Get("nonce")
-	authMethod := q.Get("auth_method") // "eid" (default) or "dan"
 
 	// Validate client
 	client, err := h.cfg.DB.GetClient(r.Context(), clientID)
@@ -62,7 +63,6 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 		Scope:       scope,
 		State:       state,
 		Nonce:       nonce,
-		AuthMethod:  authMethod,
 	}
 	if err := h.cfg.Cache.Set(r.Context(), "sso:"+sessionID, session, 10*time.Minute); err != nil {
 		logErr("authorize: redis set", err)
@@ -70,13 +70,7 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if authMethod == "dan" {
-		// Redirect to sso.gov.mn for DAN verification
-		h.redirectToDAN(w, r, sessionID)
-		return
-	}
-
-	// Default: Redirect to e-id.mn
+	// Redirect to e-id.mn
 	eidURL := fmt.Sprintf("%s/auth?session=%s&callback_uri=%s/callback/eid&purpose=sso:%s",
 		h.cfg.EIDBaseURL,
 		url.QueryEscape(sessionID),
@@ -84,22 +78,6 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 		url.QueryEscape(clientID),
 	)
 	http.Redirect(w, r, eidURL, http.StatusFound)
-}
-
-func (h *Handler) redirectToDAN(w http.ResponseWriter, r *http.Request, sessionID string) {
-	// dan.gerege.mn gateway reads redirect_url from state and redirects there with citizen data
-	// Session ID embedded in URL path to avoid query param issues
-	callbackURL := fmt.Sprintf("%s/callback/dan/%s", h.cfg.Issuer, sessionID)
-	stateJSON := fmt.Sprintf(`{"redirect_url":"%s"}`, callbackURL)
-	stateB64 := base64.RawURLEncoding.EncodeToString([]byte(stateJSON))
-
-	danURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
-		url.QueryEscape(stateB64),
-		url.QueryEscape(h.cfg.DANClientID),
-		url.QueryEscape(h.cfg.DANScope),
-		url.QueryEscape(h.cfg.DANCallbackURI),
-	)
-	http.Redirect(w, r, danURL, http.StatusFound)
 }
 
 func matchRedirectURI(registered []string, uri string) bool {

@@ -29,12 +29,6 @@ func main() {
 	eidBaseURL := envOrDefault("EID_BASE_URL", "https://e-id.mn")
 	ocspURL := envOrDefault("OCSP_URL", "")
 	caIssuingURL := envOrDefault("CA_ISSUING_URL", "")
-	danClientID := envOrDefault("DAN_CLIENT_ID", "f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152")
-	danClientSecret := envOrDefault("DAN_CLIENT_SECRET", "ZWZmNWFkMDkwZTdkYWU2MTI4YzQyZDYzOGY0NGM4ZThiMmYxMTBhYzE1MTI0NGExOGU5Zjg4ZDZmNzU0NjRhYzI3MGJhMDM3MjU2MjEyZWI2OGZkYTk5NzIyM2EzNDI5OTRjZjQ0NjY2YWZhMTBhMTdmODM5Mzk5M2RhMDY3YjU=")
-	danScope := envOrDefault("DAN_SCOPE", "W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d")
-	danCallbackURI := envOrDefault("DAN_CALLBACK_URI", "http://dan.gerege.mn/authorized")
-	danTokenURL := envOrDefault("DAN_TOKEN_URL", "https://sso.gov.mn/oauth2/token")
-	danServiceURL := envOrDefault("DAN_SERVICE_URL", "https://sso.gov.mn/oauth2/api/v1/service")
 	databaseURL := envOrDefault("DATABASE_URL", "postgres://sso:pass@localhost:5432/gerege_sso_db")
 	redisURL := envOrDefault("REDIS_URL", "redis://localhost:6379/2")
 	port := envOrDefault("PORT", "8443")
@@ -86,12 +80,6 @@ func main() {
 		Cache:          cache,
 		OCSP:           ocsp,
 		TokenIssuer:    tokenIssuer,
-		DANClientID:     danClientID,
-		DANClientSecret: danClientSecret,
-		DANScope:        danScope,
-		DANCallbackURI:  danCallbackURI,
-		DANTokenURL:     danTokenURL,
-		DANServiceURL:   danServiceURL,
 	})
 
 	// Router
@@ -104,8 +92,6 @@ func main() {
 	mux.HandleFunc("POST /oauth/revoke", h.Revoke)
 	mux.HandleFunc("POST /oauth/introspect", h.Introspect)
 	mux.HandleFunc("GET /callback/eid", h.EIDCallback)
-	mux.HandleFunc("GET /callback/dan/{session}", h.DANCallback)
-	mux.HandleFunc("GET /authorized", h.DANGatewayAuthorized) // dan.gerege.mn gateway
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)
