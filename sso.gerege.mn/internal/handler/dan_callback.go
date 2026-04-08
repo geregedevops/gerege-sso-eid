@@ -16,7 +16,7 @@ import (
 func (h *Handler) DANCallback(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	regNo := q.Get("reg_no")
-	sessionID := q.Get("session")
+	sessionID := r.PathValue("session")
 
 	slog.Info("dan_callback", "reg_no", regNo, "session", sessionID, "params", r.URL.RawQuery)
 
