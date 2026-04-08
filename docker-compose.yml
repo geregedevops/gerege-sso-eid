@@ -56,7 +56,7 @@ services:
       CA_ISSUING_URL: https://ca.gesign.mn/api/ca/download/issuing.pem
       DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
       DAN_SCOPE: W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d
-      DAN_CALLBACK_URI: https://sso.gerege.mn/callback/dan
+      DAN_CALLBACK_URI: http://dan.gerege.mn/authorized
       PORT: 8443
       DEV_MODE: "true"
     volumes:
