@@ -20,9 +20,70 @@ import (
 	"syscall"
 	"time"
 
+	"sync"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// =====================
+// Citizen token store (in-memory, one-time, 5 min TTL)
+// =====================
+
+type citizenEntry struct {
+	Data      map[string]string
+	RawJSON   string
+	ExpiresAt time.Time
+}
+
+var (
+	citizenStore   = make(map[string]*citizenEntry)
+	citizenStoreMu sync.Mutex
+)
+
+func storeCitizenData(citizen map[string]string, rawJSON string) string {
+	token := randomString(32)
+	citizenStoreMu.Lock()
+	citizenStore[token] = &citizenEntry{
+		Data:      citizen,
+		RawJSON:   rawJSON,
+		ExpiresAt: time.Now().Add(5 * time.Minute),
+	}
+	citizenStoreMu.Unlock()
+	return token
+}
+
+func fetchCitizenData(token string) (*citizenEntry, bool) {
+	citizenStoreMu.Lock()
+	defer citizenStoreMu.Unlock()
+	entry, ok := citizenStore[token]
+	if !ok {
+		return nil, false
+	}
+	// One-time use: delete after fetch
+	delete(citizenStore, token)
+	if time.Now().After(entry.ExpiresAt) {
+		return nil, false
+	}
+	return entry, true
+}
+
+// cleanupExpired removes expired entries periodically
+func startCleanup() {
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			citizenStoreMu.Lock()
+			now := time.Now()
+			for k, v := range citizenStore {
+				if now.After(v.ExpiresAt) {
+					delete(citizenStore, k)
+				}
+			}
+			citizenStoreMu.Unlock()
+		}
+	}()
+}
 
 // --- Config ---
 
@@ -90,13 +151,17 @@ func main() {
 		}
 	}
 
+	startCleanup()
+
 	mux := http.NewServeMux()
 
 	// Public pages
 	mux.HandleFunc("GET /", indexHandler(cfg))
 	mux.HandleFunc("GET /docs", docsHandler)
 	mux.HandleFunc("GET /verify", verifyHandler(cfg, db))
+	mux.HandleFunc("GET /verify-full", verifyFullHandler(cfg, db))
 	mux.HandleFunc("GET /authorized", authorizedHandler(cfg, db))
+	mux.HandleFunc("GET /api/citizen", citizenAPIHandler())
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok","service":"dan.gerege.mn"}`))
@@ -208,6 +273,83 @@ func verifyHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// verifyFullHandler starts DAN verification that includes citizen photo.
+// GET /verify-full?client_id=XXX&callback_url=XXX
+// Same as /verify but marks include_image=true in state.
+// After verification, citizen data is stored server-side and a one-time
+// token is passed to callback_url instead of all fields as query params.
+func verifyFullHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		callbackURL := r.URL.Query().Get("callback_url")
+		clientID := r.URL.Query().Get("client_id")
+
+		if callbackURL == "" {
+			renderError(w, "Алдаа", "callback_url параметр шаардлагатай.")
+			return
+		}
+
+		if db != nil {
+			if clientID == "" {
+				renderError(w, "Алдаа", "client_id параметр шаардлагатай.")
+				return
+			}
+			client, err := getClient(db, clientID)
+			if err != nil || client == nil || !client.Active {
+				renderError(w, "Алдаа", "Бүртгэлгүй эсвэл идэвхгүй client.")
+				return
+			}
+			if !matchCallbackURL(client.CallbackURLs, callbackURL) {
+				renderError(w, "Алдаа", "callback_url бүртгэлгүй байна.")
+				return
+			}
+		}
+
+		stateJSON, _ := json.Marshal(map[string]string{
+			"callback_url":  callbackURL,
+			"client_id":     clientID,
+			"include_image": "true",
+		})
+		stateB64 := base64.RawURLEncoding.EncodeToString(stateJSON)
+
+		loginURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
+			url.QueryEscape(stateB64),
+			url.QueryEscape(cfg.DANClientID),
+			url.QueryEscape(cfg.DANScope),
+			url.QueryEscape(cfg.DANCallbackURI),
+		)
+
+		slog.Info("verify-full: redirecting", "client_id", clientID, "callback_url", callbackURL)
+		http.Redirect(w, r, loginURL, http.StatusFound)
+	}
+}
+
+// citizenAPIHandler returns full citizen data (including photo) for a one-time token.
+// GET /api/citizen?token=XXX
+func citizenAPIHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("token")
+		if token == "" {
+			jsonErr(w, 400, "token параметр шаардлагатай")
+			return
+		}
+
+		entry, ok := fetchCitizenData(token)
+		if !ok {
+			jsonErr(w, 404, "Token олдсонгүй эсвэл хугацаа дууссан. Нэг удаа ашиглагдана, 5 мин хүчинтэй.")
+			return
+		}
+
+		slog.Info("api/citizen: token fetched", "reg_no", entry.Data["reg_no"])
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"citizen": entry.Data,
+			"raw":     json.RawMessage(entry.RawJSON),
+		})
+	}
+}
+
 func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
@@ -242,6 +384,34 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 			var state map[string]string
 			if json.Unmarshal(stateBytes, &state) == nil {
 				if cbURL := state["callback_url"]; cbURL != "" {
+					clientID := state["client_id"]
+
+					// Full mode: store data with image, redirect with token
+					if state["include_image"] == "true" {
+						token := storeCitizenData(citizen, rawJSON)
+						redirectURL, err := url.Parse(cbURL)
+						if err == nil {
+							params := redirectURL.Query()
+							params.Set("token", token)
+							params.Set("timestamp", fmt.Sprintf("%d", time.Now().Unix()))
+							if clientID != "" {
+								params.Set("client_id", clientID)
+							}
+							if clientID != "" && db != nil {
+								client, _ := getClient(db, clientID)
+								if client != nil {
+									sig := computeHMAC(params, client.SecretHash)
+									params.Set("signature", sig)
+								}
+							}
+							redirectURL.RawQuery = params.Encode()
+							slog.Info("authorized: full mode redirect", "client_id", clientID, "token", token[:8]+"...")
+							http.Redirect(w, r, redirectURL.String(), http.StatusFound)
+							return
+						}
+					}
+
+					// Standard mode: redirect with query params (no image)
 					redirectURL, err := url.Parse(cbURL)
 					if err == nil {
 						params := redirectURL.Query()
@@ -252,8 +422,6 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 						}
 						params.Set("timestamp", fmt.Sprintf("%d", time.Now().Unix()))
 
-						// Add HMAC signature if client is registered
-						clientID := state["client_id"]
 						if clientID != "" && db != nil {
 							client, _ := getClient(db, clientID)
 							if client != nil {

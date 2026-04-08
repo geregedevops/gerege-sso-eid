@@ -27,6 +27,12 @@ export default function LandingPage() {
             DAN нэвтрэх
           </Link>
           <a
+            href={`https://dan.gerege.mn/verify-full?callback_url=${encodeURIComponent("https://test.gerege.mn/api/dan/callback-full")}`}
+            className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
+          >
+            DAN + Зураг
+          </a>
+          <a
             href="https://gsign.gerege.mn"
             className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-500 transition-colors"
           >
