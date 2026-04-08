@@ -151,11 +151,12 @@ func testHandler(t *testing.T) (*Handler, *mockDB, *mockCache, *ecdsa.PrivateKey
 		DB:               db,
 		Cache:            cache,
 		TokenIssuer:      issuer,
-		DANClientID:      "test-dan-client",
-		DANScope:         "test-scope",
-		DANCallbackURI:   "http://dan.gerege.mn/authorized",
-		DANGatewayClient: "sso",
-		DANGatewaySecret: "test-secret",
+		DANClientID:     "test-dan-client",
+		DANClientSecret: "test-secret",
+		DANScope:        "test-scope",
+		DANCallbackURI:  "http://dan.gerege.mn/authorized",
+		DANTokenURL:     "https://sso.gov.mn/oauth2/token",
+		DANServiceURL:   "https://sso.gov.mn/oauth2/api/v1/service",
 	})
 	return h, db, cache, privKey
 }
