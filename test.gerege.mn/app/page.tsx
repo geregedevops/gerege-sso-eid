@@ -27,7 +27,7 @@ export default function LandingPage() {
             DAN нэвтрэх
           </Link>
           <a
-            href={`https://dan.gerege.mn/verify-full?callback_url=${encodeURIComponent("https://test.gerege.mn/api/dan/callback-full")}`}
+            href={`https://dan.gerege.mn/verify-full?client_id=dan_a088dd8fac47c7aeb9654b9563ac8d67&callback_url=${encodeURIComponent("https://test.gerege.mn/api/dan/callback-full")}`}
             className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
           >
             DAN + Зураг
