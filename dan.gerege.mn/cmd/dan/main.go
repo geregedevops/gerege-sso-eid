@@ -267,6 +267,11 @@ func getCitizenData(cfg config, accessToken string) (map[string]string, string, 
 		}
 	}
 
+	// Extract base64 image if present
+	if img, ok := citizen["image"].(string); ok && img != "" {
+		result["image"] = img
+	}
+
 	// Build raw JSON without image for display
 	citizenClean := make(map[string]any)
 	for k, v := range citizen {
@@ -309,6 +314,12 @@ func renderResult(w http.ResponseWriter, citizen map[string]string, rawJSON stri
 		{"bag_code", "Баг код"},
 	}
 
+	// Photo
+	photoHTML := ""
+	if img, ok := citizen["image"]; ok && img != "" {
+		photoHTML = fmt.Sprintf(`<div style="text-align:center;margin-bottom:24px"><img src="data:image/jpeg;base64,%s" style="width:160px;height:200px;object-fit:cover;border-radius:12px;border:3px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.1)" alt="Иргэний зураг"></div>`, img)
+	}
+
 	var rows string
 	for _, f := range fields {
 		if v, ok := citizen[f.Key]; ok && v != "" {
@@ -316,7 +327,7 @@ func renderResult(w http.ResponseWriter, citizen map[string]string, rawJSON stri
 		}
 	}
 
-	fmt.Fprintf(w, resultPage, rows, rawJSON)
+	fmt.Fprintf(w, resultPage, photoHTML, rows, rawJSON)
 }
 
 func renderError(w http.ResponseWriter, title, msg string) {
@@ -471,6 +482,8 @@ pre{background:#f8fafc;border-radius:10px;padding:16px;font-size:12px;overflow-x
     <p class="subtitle">sso.gov.mn-р баталгаажуулсан</p>
     <span class="badge">DAN Verified</span>
   </div>
+
+  %s
 
   <div class="card">
     <div class="card-title">Иргэний мэдээлэл</div>
