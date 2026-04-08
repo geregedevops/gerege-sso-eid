@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { imageStore } from "@/lib/image-store";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://test.gerege.mn";
 const DAN_URL = process.env.DAN_URL || "https://dan.gerege.mn";
@@ -54,16 +55,3 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// In-memory image store (short-lived, one-time)
-const imageStore = new Map<string, { data: string; expires: number }>();
-
-// Cleanup expired entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, val] of imageStore) {
-    if (now > val.expires) imageStore.delete(key);
-  }
-}, 60_000);
-
-// Export a way to get images from the store
-export { imageStore };

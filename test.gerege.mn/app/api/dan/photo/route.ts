@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { imageStore } from "../callback-full/route";
+import { imageStore } from "@/lib/image-store";
 
 // Serve citizen photo from temporary in-memory store
 // GET /api/dan/photo?key=xxx
