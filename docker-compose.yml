@@ -152,6 +152,7 @@ services:
       NEXTAUTH_SECRET: gerege-test-sandbox-secret-change-me-2026
       EID_CLIENT_ID: cmnokjo8p0004v0ctdmssbr82
       EID_CLIENT_SECRET: IbwsUqtOtCoxpdlFvLulHbVVlFgHlSLOYUeS7avvnjk
+      DAN_URL: http://dan:8444
     ports:
       - "127.0.0.1:3003:3000"
     networks:
