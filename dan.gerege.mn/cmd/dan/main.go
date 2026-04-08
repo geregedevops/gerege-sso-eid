@@ -42,6 +42,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", indexHandler(cfg))
+	mux.HandleFunc("GET /verify", verifyHandler(cfg))
 	mux.HandleFunc("GET /authorized", authorizedHandler(cfg))
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -101,15 +102,45 @@ func indexHandler(cfg config) http.HandlerFunc {
 	}
 }
 
+// verifyHandler starts DAN verification for 3rd party clients.
+// GET /verify?callback_url=https://test.gerege.mn/api/dan/callback
+// Encodes callback_url in state, redirects to sso.gov.mn.
+func verifyHandler(cfg config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		callbackURL := r.URL.Query().Get("callback_url")
+		if callbackURL == "" {
+			renderError(w, "Алдаа", "callback_url параметр шаардлагатай.")
+			return
+		}
+
+		// Encode callback_url in state as base64 JSON
+		stateJSON, _ := json.Marshal(map[string]string{
+			"callback_url": callbackURL,
+		})
+		stateB64 := base64.RawURLEncoding.EncodeToString(stateJSON)
+
+		loginURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
+			url.QueryEscape(stateB64),
+			url.QueryEscape(cfg.ClientID),
+			url.QueryEscape(cfg.Scope),
+			url.QueryEscape(cfg.CallbackURI),
+		)
+
+		slog.Info("verify: redirecting to sso.gov.mn", "callback_url", callbackURL)
+		http.Redirect(w, r, loginURL, http.StatusFound)
+	}
+}
+
 func authorizedHandler(cfg config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
+		stateB64 := r.URL.Query().Get("state")
 		if code == "" {
 			renderError(w, "Алдаа", "sso.gov.mn-аас code ирсэнгүй.")
 			return
 		}
 
-		slog.Info("authorized: received callback", "has_code", true)
+		slog.Info("authorized: received callback", "has_code", true, "has_state", stateB64 != "")
 
 		// Step 1: Exchange code for access_token
 		accessToken, err := getAccessToken(cfg, code)
@@ -129,6 +160,34 @@ func authorizedHandler(cfg config) http.HandlerFunc {
 
 		slog.Info("authorized: success", "reg_no", citizen["reg_no"], "given_name", citizen["given_name"])
 
+		// Check if state contains a callback_url (3rd party flow)
+		if stateB64 != "" {
+			stateBytes, err := base64.RawURLEncoding.DecodeString(stateB64)
+			if err != nil {
+				stateBytes, _ = base64.StdEncoding.DecodeString(stateB64)
+			}
+			var state map[string]string
+			if json.Unmarshal(stateBytes, &state) == nil {
+				if cbURL := state["callback_url"]; cbURL != "" {
+					// Redirect to callback_url with citizen data as query params
+					redirectURL, err := url.Parse(cbURL)
+					if err == nil {
+						params := redirectURL.Query()
+						for k, v := range citizen {
+							if k != "image" && v != "" {
+								params.Set(k, v)
+							}
+						}
+						redirectURL.RawQuery = params.Encode()
+						slog.Info("authorized: redirecting to callback", "url", redirectURL.Host)
+						http.Redirect(w, r, redirectURL.String(), http.StatusFound)
+						return
+					}
+				}
+			}
+		}
+
+		// No callback_url — render result page (standalone mode)
 		renderResult(w, citizen, rawJSON)
 	}
 }
