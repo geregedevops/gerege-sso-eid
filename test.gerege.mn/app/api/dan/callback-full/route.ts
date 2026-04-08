@@ -28,30 +28,42 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/auth/login?error=dan_no_data", APP_URL));
     }
 
-    // Pass citizen data to result page via query params
-    // For the image, we store it in a cookie since it's too large for URL
+    // Store full citizen data (with image) in a temporary server-side endpoint
+    // We pass non-image fields as query params and image via a fetch endpoint
     const resultURL = new URL("/auth/dan-result-full", APP_URL);
+    let imageBase64 = "";
     for (const [key, value] of Object.entries(citizen)) {
-      if (key !== "image" && typeof value === "string" && value) {
+      if (key === "image" && typeof value === "string") {
+        imageBase64 = value;
+      } else if (typeof value === "string" && value) {
         resultURL.searchParams.set(key, value);
       }
     }
 
-    const response = NextResponse.redirect(resultURL);
-
-    // Store image in a short-lived cookie (base64, ~50KB typical)
-    if (citizen.image) {
-      response.cookies.set("dan_photo", citizen.image, {
-        maxAge: 300, // 5 minutes
-        httpOnly: false,
-        path: "/auth/dan-result-full",
-        sameSite: "lax",
-      });
+    // If there's an image, store it temporarily and pass a fetch key
+    if (imageBase64) {
+      const imgKey = Math.random().toString(36).slice(2, 18);
+      imageStore.set(imgKey, { data: imageBase64, expires: Date.now() + 5 * 60 * 1000 });
+      resultURL.searchParams.set("img_key", imgKey);
     }
 
-    return response;
+    return NextResponse.redirect(resultURL);
   } catch (err) {
     console.error("DAN full callback error:", err);
     return NextResponse.redirect(new URL("/auth/login?error=dan_fetch_failed", APP_URL));
   }
 }
+
+// In-memory image store (short-lived, one-time)
+const imageStore = new Map<string, { data: string; expires: number }>();
+
+// Cleanup expired entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of imageStore) {
+    if (now > val.expires) imageStore.delete(key);
+  }
+}, 60_000);
+
+// Export a way to get images from the store
+export { imageStore };

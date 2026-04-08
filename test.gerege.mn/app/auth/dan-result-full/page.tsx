@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const fields = [
   { key: "reg_no", label: "Регистрийн дугаар" },
@@ -35,21 +34,11 @@ export default function DANResultFullPage() {
 
 function DANResultFullContent() {
   const searchParams = useSearchParams();
-  const [photo, setPhoto] = useState<string | null>(null);
 
   const regNo = searchParams.get("reg_no") || "";
   const givenName = searchParams.get("given_name") || "";
   const familyName = searchParams.get("family_name") || "";
-
-  useEffect(() => {
-    // Read photo from cookie
-    const match = document.cookie.match(/(?:^|; )dan_photo=([^;]*)/);
-    if (match) {
-      setPhoto(decodeURIComponent(match[1]));
-      // Clear cookie after reading
-      document.cookie = "dan_photo=; path=/auth/dan-result-full; max-age=0";
-    }
-  }, []);
+  const imgKey = searchParams.get("img_key") || "";
 
   if (!regNo) {
     return (
@@ -77,10 +66,11 @@ function DANResultFullContent() {
           </span>
         </div>
 
-        {photo && (
+        {imgKey && (
           <div className="flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`data:image/jpeg;base64,${photo}`}
+              src={`/api/dan/photo?key=${imgKey}`}
               alt="Иргэний зураг"
               className="w-40 h-52 object-cover rounded-xl border-2 border-white/10"
             />
