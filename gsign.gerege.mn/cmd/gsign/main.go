@@ -278,14 +278,36 @@ func parseCMSSignature(base64Sig string) (map[string]string, error) {
 	cert := p7.Certificates[0]
 	result := parseDN(cert.Subject)
 
+	// Raw DN strings for debugging
+	result["subject_dn"] = cert.Subject.String()
+	result["issuer_dn"] = cert.Issuer.String()
+
+	// Issuer fields
+	issuerData := parseDN(cert.Issuer)
+	for k, v := range issuerData {
+		result["issuer_"+k] = v
+	}
+
 	// Add validity info
 	result["not_before"] = cert.NotBefore.Format(time.RFC3339)
 	result["not_after"] = cert.NotAfter.Format(time.RFC3339)
 	result["is_valid"] = fmt.Sprintf("%v", cert.NotAfter.After(time.Now()))
 
+	// Certificate serial number (hex)
+	result["cert_serial"] = cert.SerialNumber.Text(16)
+
 	// Signed data
 	if p7.Content != nil {
 		result["signed_data"] = string(p7.Content)
+	}
+
+	// Log ALL Name entries for debugging
+	for i, name := range cert.Subject.Names {
+		oid := name.Type.String()
+		val := fmt.Sprintf("%v", name.Value)
+		slog.Info("cert subject name", "index", i, "oid", oid, "value", val)
+		// Also store all OIDs in result
+		result[fmt.Sprintf("oid_%s", oid)] = val
 	}
 
 	return result, nil
@@ -517,8 +539,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 </div>
 
 <script>
-const labels={reg_no:"Регистрийн дугаар",given_name:"Нэр",family_name:"Овог",surname:"Ургийн овог",cn:"CN",serialnumber:"Serial",country:"Улс",organization:"Байгууллага",not_before:"Эхлэх",not_after:"Дуусах",is_valid:"Хүчинтэй",signed_data:"Signed Data"};
-const displayOrder=["reg_no","family_name","given_name","surname","country","organization","not_before","not_after","is_valid"];
+const labels={reg_no:"Регистрийн дугаар",serialnumber:"SerialNumber",given_name:"Нэр",family_name:"Овог",surname:"Ургийн овог",cn:"CN (Common Name)",country:"Улс",locality:"Locality",state:"State",organization:"Байгууллага",ou:"Organizational Unit",not_before:"Серт эхлэх",not_after:"Серт дуусах",is_valid:"Хүчинтэй эсэх",signed_data:"Signed Data",subject_dn:"Subject DN (raw)",issuer_dn:"Issuer DN (raw)",cert_serial:"Серт serial"};
 
 async function doSign(){
   const phone=document.getElementById("phone").value.trim();
@@ -537,8 +558,14 @@ async function doSign(){
     st.className="status success";st.textContent="Амжилттай!";
     const citizen=data.citizen||{};
     let rows="";
-    displayOrder.forEach(k=>{if(citizen[k]){rows+='<div class="result-row"><div class="result-label">'+(labels[k]||k)+'</div><div class="result-value">'+citizen[k]+'</div></div>'}});
-    Object.keys(citizen).forEach(k=>{if(!displayOrder.includes(k)&&citizen[k]){rows+='<div class="result-row"><div class="result-label">'+(labels[k]||k)+'</div><div class="result-value">'+citizen[k]+'</div></div>'}});
+    // Show ALL fields
+    Object.keys(citizen).sort().forEach(k=>{
+      if(citizen[k]){
+        const label=labels[k]||k;
+        const val=citizen[k].length>80?citizen[k].substring(0,80)+"...":citizen[k];
+        rows+='<div class="result-row"><div class="result-label">'+label+'</div><div class="result-value">'+val+'</div></div>';
+      }
+    });
     document.getElementById("resultBody").innerHTML=rows;
     document.getElementById("resultJSON").textContent=JSON.stringify(citizen,null,2);
     res.classList.add("show");
