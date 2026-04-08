@@ -99,7 +99,6 @@ func main() {
 	mux.HandleFunc("POST /oauth/introspect", h.Introspect)
 	mux.HandleFunc("GET /callback/eid", h.EIDCallback)
 	mux.HandleFunc("GET /callback/dan", h.DANCallback)
-	mux.HandleFunc("GET /authorized", h.DANCallback)
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)
