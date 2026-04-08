@@ -70,6 +70,9 @@ services:
       dockerfile: Dockerfile
     container_name: gerege-dan
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
       DAN_CLIENT_SECRET: ZWZmNWFkMDkwZTdkYWU2MTI4YzQyZDYzOGY0NGM4ZThiMmYxMTBhYzE1MTI0NGExOGU5Zjg4ZDZmNzU0NjRhYzI3MGJhMDM3MjU2MjEyZWI2OGZkYTk5NzIyM2EzNDI5OTRjZjQ0NjY2YWZhMTBhMTdmODM5Mzk5M2RhMDY3YjU=
@@ -77,6 +80,8 @@ services:
       DAN_CALLBACK_URI: http://dan.gerege.mn/authorized
       DAN_TOKEN_URL: https://sso.gov.mn/oauth2/token
       DAN_SERVICE_URL: https://sso.gov.mn/oauth2/api/v1/service
+      DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
+      DAN_ADMIN_KEY: gerege-dan-admin-2026-secret
       PORT: 8444
     ports:
       - "127.0.0.1:8444:8444"
