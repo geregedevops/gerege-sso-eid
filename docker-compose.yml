@@ -166,6 +166,9 @@ services:
     restart: unless-stopped
     environment:
       PORT: 8445
+      ESIGN_TOKEN: NjIzNTk3Mi1hcDpidHJBcTZpdVpKbVJoY3RqakNXMw==
+      MSSP_URL: https://66.181.165.212:9061/rest/service
+      APP_URL: https://gsign.gerege.mn
     ports:
       - "127.0.0.1:8445:8445"
     networks:
