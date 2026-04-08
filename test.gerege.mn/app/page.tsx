@@ -13,12 +13,20 @@ export default function LandingPage() {
         <p className="text-lg text-slate-400 max-w-xl mx-auto mb-10">
           Gerege platform-ийн API-г бодит transaction хийлгүй туршина.
         </p>
-        <Link
-          href="/auth/login"
-          className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors"
-        >
-          Sandbox нэвтрэх
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link
+            href="/auth/login"
+            className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors"
+          >
+            Sandbox нэвтрэх
+          </Link>
+          <Link
+            href="/auth/login?method=dan"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 transition-colors"
+          >
+            DAN нэвтрэх
+          </Link>
+        </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 pb-24">

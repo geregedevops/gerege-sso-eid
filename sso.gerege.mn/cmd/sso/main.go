@@ -29,6 +29,9 @@ func main() {
 	eidBaseURL := envOrDefault("EID_BASE_URL", "https://e-id.mn")
 	ocspURL := envOrDefault("OCSP_URL", "https://ocsp.gesign.mn/ocsp")
 	caIssuingURL := envOrDefault("CA_ISSUING_URL", "https://ca.gesign.mn/api/ca/download/issuing.pem")
+	danClientID := envOrDefault("DAN_CLIENT_ID", "f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152")
+	danScope := envOrDefault("DAN_SCOPE", "W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d")
+	danCallbackURI := envOrDefault("DAN_CALLBACK_URI", "https://sso.gerege.mn/callback/dan")
 	databaseURL := envOrDefault("DATABASE_URL", "postgres://sso:pass@localhost:5432/gerege_sso_db")
 	redisURL := envOrDefault("REDIS_URL", "redis://localhost:6379/2")
 	port := envOrDefault("PORT", "8443")
@@ -71,15 +74,18 @@ func main() {
 
 	// Handler
 	h := handler.New(handler.Config{
-		Issuer:      issuer,
-		EIDBaseURL:  eidBaseURL,
-		PrivKey:     privKey,
-		PubKey:      pubKey,
-		KID:         kid,
-		DB:          db,
-		Cache:       cache,
-		OCSP:        ocsp,
-		TokenIssuer: tokenIssuer,
+		Issuer:         issuer,
+		EIDBaseURL:     eidBaseURL,
+		PrivKey:        privKey,
+		PubKey:         pubKey,
+		KID:            kid,
+		DB:             db,
+		Cache:          cache,
+		OCSP:           ocsp,
+		TokenIssuer:    tokenIssuer,
+		DANClientID:    danClientID,
+		DANScope:       danScope,
+		DANCallbackURI: danCallbackURI,
 	})
 
 	// Router
@@ -92,6 +98,7 @@ func main() {
 	mux.HandleFunc("POST /oauth/revoke", h.Revoke)
 	mux.HandleFunc("POST /oauth/introspect", h.Introspect)
 	mux.HandleFunc("GET /callback/eid", h.EIDCallback)
+	mux.HandleFunc("GET /callback/dan", h.DANCallback)
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /", h.Index)
 

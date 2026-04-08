@@ -100,7 +100,7 @@ func (h *Handler) Token(w http.ResponseWriter, r *http.Request) {
 	idToken, err := h.cfg.TokenIssuer.IssueIDToken(
 		codeData.Sub, clientID, codeData.Nonce,
 		codeData.Name, codeData.GivenName, codeData.FamilyName,
-		codeData.CertSerial,
+		codeData.CertSerial, codeData.RegNo,
 		tenantID, tenantRole, plan,
 	)
 	if err != nil {
@@ -121,6 +121,7 @@ func (h *Handler) Token(w http.ResponseWriter, r *http.Request) {
 		Name:       codeData.Name,
 		GivenName:  codeData.GivenName,
 		FamilyName: codeData.FamilyName,
+		RegNo:      codeData.RegNo,
 		TenantID:   tenantID,
 		TenantRole: tenantRole,
 		Plan:       plan,

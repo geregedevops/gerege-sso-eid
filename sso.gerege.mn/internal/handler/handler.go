@@ -22,6 +22,10 @@ type Config struct {
 	Cache       *store.Redis
 	OCSP        *ocspChecker.Checker
 	TokenIssuer *token.Issuer
+	// DAN (sso.gov.mn) config
+	DANClientID    string
+	DANScope       string
+	DANCallbackURI string
 }
 
 type Handler struct {
@@ -108,9 +112,16 @@ a:hover{text-decoration:underline}
     <div class="ep"><span class="method post">POST</span><span class="path">/oauth/revoke</span></div>
     <div class="ep"><span class="method post">POST</span><span class="path">/oauth/introspect</span></div>
     <div class="ep"><span class="method get">GET</span><a class="path" href="/health">/health</a></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/callback/dan</span></div>
   </div>
 
   <p>Issuer: <code>{{ISSUER}}</code></p>
+
+  <div style="margin:20px 0;padding:16px;background:#eff6ff;border-radius:10px;border:1px solid #bfdbfe">
+    <h3 style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:10px">DAN Test</h3>
+    <a href="{{ISSUER}}/oauth/authorize?client_id=gerege-developer-portal&redirect_uri={{ISSUER}}/health&response_type=code&scope=openid%%20profile&auth_method=dan" style="display:inline-block;padding:10px 24px;background:#2563eb;color:#fff;font-weight:600;font-size:14px;border-radius:10px;text-decoration:none">DAN нэвтрэх (sso.gov.mn)</a>
+    <p style="margin-top:8px;font-size:11px;color:#64748b">sso.gov.mn-р нэвтрэн reg_no авах flow туршина</p>
+  </div>
 
   <div class="footer">
     Powered by <a href="https://e-id.mn">e-ID Mongolia</a> &middot; <a href="https://gerege.mn">gerege.mn</a>

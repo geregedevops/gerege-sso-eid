@@ -19,6 +19,8 @@ type IDTokenClaims struct {
 	CertType               string   `json:"cert_type,omitempty"`
 	IdentityAssuranceLevel string   `json:"identity_assurance_level,omitempty"`
 	AMR                    []string `json:"amr,omitempty"`
+	// DAN (citizen registry) claim
+	RegNo string `json:"reg_no,omitempty"`
 	// Gerege-specific claims
 	TenantID   string `json:"tenant_id,omitempty"`
 	TenantRole string `json:"tenant_role,omitempty"`
@@ -39,8 +41,14 @@ func NewIssuer(privKey *ecdsa.PrivateKey, kid, issuer string) *Issuer {
 	}
 }
 
-func (i *Issuer) IssueIDToken(sub, aud, nonce, name, givenName, familyName, certSerial, tenantID, tenantRole, plan string) (string, error) {
+func (i *Issuer) IssueIDToken(sub, aud, nonce, name, givenName, familyName, certSerial, regNo, tenantID, tenantRole, plan string) (string, error) {
 	now := time.Now()
+
+	amr := []string{"smartid", "pin1", "x509"}
+	if regNo != "" {
+		amr = []string{"dan", "sso_gov_mn"}
+	}
+
 	claims := IDTokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    i.issuer,
@@ -57,7 +65,8 @@ func (i *Issuer) IssueIDToken(sub, aud, nonce, name, givenName, familyName, cert
 		CertSerial:             certSerial,
 		CertType:               "AUTH",
 		IdentityAssuranceLevel: "high",
-		AMR:                    []string{"smartid", "pin1", "x509"},
+		AMR:                    amr,
+		RegNo:                  regNo,
 		TenantID:               tenantID,
 		TenantRole:             tenantRole,
 		Plan:                   plan,

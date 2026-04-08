@@ -22,9 +22,10 @@ func (h *Handler) Discovery(w http.ResponseWriter, r *http.Request) {
 		"claims_supported": []string{
 			"sub", "iss", "aud", "exp", "iat", "nonce",
 			"name", "given_name", "family_name", "locale",
-			"cert_serial", "identity_assurance_level", "amr",
+			"cert_serial", "reg_no", "identity_assurance_level", "amr",
 			"tenant_id", "tenant_role", "plan",
 		},
+		"auth_methods_supported": []string{"eid", "dan"},
 		"ui_locales_supported": []string{"mn", "en"},
 	})
 }

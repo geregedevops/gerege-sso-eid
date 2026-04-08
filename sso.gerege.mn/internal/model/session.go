@@ -7,15 +7,17 @@ type AuthSession struct {
 	Scope       string `json:"scope"`
 	State       string `json:"state"`
 	Nonce       string `json:"nonce"`
+	AuthMethod  string `json:"auth_method,omitempty"` // "eid" (default) or "dan"
 }
 
-// AuthCode is stored in Redis after e-id.mn callback
+// AuthCode is stored in Redis after e-id.mn or DAN callback
 type AuthCode struct {
 	Sub         string `json:"sub"`
 	Name        string `json:"name"`
 	GivenName   string `json:"given_name"`
 	FamilyName  string `json:"family_name"`
 	CertSerial  string `json:"cert_serial"`
+	RegNo       string `json:"reg_no,omitempty"`
 	ClientID    string `json:"client_id"`
 	RedirectURI string `json:"redirect_uri"`
 	Scope       string `json:"scope"`
@@ -30,6 +32,7 @@ type AccessTokenData struct {
 	Name       string `json:"name"`
 	GivenName  string `json:"given_name"`
 	FamilyName string `json:"family_name"`
+	RegNo      string `json:"reg_no,omitempty"`
 	TenantID   string `json:"tenant_id,omitempty"`
 	TenantRole string `json:"tenant_role,omitempty"`
 	Plan       string `json:"plan,omitempty"`
