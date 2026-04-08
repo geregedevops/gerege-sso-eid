@@ -130,6 +130,12 @@ a:hover{text-decoration:underline}
 </body>
 </html>`
 
+func (h *Handler) Favicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Write([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#16a34a"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700" font-size="22">G</text></svg>`))
+}
+
 func logErr(msg string, err error) {
 	slog.Error(msg, "error", err)
 }

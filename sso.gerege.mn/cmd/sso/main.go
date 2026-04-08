@@ -101,6 +101,7 @@ func main() {
 	mux.HandleFunc("GET /callback/dan", h.DANCallback)
 	mux.HandleFunc("GET /authorized", h.DANCallback)
 	mux.HandleFunc("GET /health", h.Health)
+	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)
 
 	// Middleware
