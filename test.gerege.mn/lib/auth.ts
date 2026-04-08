@@ -12,6 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       authorization: {
         params: { scope: "openid profile pos social payment" },
       },
+      checks: ["state"],
     },
   ],
   callbacks: {
