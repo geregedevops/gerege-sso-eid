@@ -161,58 +161,76 @@ func (h *Handler) danGetCitizenData(accessToken string) (map[string]string, erro
 		return nil, fmt.Errorf("read service response: %w", err)
 	}
 
-	slog.Info("dan_gateway: service response", "status", resp.StatusCode, "body", string(body))
+	slog.Info("dan_gateway: service response", "status", resp.StatusCode, "body_len", len(body))
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("service endpoint returned %d: %s", resp.StatusCode, string(body))
 	}
 
-	var raw map[string]any
-	if err := json.Unmarshal(body, &raw); err != nil {
+	// sso.gov.mn returns a JSON array:
+	// [{citizen_loginType:7}, {services: {WS100101_getCitizenIDCardInfo: {response: {...}}}}]
+	var rawArr []any
+	if err := json.Unmarshal(body, &rawArr); err != nil {
 		return nil, fmt.Errorf("parse service response: %w", err)
 	}
 
-	// Extract citizen fields from response
-	result := make(map[string]string)
-	citizenFields := []string{
-		"reg_no", "surname", "given_name", "family_name",
-		"civil_id", "gender", "birth_date",
-		"phone_no", "email", "nationality",
-		"aimag_name", "sum_name", "bag_name", "address_detail",
-		"aimag_id", "aimag_code", "sum_id", "sum_code",
-		"bag_id", "bag_code",
-		"residential_aimag_name", "residential_sum_name",
-		"residential_bag_name", "residential_address_detail",
-	}
-
-	// Try top-level fields
-	for _, field := range citizenFields {
-		if v, ok := raw[field]; ok {
-			result[field] = fmt.Sprintf("%v", v)
+	// Navigate to services -> WS100101_getCitizenIDCardInfo -> response
+	var citizen map[string]any
+	for _, item := range rawArr {
+		obj, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		services, ok := obj["services"].(map[string]any)
+		if !ok {
+			continue
+		}
+		for _, svc := range services {
+			svcObj, ok := svc.(map[string]any)
+			if !ok {
+				continue
+			}
+			if resp, ok := svcObj["response"].(map[string]any); ok {
+				citizen = resp
+				break
+			}
+		}
+		if citizen != nil {
+			break
 		}
 	}
 
-	// Try nested "result", "data", "citizen", "return" objects
-	for _, key := range []string{"result", "data", "citizen", "return"} {
-		if nested, ok := raw[key]; ok {
-			switch m := nested.(type) {
-			case map[string]any:
-				for _, field := range citizenFields {
-					if v, ok := m[field]; ok {
-						result[field] = fmt.Sprintf("%v", v)
-					}
-				}
-			case []any:
-				// Service may return array of results
-				if len(m) > 0 {
-					if obj, ok := m[0].(map[string]any); ok {
-						for _, field := range citizenFields {
-							if v, ok := obj[field]; ok {
-								result[field] = fmt.Sprintf("%v", v)
-							}
-						}
-					}
-				}
+	if citizen == nil {
+		return nil, fmt.Errorf("no citizen data in response: %s", string(body))
+	}
+
+	// Map sso.gov.mn field names to our field names
+	fieldMap := map[string]string{
+		"regnum":              "reg_no",
+		"surname":             "surname",
+		"firstname":           "given_name",
+		"lastname":            "family_name",
+		"civilId":             "civil_id",
+		"gender":              "gender",
+		"birthDateAsText":     "birth_date",
+		"nationality":         "nationality",
+		"aimagCityName":       "aimag_name",
+		"aimagCityCode":       "aimag_code",
+		"soumDistrictName":    "sum_name",
+		"soumDistrictCode":    "sum_code",
+		"bagKhorooName":       "bag_name",
+		"bagKhorooCode":       "bag_code",
+		"addressDetail":       "address_detail",
+		"passportAddress":     "passport_address",
+		"birthPlace":          "birth_place",
+	}
+
+	result := make(map[string]string)
+	for ssoKey, ourKey := range fieldMap {
+		if v, ok := citizen[ssoKey]; ok && v != nil {
+			s := fmt.Sprintf("%v", v)
+			if s != "" && s != "<nil>" {
+				result[ourKey] = s
 			}
 		}
 	}
@@ -220,6 +238,8 @@ func (h *Handler) danGetCitizenData(accessToken string) (map[string]string, erro
 	if result["reg_no"] == "" {
 		return nil, fmt.Errorf("no reg_no in response: %s", string(body))
 	}
+
+	slog.Info("dan_gateway: parsed citizen", "reg_no", result["reg_no"], "given_name", result["given_name"])
 
 	return result, nil
 }
