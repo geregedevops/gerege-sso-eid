@@ -32,6 +32,8 @@ func main() {
 	danClientID := envOrDefault("DAN_CLIENT_ID", "f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152")
 	danScope := envOrDefault("DAN_SCOPE", "W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d")
 	danCallbackURI := envOrDefault("DAN_CALLBACK_URI", "http://dan.gerege.mn/authorized")
+	danGatewayClient := envOrDefault("DAN_GATEWAY_CLIENT", "sso")
+	danGatewaySecret := envOrDefault("DAN_GATEWAY_SECRET", "166ac3b9b4c74f345b7f0ca5529f1c30c58524e4e96bf619cac1f3d4892a9807")
 	databaseURL := envOrDefault("DATABASE_URL", "postgres://sso:pass@localhost:5432/gerege_sso_db")
 	redisURL := envOrDefault("REDIS_URL", "redis://localhost:6379/2")
 	port := envOrDefault("PORT", "8443")
@@ -83,9 +85,11 @@ func main() {
 		Cache:          cache,
 		OCSP:           ocsp,
 		TokenIssuer:    tokenIssuer,
-		DANClientID:    danClientID,
-		DANScope:       danScope,
-		DANCallbackURI: danCallbackURI,
+		DANClientID:      danClientID,
+		DANScope:         danScope,
+		DANCallbackURI:   danCallbackURI,
+		DANGatewayClient: danGatewayClient,
+		DANGatewaySecret: danGatewaySecret,
 	})
 
 	// Router

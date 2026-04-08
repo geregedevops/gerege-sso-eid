@@ -23,9 +23,11 @@ type Config struct {
 	OCSP        *ocspChecker.Checker
 	TokenIssuer *token.Issuer
 	// DAN (sso.gov.mn) config
-	DANClientID    string
-	DANScope       string
-	DANCallbackURI string
+	DANClientID        string
+	DANScope           string
+	DANCallbackURI     string
+	DANGatewayClient   string // dan.gerege.mn token exchange client
+	DANGatewaySecret   string // dan.gerege.mn token exchange secret
 }
 
 type Handler struct {

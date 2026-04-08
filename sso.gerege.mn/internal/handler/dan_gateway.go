@@ -94,7 +94,8 @@ func (h *Handler) exchangeDANCode(code string) (map[string]string, error) {
 	form.Set("grant_type", "authorization_code")
 	form.Set("code", code)
 	form.Set("redirect_uri", h.cfg.DANCallbackURI)
-	form.Set("client_id", h.cfg.DANClientID)
+	form.Set("client_id", h.cfg.DANGatewayClient)
+	form.Set("client_secret", h.cfg.DANGatewaySecret)
 
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Post(tokenURL, "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
