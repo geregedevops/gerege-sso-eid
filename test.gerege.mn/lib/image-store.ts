@@ -7,9 +7,9 @@ const imageStore = new Map<string, { data: string; expires: number }>();
 if (typeof setInterval !== "undefined") {
   setInterval(() => {
     const now = Date.now();
-    for (const [key, val] of imageStore) {
+    imageStore.forEach((val, key) => {
       if (now > val.expires) imageStore.delete(key);
-    }
+    });
   }, 60_000);
 }
 
