@@ -1,20 +1,12 @@
 package handler
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"gesign.mn/gerege-sso/internal/model"
 )
-
-// danState is the decoded state parameter from dan.gerege.mn gateway
-type danState struct {
-	RedirectURL string `json:"redirect_url"`
-	Session     string `json:"session"`
-}
 
 // DANCallback handles the redirect from dan.gerege.mn gateway.
 // dan.gerege.mn exchanges the sso.gov.mn code for citizen data,
@@ -23,39 +15,13 @@ type danState struct {
 //	/callback/dan?reg_no=XX&surname=...&given_name=...&family_name=...&state=...
 func (h *Handler) DANCallback(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	stateB64 := q.Get("state")
 	regNo := q.Get("reg_no")
+	sessionID := q.Get("session")
 
-	slog.Info("dan_callback", "reg_no", regNo, "has_state", stateB64 != "", "params", r.URL.RawQuery)
+	slog.Info("dan_callback", "reg_no", regNo, "session", sessionID, "params", r.URL.RawQuery)
 
-	if stateB64 == "" {
-		h.jsonError(w, 400, "invalid_request", "missing state")
-		return
-	}
-
-	// Decode state — try RawURL first, then StdEncoding
-	stateBytes, err := base64.RawURLEncoding.DecodeString(stateB64)
-	if err != nil {
-		stateBytes, err = base64.StdEncoding.DecodeString(stateB64)
-		if err != nil {
-			// Try RawStdEncoding (no padding, standard alphabet)
-			stateBytes, err = base64.RawStdEncoding.DecodeString(stateB64)
-			if err != nil {
-				h.jsonError(w, 400, "invalid_request", "invalid state encoding")
-				return
-			}
-		}
-	}
-
-	var state danState
-	if err := json.Unmarshal(stateBytes, &state); err != nil {
-		h.jsonError(w, 400, "invalid_request", "invalid state format")
-		return
-	}
-
-	sessionID := state.Session
 	if sessionID == "" {
-		h.jsonError(w, 400, "invalid_request", "missing session in state")
+		h.jsonError(w, 400, "invalid_request", "missing session")
 		return
 	}
 
