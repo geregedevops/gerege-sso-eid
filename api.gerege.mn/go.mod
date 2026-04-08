@@ -1,4 +1,4 @@
-module gesign.mn/gerege-api
+module api.gerege.mn
 
 go 1.22
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"gesign.mn/gerege-sso/internal/model"
+	"sso.gerege.mn/internal/model"
 )
 
 // DANCallback handles the redirect from dan.gerege.mn gateway.

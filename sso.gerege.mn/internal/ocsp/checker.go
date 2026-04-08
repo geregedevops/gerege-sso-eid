@@ -12,7 +12,7 @@ import (
 	"time"
 
 	ocspLib "golang.org/x/crypto/ocsp"
-	"gesign.mn/gerege-sso/internal/store"
+	"sso.gerege.mn/internal/store"
 )
 
 type Checker struct {

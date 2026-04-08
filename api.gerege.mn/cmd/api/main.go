@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"gesign.mn/gerege-api/internal/handler"
-	"gesign.mn/gerege-api/internal/middleware"
-	"gesign.mn/gerege-api/internal/signer"
-	"gesign.mn/gerege-api/internal/smartid"
-	"gesign.mn/gerege-api/internal/store"
+	"api.gerege.mn/internal/handler"
+	"api.gerege.mn/internal/middleware"
+	"api.gerege.mn/internal/signer"
+	"api.gerege.mn/internal/smartid"
+	"api.gerege.mn/internal/store"
 )
 
 func main() {

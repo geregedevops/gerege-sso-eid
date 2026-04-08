@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-	"gesign.mn/gerege-sso/internal/model"
+	"sso.gerege.mn/internal/model"
 )
 
 func (h *Handler) Introspect(w http.ResponseWriter, r *http.Request) {

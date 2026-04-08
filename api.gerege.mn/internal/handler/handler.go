@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"gesign.mn/gerege-api/internal/middleware"
-	"gesign.mn/gerege-api/internal/signer"
-	"gesign.mn/gerege-api/internal/smartid"
-	"gesign.mn/gerege-api/internal/store"
+	"api.gerege.mn/internal/middleware"
+	"api.gerege.mn/internal/signer"
+	"api.gerege.mn/internal/smartid"
+	"api.gerege.mn/internal/store"
 )
 
 type Handler struct {

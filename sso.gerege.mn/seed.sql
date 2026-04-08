@@ -36,9 +36,11 @@ VALUES (
     'gerege-developer-portal',
     '$2b$12$u0pRrLyt/9Csd/Y6nrPuUOr8ZIG8MKRDOMu40.s7fWBIWsHi3ui26',
     'Gerege Developer Portal',
-    ARRAY['https://developer.gerege.mn/api/auth/callback/gerege-sso'],
+    ARRAY['https://developer.gerege.mn/api/auth/callback/gerege-sso', 'https://sso.gerege.mn/health'],
     ARRAY['openid', 'profile']
-) ON CONFLICT (id) DO UPDATE SET secret_hash='$2b$12$u0pRrLyt/9Csd/Y6nrPuUOr8ZIG8MKRDOMu40.s7fWBIWsHi3ui26';
+) ON CONFLICT (id) DO UPDATE SET
+    secret_hash='$2b$12$u0pRrLyt/9Csd/Y6nrPuUOr8ZIG8MKRDOMu40.s7fWBIWsHi3ui26',
+    redirect_uris=ARRAY['https://developer.gerege.mn/api/auth/callback/gerege-sso', 'https://sso.gerege.mn/health'];
 
 -- Test sandbox
 INSERT INTO sso_clients (id, secret_hash, name, redirect_uris, scopes)

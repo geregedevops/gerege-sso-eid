@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"gesign.mn/gerege-sso/internal/model"
+	"sso.gerege.mn/internal/model"
 )
 
 func (h *Handler) UserInfo(w http.ResponseWriter, r *http.Request) {

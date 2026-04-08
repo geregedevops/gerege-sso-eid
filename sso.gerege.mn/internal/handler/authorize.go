@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"gesign.mn/gerege-sso/internal/model"
+	"sso.gerege.mn/internal/model"
 )
 
 func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {

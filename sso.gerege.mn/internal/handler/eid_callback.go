@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"gesign.mn/gerege-sso/internal/model"
+	"sso.gerege.mn/internal/model"
 )
 
 func (h *Handler) EIDCallback(w http.ResponseWriter, r *http.Request) {

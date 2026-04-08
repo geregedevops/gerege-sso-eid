@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	ocspChecker "gesign.mn/gerege-sso/internal/ocsp"
-	"gesign.mn/gerege-sso/internal/store"
-	"gesign.mn/gerege-sso/internal/token"
+	ocspChecker "sso.gerege.mn/internal/ocsp"
+	"sso.gerege.mn/internal/store"
+	"sso.gerege.mn/internal/token"
 )
 
 type Config struct {
@@ -18,8 +18,8 @@ type Config struct {
 	PrivKey     *ecdsa.PrivateKey
 	PubKey      *ecdsa.PublicKey
 	KID         string
-	DB          *store.Postgres
-	Cache       *store.Redis
+	DB          store.DB
+	Cache       store.Cache
 	OCSP        *ocspChecker.Checker
 	TokenIssuer *token.Issuer
 	// DAN (sso.gov.mn) config

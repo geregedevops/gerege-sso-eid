@@ -13,11 +13,11 @@ import (
 	"syscall"
 	"time"
 
-	"gesign.mn/gerege-sso/internal/handler"
-	"gesign.mn/gerege-sso/internal/middleware"
-	ocspChecker "gesign.mn/gerege-sso/internal/ocsp"
-	"gesign.mn/gerege-sso/internal/store"
-	"gesign.mn/gerege-sso/internal/token"
+	"sso.gerege.mn/internal/handler"
+	"sso.gerege.mn/internal/middleware"
+	ocspChecker "sso.gerege.mn/internal/ocsp"
+	"sso.gerege.mn/internal/store"
+	"sso.gerege.mn/internal/token"
 )
 
 func main() {
@@ -27,8 +27,8 @@ func main() {
 	issuer := envOrDefault("SSO_ISSUER", "https://sso.gerege.mn")
 	privKeyPath := envOrDefault("SSO_PRIVATE_KEY_PATH", "ec-private.pem")
 	eidBaseURL := envOrDefault("EID_BASE_URL", "https://e-id.mn")
-	ocspURL := envOrDefault("OCSP_URL", "https://ocsp.gesign.mn/ocsp")
-	caIssuingURL := envOrDefault("CA_ISSUING_URL", "https://ca.gesign.mn/api/ca/download/issuing.pem")
+	ocspURL := envOrDefault("OCSP_URL", "")
+	caIssuingURL := envOrDefault("CA_ISSUING_URL", "")
 	danClientID := envOrDefault("DAN_CLIENT_ID", "f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152")
 	danScope := envOrDefault("DAN_SCOPE", "W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d")
 	danCallbackURI := envOrDefault("DAN_CALLBACK_URI", "http://dan.gerege.mn/authorized")

@@ -4,10 +4,9 @@
 sso.gerege.mn   -> OIDC provider (энэ portal нэвтрэхэд ашиглана)
 developer.gerege.mn -> энэ repo (Developer Portal)
 
-## sso.gesign.mn dev portal-тай ялгаа
-- SSO provider: sso.gerege.mn (sso.gesign.mn биш)
+## Features
 - Нэмэлт scopes: pos, social, payment
-- Tenant management section нэмэгдсэн
+- Tenant management section
 - Gerege-specific docs: POS plugin, Social commerce, Payment
 
 ## Auth

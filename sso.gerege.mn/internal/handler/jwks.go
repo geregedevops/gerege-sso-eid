@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"gesign.mn/gerege-sso/internal/token"
+	"sso.gerege.mn/internal/token"
 )
 
 func (h *Handler) JWKS(w http.ResponseWriter, r *http.Request) {

@@ -52,8 +52,8 @@ services:
       DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
       REDIS_URL: redis://redis:6379/2
       EID_BASE_URL: https://e-id.mn
-      OCSP_URL: https://ocsp.gesign.mn/ocsp
-      CA_ISSUING_URL: https://ca.gesign.mn/api/ca/download/issuing.pem
+      OCSP_URL: ""
+      CA_ISSUING_URL: ""
       DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
       DAN_SCOPE: W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d
       DAN_CALLBACK_URI: http://dan.gerege.mn/authorized

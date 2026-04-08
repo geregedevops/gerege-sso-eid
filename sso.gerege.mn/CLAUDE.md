@@ -3,22 +3,23 @@
 ## Architecture
 e-id.mn         → SmartID auth (хөндөхгүй)
 sso.gerege.mn   → Gerege OIDC server (энэ repo)
-ocsp.gesign.mn  → Cert validity (gesign CA ашиглана)
 
-## sso.gesign.mn-тэй ялгаа
-- Issuer: https://sso.gerege.mn
-- Нэмэлт scopes: pos, social, payment
-- Нэмэлт claims: tenant_id, tenant_role, plan
-- Tenant middleware: token-д tenant context inject хийнэ
+## Scopes
+- openid, profile (standard)
+- pos, social, payment (Gerege-specific)
 
-## Flow (sso.gesign.mn-тэй ижил)
+## Claims
+- Standard: sub, name, given_name, family_name, locale
+- Gerege: tenant_id, tenant_role, plan, reg_no
+
+## Flow
 1. Client → GET /oauth/authorize
 2. → e-id.mn/auth?session=X&callback_uri=sso.gerege.mn/callback/eid
 3. SmartID PIN1
 4. → sso.gerege.mn/callback/eid
-5. OCSP verify → auth_code → JWT
+5. auth_code → JWT
 
-## EC Key (тусдаа — gesign-ийнхтэй хутгахгүй)
+## EC Key
 openssl ecparam -name prime256v1 -genkey -noout -out ec-private.pem
 openssl ec -in ec-private.pem -pubout -out ec-public.pem
 

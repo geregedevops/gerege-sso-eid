@@ -1,4 +1,4 @@
-module gesign.mn/gerege-sso
+module sso.gerege.mn
 
 go 1.22
 

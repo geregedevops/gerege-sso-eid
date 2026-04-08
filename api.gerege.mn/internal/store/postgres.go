@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"gesign.mn/gerege-api/internal/model"
+	"api.gerege.mn/internal/model"
 )
 
 type Postgres struct {

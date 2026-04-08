@@ -4,7 +4,7 @@
 api.gerege.mn   → REST Sign API (энэ repo)
 sso.gerege.mn   → JWT auth provider
 e-id.mn         → SmartID PIN2 signing
-ocsp.gesign.mn  → Cert validity
+e-id.mn/ocsp    → Cert validity
 
 ## Sign Flow
 1. Client → POST /v1/sign/request (PDF + signer_reg)

@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"gesign.mn/gerege-api/internal/model"
+	"api.gerege.mn/internal/model"
 	"github.com/oklog/ulid/v2"
 )
 
