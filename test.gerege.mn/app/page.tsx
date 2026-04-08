@@ -26,6 +26,12 @@ export default function LandingPage() {
           >
             DAN нэвтрэх
           </Link>
+          <a
+            href="https://gsign.gerege.mn"
+            className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-500 transition-colors"
+          >
+            G-Sign Test
+          </a>
         </div>
       </section>
 
