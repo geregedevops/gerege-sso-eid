@@ -355,31 +355,83 @@ const indexPage = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAN - Иргэний мэдээлэл шалгах</title>
+<title>DAN Gateway — dan.gerege.mn</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4ff;color:#1e293b;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{max-width:440px;width:100%%;margin:24px;background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(37,99,235,.08);padding:48px 40px;text-align:center}
-.icon{width:64px;height:64px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:#fff;font-weight:800;font-size:20px}
-h1{font-size:24px;font-weight:700;margin-bottom:8px}
-p{color:#64748b;font-size:14px;line-height:1.7;margin-bottom:28px}
-.btn{display:inline-block;width:100%%;padding:16px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;font-size:16px;border-radius:14px;text-decoration:none;transition:all .2s}
-.btn:hover{background:linear-gradient(135deg,#3b82f6,#2563eb);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
-.hint{margin-top:20px;font-size:12px;color:#94a3b8}
-.footer{margin-top:32px;font-size:12px;color:#94a3b8}
-.footer a{color:#2563eb;text-decoration:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b1120;color:#e2e8f0;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:#fff}
+.nav-logo svg{width:32px;height:32px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{color:#94a3b8;font-size:13px;text-decoration:none;font-weight:500}
+.nav-links a:hover{color:#fff}
+.hero{text-align:center;padding:80px 24px 48px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:24px;font-size:12px;color:#60a5fa;font-weight:500;margin-bottom:32px}
+.hero h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:20px;color:#fff}
+.hero h1 span{background:linear-gradient(135deg,#3b82f6,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{max-width:600px;margin:0 auto 16px;color:#94a3b8;font-size:16px;line-height:1.7}
+.hero .sub{font-size:13px;color:#64748b;margin-bottom:40px}
+.verify-btn{display:inline-flex;align-items:center;gap:10px;padding:18px 40px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;font-size:17px;border-radius:14px;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(37,99,235,.3)}
+.verify-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(37,99,235,.4)}
+.verify-btn svg{width:22px;height:22px}
+.verify-hint{margin-top:16px;font-size:12px;color:#475569}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:900px;margin:60px auto 0;padding:0 24px}
+.feature{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:28px}
+.feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:20px}
+.feature-icon.blue{background:rgba(37,99,235,.1);color:#60a5fa}
+.feature-icon.green{background:rgba(22,163,74,.1);color:#4ade80}
+.feature-icon.amber{background:rgba(245,158,11,.1);color:#fbbf24}
+.feature h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.feature p{font-size:13px;color:#94a3b8;line-height:1.6;margin:0}
+.footer{text-align:center;padding:48px 24px 32px;font-size:12px;color:#475569}
+.footer a{color:#60a5fa;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="icon">DAN</div>
-  <h1>DAN Нэвтрэлт</h1>
-  <p>Монгол улсын иргэний цахим баримт бичгийн (DAN) систем ашиглан иргэний мэдээллийг баталгаажуулна.</p>
-  <a href="%s" class="btn">sso.gov.mn-р нэвтрэх</a>
-  <p class="hint">sso.gov.mn руу чиглүүлэн иргэний мэдээлэл авна</p>
-  <div class="footer">
-    <a href="https://gerege.mn">gerege.mn</a> &middot; <a href="https://dan.gov.mn">dan.gov.mn</a>
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><text x="50%%" y="55%%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="800" font-size="11">DAN</text></svg>
+    DAN Gateway
   </div>
+  <div class="nav-links">
+    <a href="/">Тойм</a>
+    <a href="/health">Health</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="badge">Gerege Systems LLC</div>
+  <h1>DAN <span>Verify</span></h1>
+  <p>Монгол Улсын ДАН (Цахим Гарын Үсэг) системтэй холбогдох OAuth2 gateway. sso.gov.mn-р дамжуулан иргэний мэдээллийг баталгаажуулна.</p>
+  <p class="sub">Зөвхөн Gerege Systems LLC-ийн дотоод систем, бүтээгдэхүүнүүдэд зориулагдсан.</p>
+
+  <a href="%%s" class="verify-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+    DAN Verify
+  </a>
+  <p class="verify-hint">sso.gov.mn руу чиглүүлэн иргэний мэдээлэл авна</p>
+</div>
+
+<div class="features">
+  <div class="feature">
+    <div class="feature-icon blue">&#128196;</div>
+    <h3>Иргэний мэдээлэл</h3>
+    <p>Регистрийн дугаар, овог нэр, хаяг, иргэний ID зэрэг бүрэн мэдээллийг sso.gov.mn-аас авна.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon green">&#9989;</div>
+    <h3>Баталгаажуулалт</h3>
+    <p>sso.gov.mn OAuth2 протоколоор дамжуулан баталгаажсан, итгэмжлэгдсэн мэдээлэл авна.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon amber">&#9889;</div>
+    <h3>Хурдан холболт</h3>
+    <p>Нэг товч дарахад sso.gov.mn-р нэвтэрч, иргэний мэдээллийг шууд авч харуулна.</p>
+  </div>
+</div>
+
+<div class="footer">
+  <a href="https://gerege.mn">gerege.mn</a> &middot; <a href="https://dan.gov.mn">dan.gov.mn</a>
 </div>
 </body>
 </html>`
