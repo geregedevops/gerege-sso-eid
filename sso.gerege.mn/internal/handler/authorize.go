@@ -88,7 +88,8 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) redirectToDAN(w http.ResponseWriter, r *http.Request, sessionID string) {
 	// state = base64({"redirect_url":"...", "session":"..."})
-	stateJSON := fmt.Sprintf(`{"redirect_url":"%s","session":"%s"}`, h.cfg.Issuer, sessionID)
+	// redirect_url = dan.gerege.mn gateway exchanges code, then redirects here with citizen data
+	stateJSON := fmt.Sprintf(`{"redirect_url":"%s/callback/dan","session":"%s"}`, h.cfg.Issuer, sessionID)
 	stateB64 := base64.RawURLEncoding.EncodeToString([]byte(stateJSON))
 
 	danURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
