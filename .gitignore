@@ -1,1 +1,27 @@
+# Compiled Go binaries
 sso.gerege.mn/sso
+dan.gerege.mn/dan
+gsign.gerege.mn/gsign
+api.gerege.mn/api
+
+# Next.js build artifacts
+.next/
+*/.next/
+
+# Node
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
