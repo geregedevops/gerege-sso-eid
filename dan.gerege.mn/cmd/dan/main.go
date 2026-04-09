@@ -237,7 +237,7 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 				if cbURL := state["callback_url"]; cbURL != "" {
 					clientID := state["client_id"]
 
-					// POST full citizen data (including image) to callback URL server-to-server
+					// Build POST payload with all citizen data including image
 					postData := make(map[string]string)
 					for k, v := range citizen {
 						if v != "" {
@@ -249,7 +249,7 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 						postData["client_id"] = clientID
 					}
 
-					// Compute HMAC on non-image fields for signature
+					// HMAC signature (computed on non-image fields)
 					if clientID != "" && db != nil {
 						hmacParams := url.Values{}
 						for k, v := range postData {
@@ -264,33 +264,29 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 						}
 					}
 
+					// POST full data (including image) to callback URL
 					postJSON, _ := json.Marshal(postData)
 					postResp, postErr := http.Post(cbURL, "application/json", strings.NewReader(string(postJSON)))
 					if postErr != nil {
 						slog.Error("authorized: POST to callback failed", "error", postErr)
-					} else {
-						postResp.Body.Close()
-						slog.Info("authorized: POSTed to callback", "client_id", clientID, "status", postResp.StatusCode)
+						renderError(w, "Callback алдаа", fmt.Sprintf("Callback URL руу POST хийхэд алдаа: %v", postErr))
+						return
 					}
+					postResp.Body.Close()
+					slog.Info("authorized: POSTed to callback", "client_id", clientID, "status", postResp.StatusCode)
 
-					// Redirect browser with non-image params
+					// Redirect browser to callback with ?status=ok
 					redirectURL, err := url.Parse(cbURL)
 					if err == nil {
 						params := redirectURL.Query()
-						for k, v := range citizen {
-							if k != "image" && v != "" {
-								params.Set(k, v)
-							}
-						}
-						params.Set("timestamp", postData["timestamp"])
-						if sig, ok := postData["signature"]; ok {
-							params.Set("signature", sig)
-						}
+						params.Set("status", "ok")
+						params.Set("reg_no", citizen["reg_no"])
+						params.Set("given_name", citizen["given_name"])
+						params.Set("family_name", citizen["family_name"])
 						if clientID != "" {
 							params.Set("client_id", clientID)
 						}
 						redirectURL.RawQuery = params.Encode()
-						slog.Info("authorized: redirecting to callback", "client_id", clientID, "host", redirectURL.Host)
 						http.Redirect(w, r, redirectURL.String(), http.StatusFound)
 						return
 					}
