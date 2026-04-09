@@ -10,10 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       issuer: process.env.NEXT_PUBLIC_SSO_URL || "https://sso.gerege.mn",
       clientId: process.env.GEREGE_SSO_CLIENT!,
       clientSecret: process.env.GEREGE_SSO_SECRET!,
-      authorization: {
-        params: { scope: "openid profile" },
-      },
-      checks: ["state"],
+      authorization: { params: { scope: "openid profile" } },
     },
   ],
   callbacks: {
