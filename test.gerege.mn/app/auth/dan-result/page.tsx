@@ -3,7 +3,7 @@ export default async function DANResultPage({ searchParams }: { searchParams: Pr
   const regNo = params.reg_no || "";
   const givenName = params.given_name || "";
   const familyName = params.family_name || "";
-  const surname = params.surname || "";
+  const imgKey = params.img_key || "";
 
   const fields = [
     { key: "reg_no", label: "Регистрийн дугаар" },
@@ -20,6 +20,10 @@ export default async function DANResultPage({ searchParams }: { searchParams: Pr
     { key: "bag_name", label: "Баг/Хороо" },
     { key: "address_detail", label: "Хаяг" },
     { key: "passport_address", label: "Паспортын хаяг" },
+    { key: "apartment_name", label: "Байр" },
+    { key: "street_name", label: "Гудамж" },
+    { key: "passport_issue_date", label: "Паспорт олгосон" },
+    { key: "passport_expire_date", label: "Паспорт дуусах" },
   ];
 
   if (!regNo) {
@@ -44,6 +48,17 @@ export default async function DANResultPage({ searchParams }: { searchParams: Pr
           <h1 className="text-xl font-bold text-white">DAN Verified</h1>
           <p className="text-sm text-slate-400">{givenName} {familyName} ({regNo})</p>
         </div>
+
+        {imgKey && (
+          <div className="flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/dan/photo?key=${imgKey}`}
+              alt="Иргэний зураг"
+              className="w-40 h-52 object-cover rounded-xl border-2 border-white/10"
+            />
+          </div>
+        )}
 
         <div className="bg-white/5 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
