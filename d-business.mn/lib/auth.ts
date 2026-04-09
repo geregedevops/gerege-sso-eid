@@ -45,7 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             );
           } else {
             await query(
-              `INSERT INTO dbiz_users (id, sub, name, "givenName", "familyName", "certSerial") VALUES ($1,$2,$3,$4,$5,$6)`,
+              `INSERT INTO dbiz_users (id, sub, name, "givenName", "familyName", "certSerial", "updatedAt") VALUES ($1,$2,$3,$4,$5,$6,now())`,
               [genId(), sub, name, givenName, familyName, certSerial]
             );
           }
