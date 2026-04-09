@@ -13,6 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       authorization: {
         params: { scope: "openid profile" },
       },
+      checks: ["state"],
     },
   ],
   callbacks: {
