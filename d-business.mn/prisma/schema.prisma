@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  sub        String   @unique
+  name       String
+  givenName  String
+  familyName String
+  certSerial String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  memberships OrgMember[]
+  documents   Document[]
+  signatures  Signature[]
+
+  @@map("dbiz_users")
+}
+
+model Organization {
+  id                 String   @id @default(cuid())
+  name               String
+  registrationNumber String   @unique
+  type               String   // ХХК, ХК, ТББ, ТӨҮГ
+  address            String?
+  phone              String?
+  email              String?
+  isActive           Boolean  @default(true)
+  isVerified         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  members      OrgMember[]
+  certificates Certificate[]
+  documents    Document[]
+  signatures   Signature[]
+
+  @@map("dbiz_organizations")
+}
+
+model OrgMember {
+  organizationId String
+  userId         String
+  role           String   @default("viewer")
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@id([organizationId, userId])
+  @@map("dbiz_org_members")
+}
+
+model Certificate {
+  id             String    @id @default(cuid())
+  organizationId String
+  commonName     String
+  serialNumber   String?
+  status         String    @default("pending")
+  purpose        String    @default("seal")
+  issuedAt       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@map("dbiz_certificates")
+}
+
+model Document {
+  id             String   @id @default(cuid())
+  organizationId String
+  uploadedById   String
+  name           String
+  fileName       String
+  fileSize       Int
+  fileHash       String
+  status         String   @default("uploaded")
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  signatures   Signature[]
+
+  @@index([organizationId])
+  @@index([uploadedById])
+  @@map("dbiz_documents")
+}
+
+model Signature {
+  id               String    @id @default(cuid())
+  documentId       String
+  organizationId   String
+  signedById       String
+  signerName       String?
+  certSerial       String?
+  signedAt         DateTime?
+  sessionId        String?
+  status           String    @default("pending")
+  verificationCode String?
+  createdAt        DateTime  @default(now())
+
+  document     Document     @relation(fields: [documentId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  signedBy     User         @relation(fields: [signedById], references: [id])
+
+  @@index([documentId])
+  @@index([sessionId])
+  @@map("dbiz_signatures")
+}

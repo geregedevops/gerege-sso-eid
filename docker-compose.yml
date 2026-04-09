@@ -144,6 +144,28 @@ services:
     networks:
       - gerege
 
+  # === d-business.mn (Next.js) ===
+  dbusiness:
+    build:
+      context: ./d-business.mn
+      dockerfile: Dockerfile
+    container_name: gerege-dbusiness
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NEXT_PUBLIC_APP_URL: https://d-business.mn
+      NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
+      NEXTAUTH_URL: https://d-business.mn
+      NEXTAUTH_SECRET: ${DBIZ_NEXTAUTH_SECRET}
+      EID_CLIENT_ID: ${DBIZ_EID_CLIENT_ID}
+      EID_CLIENT_SECRET: ${DBIZ_EID_CLIENT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      API_URL: http://api:8080
+    networks:
+      - gerege
+
   # === Docs Wiki (Next.js) ===
   docs:
     build:
@@ -182,6 +204,7 @@ services:
       - dan
       - gsign
       - docs
+      - dbusiness
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
