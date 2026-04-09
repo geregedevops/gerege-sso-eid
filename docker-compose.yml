@@ -5,17 +5,15 @@ services:
     container_name: gerege-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: sso
-      POSTGRES_PASSWORD: gerege_sso_pass_2026
-      POSTGRES_DB: gerege_sso_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sso -d gerege_sso_db"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
       retries: 5
     networks:
       - gerege
@@ -24,12 +22,11 @@ services:
     image: redis:7-alpine
     container_name: gerege-redis
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
       retries: 5
     networks:
       - gerege
@@ -49,17 +46,14 @@ services:
     environment:
       SSO_ISSUER: https://sso.gerege.mn
       SSO_PRIVATE_KEY_PATH: /etc/gerege/sso/ec-private.pem
-      DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
-      REDIS_URL: redis://redis:6379/2
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
       EID_BASE_URL: https://e-id.mn
       OCSP_URL: ""
       CA_ISSUING_URL: ""
       PORT: 8443
-      DEV_MODE: "true"
     volumes:
       - ./keys:/etc/gerege/sso:ro
-    ports:
-      - "127.0.0.1:8443:8443"
     networks:
       - gerege
 
@@ -74,17 +68,15 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DAN_CLIENT_ID: f3f14ab1af2cf74fd7ade8a0-964f9d4992277df04d43aef0c80a1152
-      DAN_CLIENT_SECRET: ZWZmNWFkMDkwZTdkYWU2MTI4YzQyZDYzOGY0NGM4ZThiMmYxMTBhYzE1MTI0NGExOGU5Zjg4ZDZmNzU0NjRhYzI3MGJhMDM3MjU2MjEyZWI2OGZkYTk5NzIyM2EzNDI5OTRjZjQ0NjY2YWZhMTBhMTdmODM5Mzk5M2RhMDY3YjU=
-      DAN_SCOPE: W3sic2VydmljZXMiOlsiV1MxMDAxMDFfZ2V0Q2l0aXplbklEQ2FyZEluZm8iXSwid3NkbCI6Imh0dHBzOlwvXC94eXAuZ292Lm1uXC9jaXRpemVuLTEuMy4wXC93cz9XU0RMIn1d
-      DAN_CALLBACK_URI: http://dan.gerege.mn/authorized
-      DAN_TOKEN_URL: https://sso.gov.mn/oauth2/token
-      DAN_SERVICE_URL: https://sso.gov.mn/oauth2/api/v1/service
-      DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
-      DAN_ADMIN_KEY: gerege-dan-admin-2026-secret
+      DAN_CLIENT_ID: ${DAN_CLIENT_ID}
+      DAN_CLIENT_SECRET: ${DAN_CLIENT_SECRET}
+      DAN_SCOPE: ${DAN_SCOPE}
+      DAN_CALLBACK_URI: ${DAN_CALLBACK_URI}
+      DAN_TOKEN_URL: ${DAN_TOKEN_URL}
+      DAN_SERVICE_URL: ${DAN_SERVICE_URL}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
       PORT: 8444
-    ports:
-      - "127.0.0.1:8444:8444"
     networks:
       - gerege
 
@@ -104,13 +96,11 @@ services:
       SSO_JWKS_URI: https://sso.gerege.mn/.well-known/jwks.json
       EID_API_URL: https://api.e-id.mn
       STORAGE_PATH: /var/api/signed-docs
-      DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
-      REDIS_URL: redis://redis:6379/3
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
       PORT: 8080
     volumes:
       - signed_docs:/var/api/signed-docs
-    ports:
-      - "127.0.0.1:8080:8080"
     networks:
       - gerege
 
@@ -128,12 +118,10 @@ services:
       NEXT_PUBLIC_APP_URL: https://developer.gerege.mn
       NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
       NEXTAUTH_URL: https://developer.gerege.mn
-      NEXTAUTH_SECRET: gerege-dev-portal-secret-change-me-2026
-      EID_CLIENT_ID: gerege-developer-portal
-      EID_CLIENT_SECRET: gerege-sso-secret-2026
-      DATABASE_URL: postgres://sso:gerege_sso_pass_2026@postgres:5432/gerege_sso_db
-    ports:
-      - "127.0.0.1:3002:3000"
+      NEXTAUTH_SECRET: ${DEV_NEXTAUTH_SECRET}
+      EID_CLIENT_ID: ${DEV_EID_CLIENT_ID}
+      EID_CLIENT_SECRET: ${DEV_EID_CLIENT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     networks:
       - gerege
 
@@ -149,12 +137,10 @@ services:
       NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
       NEXT_PUBLIC_SANDBOX_URL: https://sandbox.gerege.mn
       NEXTAUTH_URL: https://test.gerege.mn
-      NEXTAUTH_SECRET: gerege-test-sandbox-secret-change-me-2026
-      EID_CLIENT_ID: cmnokjo8p0004v0ctdmssbr82
-      EID_CLIENT_SECRET: IbwsUqtOtCoxpdlFvLulHbVVlFgHlSLOYUeS7avvnjk
+      NEXTAUTH_SECRET: ${TEST_NEXTAUTH_SECRET}
+      EID_CLIENT_ID: ${TEST_EID_CLIENT_ID}
+      EID_CLIENT_SECRET: ${TEST_EID_CLIENT_SECRET}
       DAN_URL: http://dan:8444
-    ports:
-      - "127.0.0.1:3003:3000"
     networks:
       - gerege
 
@@ -167,11 +153,9 @@ services:
     restart: unless-stopped
     environment:
       PORT: 8445
-      ESIGN_TOKEN: NjIzNTk3Mi1hcDpidHJBcTZpdVpKbVJoY3RqakNXMw==
-      MSSP_URL: https://66.181.165.212:9061/rest/service
+      ESIGN_TOKEN: ${ESIGN_TOKEN}
+      MSSP_URL: ${MSSP_URL}
       APP_URL: https://gsign.gerege.mn
-    ports:
-      - "127.0.0.1:8445:8445"
     networks:
       - gerege
 
