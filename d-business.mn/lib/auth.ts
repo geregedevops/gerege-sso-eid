@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { prisma } from "./db";
+import { query, genId } from "./db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -27,24 +27,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.givenName = (profile as any).given_name || "";
         token.familyName = (profile as any).family_name || "";
 
-        // Upsert user record
+        // Upsert user
         try {
-          await prisma.user.upsert({
-            where: { sub: profile.sub as string },
-            update: {
-              name: (profile as any).name || "",
-              givenName: (profile as any).given_name || "",
-              familyName: (profile as any).family_name || "",
-              certSerial: (profile as any).cert_serial || "",
-            },
-            create: {
-              sub: profile.sub as string,
-              name: (profile as any).name || "",
-              givenName: (profile as any).given_name || "",
-              familyName: (profile as any).family_name || "",
-              certSerial: (profile as any).cert_serial || "",
-            },
-          });
+          const sub = profile.sub as string;
+          const name = (profile as any).name || "";
+          const givenName = (profile as any).given_name || "";
+          const familyName = (profile as any).family_name || "";
+          const certSerial = (profile as any).cert_serial || "";
+
+          const existing = await query(
+            `SELECT id FROM dbiz_users WHERE sub = $1`,
+            [sub]
+          );
+
+          if (existing.length > 0) {
+            await query(
+              `UPDATE dbiz_users SET name=$1, "givenName"=$2, "familyName"=$3, "certSerial"=$4, "updatedAt"=now() WHERE sub=$5`,
+              [name, givenName, familyName, certSerial, sub]
+            );
+          } else {
+            await query(
+              `INSERT INTO dbiz_users (id, sub, name, "givenName", "familyName", "certSerial") VALUES ($1,$2,$3,$4,$5,$6)`,
+              [genId(), sub, name, givenName, familyName, certSerial]
+            );
+          }
         } catch (e) {
           console.error("User upsert error:", e);
         }

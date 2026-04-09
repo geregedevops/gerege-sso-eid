@@ -1,19 +1,15 @@
 FROM node:22-alpine AS builder
-RUN apk add --no-cache openssl
 WORKDIR /app
 COPY package*.json ./
-COPY prisma ./prisma
-RUN npm install --legacy-peer-deps --ignore-scripts && npx prisma generate
+RUN npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
 FROM node:22-alpine
-RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 ENV NODE_ENV=production
 ENV PORT=3000

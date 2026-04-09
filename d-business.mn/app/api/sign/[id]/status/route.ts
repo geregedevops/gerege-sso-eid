@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { query, queryOne } from "@/lib/db";
 import { getSignStatus } from "@/lib/api-client";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -10,51 +10,30 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const accessToken = (session.user as any)?.accessToken;
   const sub = (session.user as any)?.sub;
-  const user = sub ? await prisma.user.findUnique({ where: { sub } }) : null;
+  const user = await queryOne<{ id: string }>(`SELECT id FROM dbiz_users WHERE sub=$1`, [sub]);
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const signature = await prisma.signature.findUnique({ where: { id } });
-  if (!signature || signature.signedById !== user.id) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const sig = await queryOne<{ id: string; signedById: string; sessionId: string; status: string; signerName: string; certSerial: string; signedAt: string; documentId: string }>(
+    `SELECT * FROM dbiz_signatures WHERE id=$1`, [id]
+  );
+  if (!sig || sig.signedById !== user.id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (sig.status === "complete" || sig.status === "failed") {
+    return NextResponse.json({ status: sig.status, signerName: sig.signerName, certSerial: sig.certSerial, signedAt: sig.signedAt });
   }
 
-  // If already terminal, return cached status
-  if (signature.status === "complete" || signature.status === "failed") {
-    return NextResponse.json({
-      status: signature.status,
-      signerName: signature.signerName,
-      certSerial: signature.certSerial,
-      signedAt: signature.signedAt,
-    });
-  }
-
-  // Poll api.gerege.mn
   try {
-    const result = await getSignStatus(accessToken, signature.sessionId!);
-
+    const result = await getSignStatus(accessToken, sig.sessionId);
     if (result.status === "COMPLETE") {
-      await prisma.signature.update({
-        where: { id },
-        data: {
-          status: "complete",
-          signerName: result.signer_name,
-          certSerial: result.cert_serial,
-          signedAt: new Date(),
-        },
-      });
-      await prisma.document.update({
-        where: { id: signature.documentId },
-        data: { status: "signed" },
-      });
-    } else if (result.status === "ERROR" || result.status === "EXPIRED" || result.status === "CANCELLED") {
-      await prisma.signature.update({ where: { id }, data: { status: "failed" } });
-      await prisma.document.update({ where: { id: signature.documentId }, data: { status: "failed" } });
+      await query(`UPDATE dbiz_signatures SET status='complete', "signerName"=$1, "certSerial"=$2, "signedAt"=now() WHERE id=$3`, [result.signer_name, result.cert_serial, id]);
+      await query(`UPDATE dbiz_documents SET status='signed' WHERE id=$1`, [sig.documentId]);
+    } else if (["ERROR", "EXPIRED", "CANCELLED"].includes(result.status)) {
+      await query(`UPDATE dbiz_signatures SET status='failed' WHERE id=$1`, [id]);
+      await query(`UPDATE dbiz_documents SET status='failed' WHERE id=$1`, [sig.documentId]);
     }
-
     return NextResponse.json({
-      status: result.status === "COMPLETE" ? "complete" : result.status === "ERROR" || result.status === "EXPIRED" || result.status === "CANCELLED" ? "failed" : "pending",
-      signerName: result.signer_name,
-      certSerial: result.cert_serial,
+      status: result.status === "COMPLETE" ? "complete" : ["ERROR", "EXPIRED", "CANCELLED"].includes(result.status) ? "failed" : "pending",
+      signerName: result.signer_name, certSerial: result.cert_serial,
     });
   } catch (err: any) {
     return NextResponse.json({ status: "pending", error: err.message });

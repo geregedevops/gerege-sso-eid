@@ -1,4 +1,4 @@
-import { prisma } from "./db";
+import { queryOne } from "./db";
 
 export type OrgRole = "owner" | "admin" | "signer" | "viewer";
 
@@ -14,13 +14,15 @@ export function canManage(role: string) {
 }
 
 export async function getOrgMembership(userId: string, orgId: string) {
-  return prisma.orgMember.findUnique({
-    where: { organizationId_userId: { organizationId: orgId, userId } },
-  });
+  return queryOne<{ organizationId: string; userId: string; role: string }>(
+    `SELECT "organizationId", "userId", role FROM dbiz_org_members WHERE "organizationId"=$1 AND "userId"=$2`,
+    [orgId, userId]
+  );
 }
 
-export async function getUserBySubOrThrow(sub: string) {
-  const user = await prisma.user.findUnique({ where: { sub } });
-  if (!user) throw new Error("User not found");
-  return user;
+export async function getUserBySub(sub: string) {
+  return queryOne<{ id: string; sub: string; name: string; givenName: string; familyName: string; certSerial: string }>(
+    `SELECT id, sub, name, "givenName" as "givenName", "familyName" as "familyName", "certSerial" as "certSerial" FROM dbiz_users WHERE sub=$1`,
+    [sub]
+  );
 }

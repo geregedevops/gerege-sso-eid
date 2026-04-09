@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { query } from "@/lib/db";
 import { createHash } from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -11,30 +11,27 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileHash = createHash("sha256").update(buffer).digest("hex");
 
-    // Look up document by hash
-    const doc = await prisma.document.findFirst({
-      where: { fileHash, status: "signed" },
-      include: {
-        organization: true,
-        signatures: { where: { status: "complete" }, include: { signedBy: true } },
-      },
-    });
+    const docs = await query(
+      `SELECT d.name, o.name as org_name, s."signerName", s."certSerial", s."signedAt"
+       FROM dbiz_documents d
+       JOIN dbiz_organizations o ON o.id = d."organizationId"
+       JOIN dbiz_signatures s ON s."documentId" = d.id AND s.status = 'complete'
+       WHERE d."fileHash" = $1 AND d.status = 'signed'`,
+      [fileHash]
+    );
 
-    if (!doc || doc.signatures.length === 0) {
-      return NextResponse.json({
-        valid: false,
-        message: "Энэ файлын гарын үсгийн мэдээлэл олдсонгүй. Файл өөрчлөгдсөн эсвэл бүртгэгдээгүй байж магадгүй.",
-      });
+    if (docs.length === 0) {
+      return NextResponse.json({ valid: false, message: "Файлын гарын үсгийн мэдээлэл олдсонгүй." });
     }
 
     return NextResponse.json({
       valid: true,
-      documentName: doc.name,
-      signatures: doc.signatures.map((s) => ({
-        signerName: s.signerName || s.signedBy.name,
-        organizationName: doc.organization.name,
-        certSerial: s.certSerial,
-        signedAt: s.signedAt?.toISOString().split("T")[0],
+      documentName: docs[0].name,
+      signatures: docs.map((d: any) => ({
+        signerName: d.signerName,
+        organizationName: d.org_name,
+        certSerial: d.certSerial,
+        signedAt: d.signedAt?.toISOString?.()?.split("T")[0] || d.signedAt,
       })),
     });
   } catch (err: any) {

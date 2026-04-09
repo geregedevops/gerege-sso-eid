@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { query, queryOne, genId } from "@/lib/db";
 import { initiateSign } from "@/lib/api-client";
-import { canSign, getOrgMembership } from "@/lib/permissions";
+import { canSign } from "@/lib/permissions";
 import { createHash } from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -13,66 +13,47 @@ export async function POST(req: NextRequest) {
   const accessToken = (session.user as any)?.accessToken;
   const certSerial = (session.user as any)?.certSerial;
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Access token байхгүй. Дахин нэвтэрнэ үү." }, { status: 401 });
-  }
+  if (!accessToken) return NextResponse.json({ error: "Access token байхгүй" }, { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { sub } });
+  const user = await queryOne<{ id: string }>(`SELECT id FROM dbiz_users WHERE sub=$1`, [sub]);
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const body = await req.json();
-  const { organizationId, documentName, document: docBase64 } = body;
-
+  const { organizationId, documentName, document: docBase64 } = await req.json();
   if (!organizationId || !documentName || !docBase64) {
     return NextResponse.json({ error: "organizationId, documentName, document шаардлагатай" }, { status: 400 });
   }
 
-  // Check membership & signing permission
-  const membership = await getOrgMembership(user.id, organizationId);
+  const membership = await queryOne<{ role: string }>(
+    `SELECT role FROM dbiz_org_members WHERE "organizationId"=$1 AND "userId"=$2`,
+    [organizationId, user.id]
+  );
   if (!membership || !canSign(membership.role)) {
     return NextResponse.json({ error: "Гарын үсэг зурах эрхгүй" }, { status: 403 });
   }
 
-  // Decode and hash document
   const docBuffer = Buffer.from(docBase64, "base64");
   const fileHash = createHash("sha256").update(docBuffer).digest("hex");
 
-  // Create document record
-  const doc = await prisma.document.create({
-    data: {
-      organizationId,
-      uploadedById: user.id,
-      name: documentName,
-      fileName: documentName,
-      fileSize: docBuffer.length,
-      fileHash,
-      status: "signing",
-    },
-  });
+  const docId = genId();
+  await query(
+    `INSERT INTO dbiz_documents (id, "organizationId", "uploadedById", name, "fileName", "fileSize", "fileHash", status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,'signing')`,
+    [docId, organizationId, user.id, documentName, documentName, docBuffer.length, fileHash]
+  );
 
   try {
-    // Call api.gerege.mn to initiate signing
     const result = await initiateSign(accessToken, certSerial || sub, documentName, docBase64);
 
-    // Create signature record
-    const signature = await prisma.signature.create({
-      data: {
-        documentId: doc.id,
-        organizationId,
-        signedById: user.id,
-        sessionId: result.session_id,
-        verificationCode: result.verification_code,
-        status: "pending",
-      },
-    });
+    const sigId = genId();
+    await query(
+      `INSERT INTO dbiz_signatures (id, "documentId", "organizationId", "signedById", "sessionId", "verificationCode", status)
+       VALUES ($1,$2,$3,$4,$5,$6,'pending')`,
+      [sigId, docId, organizationId, user.id, result.session_id, result.verification_code]
+    );
 
-    return NextResponse.json({
-      signatureId: signature.id,
-      sessionId: result.session_id,
-      verificationCode: result.verification_code,
-    });
+    return NextResponse.json({ signatureId: sigId, sessionId: result.session_id, verificationCode: result.verification_code });
   } catch (err: any) {
-    await prisma.document.update({ where: { id: doc.id }, data: { status: "failed" } });
-    return NextResponse.json({ error: err.message || "Signing request failed" }, { status: 502 });
+    await query(`UPDATE dbiz_documents SET status='failed' WHERE id=$1`, [docId]);
+    return NextResponse.json({ error: err.message || "Signing failed" }, { status: 502 });
   }
 }
