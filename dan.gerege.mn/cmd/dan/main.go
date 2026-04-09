@@ -779,13 +779,11 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   <div class="internal-badge">&#9888; Зөвхөн Gerege дотоод platform</div>
   <h1>DAN <span>Verify</span></h1>
   <p>sso.gov.mn-ийн ДАН системээр иргэний бүртгэлийн мэдээлэл баталгаажуулах OAuth2 gateway. Регистрийн дугаар, нэр, хаяг, зураг зэргийг авна.</p>
-  <p class="sub">sso.gov.mn OAuth2 &middot; HMAC-SHA256 &middot; One-time Token</p>
+  <p class="sub">sso.gov.mn OAuth2 &middot; POST callback (зураг бүхий) &middot; HMAC-SHA256</p>
   <div class="cta-row">
-    <a href="%s" class="btn btn-primary">DAN Verify</a>
-    <a href="/docs" class="btn btn-outline">Холболтын заавар</a>
+    <a href="/docs" class="btn btn-primary">Холболтын заавар</a>
     <a href="/admin" class="btn btn-outline">Admin</a>
   </div>
-  <p class="verify-hint">sso.gov.mn руу чиглүүлэн иргэний мэдээлэл авна</p>
 </div>
 
 <div class="sections">
@@ -797,38 +795,59 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
     3-р тал нэвтрэлт нэгтгэхдээ <a href="https://sso.gerege.mn">sso.gerege.mn SSO</a> ашиглана.</p>
   </div>
 
-  <div class="section-title">Verify Flow</div>
-  <div class="modes">
-    <div class="mode" style="max-width:420px;margin:0 auto">
-      <h3>GET /verify</h3>
-      <code style="display:block;margin-top:8px">/verify?client_id=XXX&amp;callback_url=XXX</code>
-      <p>Иргэний мэдээлэл callback URL-д query param-р дамжина.</p>
-      <ul>
-        <li>РД, нэр, овог, хүйс, огноо</li>
-        <li>Хаяг (аймаг, сум, баг)</li>
-        <li>HMAC-SHA256 signature</li>
-        <li>Timestamp (replay хамгаалалт)</li>
-      </ul>
+  <div class="section-title">End-to-End Flow</div>
+  <div class="modes" style="grid-template-columns:1fr;max-width:640px">
+    <div class="mode">
+      <h3 style="margin-bottom:12px">Хэрхэн ажилладаг</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <div style="flex:1;min-width:120px;padding:12px;background:rgba(37,99,235,.08);border-radius:10px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#60a5fa">1</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">GET /verify</div>
+          <div style="font-size:10px;color:#64748b">client_id + callback_url</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:12px;background:rgba(37,99,235,.08);border-radius:10px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#60a5fa">2</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">sso.gov.mn</div>
+          <div style="font-size:10px;color:#64748b">ДАН нэвтрэлт</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:12px;background:rgba(22,163,74,.08);border-radius:10px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#4ade80">3</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">POST callback</div>
+          <div style="font-size:10px;color:#64748b">JSON (data + зураг)</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:12px;background:rgba(37,99,235,.08);border-radius:10px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:#60a5fa">4</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">302 Redirect</div>
+          <div style="font-size:10px;color:#64748b">?status=ok&amp;reg_no=...</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#94a3b8;line-height:1.7">
+        <strong style="color:#fff">Алхам 1:</strong> Хэрэглэгчийг <code>/verify?client_id=XXX&amp;callback_url=XXX</code> руу чиглүүлнэ.<br>
+        <strong style="color:#fff">Алхам 2:</strong> sso.gov.mn дээр ДАН нэвтрэлт хийнэ.<br>
+        <strong style="color:#4ade80">Алхам 3:</strong> dan.gerege.mn бүх мэдээллийг (зураг оруулаад) <strong style="color:#4ade80">POST</strong> хүсэлтээр callback URL руу JSON body-р илгээнэ.<br>
+        <strong style="color:#fff">Алхам 4:</strong> Browser-г callback URL руу <code>?status=ok&amp;reg_no=...&amp;given_name=...&amp;family_name=...</code> гэсэн хялбар redirect хийнэ.
+      </p>
     </div>
   </div>
 
   <div class="section-title">API Endpoints</div>
   <div class="endpoints">
-    <div class="ep"><span class="method get">GET</span><span class="path">/verify</span><span class="desc">DAN verify (зургүй)</span></div>
-    <div class="ep"><span class="method get">GET</span><span class="path">/authorized</span><span class="desc">sso.gov.mn callback</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/verify</span><span class="desc">DAN verify эхлүүлэх</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/authorized</span><span class="desc">sso.gov.mn callback &#8594; POST + redirect</span></div>
     <div class="ep"><span class="method get">GET</span><span class="path">/api/clients</span><span class="desc">Client жагсаалт (admin)</span></div>
     <div class="ep"><span class="method post">POST</span><span class="path">/api/clients</span><span class="desc">Client бүртгэх (admin)</span></div>
     <div class="ep"><span class="method del">DEL</span><span class="path">/api/clients/{id}</span><span class="desc">Client устгах (admin)</span></div>
   </div>
 
-  <div class="section-title">Иргэний мэдээлэл (Callback параметрүүд)</div>
+  <div class="section-title">POST Callback JSON Body</div>
   <div class="data-table">
     <table>
-      <thead><tr><th>Параметр</th><th>Тайлбар</th></tr></thead>
+      <thead><tr><th>Field</th><th>Тайлбар</th></tr></thead>
       <tbody>
         <tr><td>reg_no</td><td>Регистрийн дугаар</td></tr>
         <tr><td>given_name</td><td>Нэр</td></tr>
         <tr><td>family_name</td><td>Овог</td></tr>
+        <tr><td>surname</td><td>Ургийн овог</td></tr>
         <tr><td>civil_id</td><td>Иргэний ID</td></tr>
         <tr><td>gender</td><td>Хүйс</td></tr>
         <tr><td>birth_date</td><td>Төрсөн огноо</td></tr>
@@ -836,18 +855,20 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
         <tr><td>sum_name</td><td>Сум/Дүүрэг</td></tr>
         <tr><td>bag_name</td><td>Баг/Хороо</td></tr>
         <tr><td>address_detail</td><td>Дэлгэрэнгүй хаяг</td></tr>
-        <tr><td>signature</td><td>HMAC-SHA256</td></tr>
+        <tr><td>image</td><td>Иргэний зураг (base64 JPEG)</td></tr>
         <tr><td>timestamp</td><td>Unix timestamp</td></tr>
+        <tr><td>client_id</td><td>Client ID</td></tr>
+        <tr><td>signature</td><td>HMAC-SHA256 (зургаас бусад field дээр)</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="section-title">Онцлог</div>
   <div class="features">
-    <div class="feature"><h4>Client бүртгэл</h4><p>Бүртгэлтэй client_id + callback URL шалгалт. Admin dashboard-аас удирдана.</p></div>
-    <div class="feature"><h4>HMAC баталгаажуулалт</h4><p>HMAC-SHA256 signature-р мэдээллийн бүрэн бүтэн байдлыг шалгана.</p></div>
-    <div class="feature"><h4>Хурдан холболт</h4><p>Нэг URL дуудахад хангалттай. sso.gov.mn credential шаардлагагүй.</p></div>
-    <div class="feature"><h4>Replay хамгаалалт</h4><p>Timestamp 5 мин + token нэг удаа. Replay attack-аас хамгаална.</p></div>
+    <div class="feature"><h4>POST Callback</h4><p>Бүх мэдээлэл + зураг нэг POST хүсэлтээр JSON body-р дамжина. URL limit асуудалгүй.</p></div>
+    <div class="feature"><h4>HMAC баталгаажуулалт</h4><p>Зургаас бусад field дээр HMAC-SHA256 signature тооцоолж илгээнэ.</p></div>
+    <div class="feature"><h4>Client бүртгэл</h4><p>Admin dashboard-аас client_id + callback URL бүртгэнэ.</p></div>
+    <div class="feature"><h4>Replay хамгаалалт</h4><p>Timestamp 5 мин-ээс хэтэрсэн бол хүлээн авахгүй.</p></div>
   </div>
 
 </div>
@@ -1057,73 +1078,105 @@ td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
   </div>
 </nav>
 <div class="container">
-<h1>3-р талын систем холбох</h1>
-<p class="subtitle">DAN Gateway-р дамжуулан sso.gov.mn-аас иргэний мэдээлэл авах</p>
+<h1>Холболтын заавар</h1>
+<p class="subtitle">DAN Gateway-р дамжуулан sso.gov.mn-аас иргэний мэдээлэл + зураг авах</p>
 
 <h2>1. Client бүртгүүлэх</h2>
 <p>Admin-аас <code>client_id</code> болон <code>client_secret</code> авна. <a href="/admin" style="color:#60a5fa">/admin</a> хуудаснаас бүртгүүлнэ.</p>
 
-<h2>2. Flow</h2>
-<div class="step"><div class="step-num">1</div><div class="step-content"><h3>Хэрэглэгчийг DAN Gateway руу чиглүүлэх</h3><p><code>dan.gerege.mn/verify?client_id=YOUR_ID&callback_url=YOUR_CALLBACK</code></p></div></div>
-<div class="step"><div class="step-num">2</div><div class="step-content"><h3>sso.gov.mn-р нэвтрэх</h3><p>Gateway автоматаар sso.gov.mn руу redirect хийнэ.</p></div></div>
-<div class="step"><div class="step-num">3</div><div class="step-content"><h3>Callback URL руу мэдээлэл буцна</h3><p>Citizen data + <code>timestamp</code> + HMAC <code>signature</code> query param-аар дамжина.</p></div></div>
+<h2>2. End-to-End Flow</h2>
+<div class="step"><div class="step-num">1</div><div class="step-content"><h3>Хэрэглэгчийг DAN Gateway руу чиглүүлэх</h3><p><code>dan.gerege.mn/verify?client_id=YOUR_ID&amp;callback_url=YOUR_CALLBACK</code></p></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-content"><h3>sso.gov.mn-р нэвтрэх</h3><p>Gateway автоматаар sso.gov.mn руу redirect хийнэ. Хэрэглэгч ДАН-аар нэвтэрнэ.</p></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-content"><h3>POST callback — бүх мэдээлэл + зураг</h3><p>dan.gerege.mn таны callback URL руу <strong>POST</strong> хүсэлт илгээнэ. JSON body-д бүх мэдээлэл + <code>image</code> (base64 JPEG) орно.</p></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-content"><h3>Browser redirect</h3><p>Хэрэглэгчийн browser-г callback URL руу <code>?status=ok&amp;reg_no=...&amp;given_name=...&amp;family_name=...</code> гэсэн хялбар redirect хийнэ.</p></div></div>
+
+<div class="note"><strong>Чухал:</strong> Таны callback endpoint <strong>POST</strong> хүсэлт хүлээн авах ёстой. POST body-д зураг оруулаад бүтэн мэдээлэл ирнэ. GET redirect нь зөвхөн browser-г буцаахад зориулагдсан (мэдээлэл дутуу байж болно).</div>
 
 <h2>3. API</h2>
 <h3>GET /verify</h3>
 <table>
 <tr><th>Параметр</th><th>Тайлбар</th></tr>
 <tr><td><code>client_id</code></td><td>Бүртгэлтэй client ID</td></tr>
-<tr><td><code>callback_url</code></td><td>Бүртгэлтэй callback URL</td></tr>
+<tr><td><code>callback_url</code></td><td>Бүртгэлтэй callback URL (POST + GET хүлээн авна)</td></tr>
 </table>
 
-<pre>https://dan.gerege.mn/verify?client_id=dan_abc123&callback_url=https://myapp.mn/api/dan/callback</pre>
+<pre>https://dan.gerege.mn/verify?client_id=dan_abc123&amp;callback_url=https://myapp.mn/api/dan/callback</pre>
 
-<h2>4. Callback параметрүүд</h2>
-<table>
-<tr><th>Параметр</th><th>Тайлбар</th></tr>
-<tr><td><code>reg_no</code></td><td>Регистрийн дугаар</td></tr>
-<tr><td><code>given_name</code></td><td>Нэр</td></tr>
-<tr><td><code>family_name</code></td><td>Овог</td></tr>
-<tr><td><code>civil_id</code></td><td>Иргэний ID</td></tr>
-<tr><td><code>gender</code></td><td>Хүйс</td></tr>
-<tr><td><code>birth_date</code></td><td>Төрсөн огноо</td></tr>
-<tr><td><code>aimag_name</code></td><td>Аймаг/Хот</td></tr>
-<tr><td><code>sum_name</code></td><td>Сум/Дүүрэг</td></tr>
-<tr><td><code>timestamp</code></td><td>Unix timestamp</td></tr>
-<tr><td><code>client_id</code></td><td>Таны client ID</td></tr>
-<tr><td><code>signature</code></td><td>HMAC-SHA256 signature</td></tr>
-</table>
+<h2>4. POST Callback JSON Body</h2>
+<p>Таны callback URL руу дараах JSON body-тай <strong>POST</strong> хүсэлт ирнэ:</p>
+<pre>{
+  "reg_no": "РД98012345",
+  "given_name": "ГАНБААТАР",
+  "family_name": "БАТБОЛД",
+  "surname": "МӨНХ",
+  "civil_id": "12345678",
+  "gender": "male",
+  "birth_date": "1998-01-23",
+  "aimag_name": "Улаанбаатар",
+  "sum_name": "Баянгол",
+  "bag_name": "5-р хороо",
+  "address_detail": "25-р байр, 301 тоот",
+  "image": "/9j/4AAQSkZJR...  (base64 JPEG)",
+  "timestamp": "1744200000",
+  "client_id": "dan_abc123",
+  "signature": "a1b2c3d4..."
+}</pre>
 
-<h2>5. HMAC шалгалт</h2>
-<p>Signature-г <code>client_secret</code> ашиглан шалгана:</p>
-<pre>// Go жишээ
-func verifySignature(params url.Values, secret string) bool {
-    expected := params.Get("signature")
+<h2>5. GET Redirect (browser)</h2>
+<p>POST-ийн дараа browser-г ижил URL руу redirect хийнэ:</p>
+<pre>GET https://myapp.mn/api/dan/callback?status=ok&amp;reg_no=РД98012345&amp;given_name=ГАНБААТАР&amp;family_name=БАТБОЛД&amp;client_id=dan_abc123</pre>
+<p>GET redirect нь зөвхөн browser-г буцаахад зориулагдсан. Бүтэн мэдээллийг POST-оос авна.</p>
+
+<h2>6. HMAC шалгалт</h2>
+<p>POST body дотор <code>signature</code> field байна. <code>image</code> field-ээс бусад бүх field дээр HMAC-SHA256 тооцоологдсон:</p>
+<pre>// Node.js
+const crypto = require("crypto");
+function verify(body, secret) {
+  const sig = body.signature;
+  const fields = Object.keys(body)
+    .filter(k => k !== "signature" && k !== "image")
+    .sort();
+  const canonical = fields
+    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(body[k]))
+    .join("&");
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(canonical)
+    .digest("hex");
+  return sig === expected;
+}</pre>
+
+<pre>// Python
+import hmac, hashlib, urllib.parse
+def verify(body: dict, secret: str) -> bool:
+    sig = body.get("signature", "")
+    fields = {k: v for k, v in body.items() if k not in ("signature", "image")}
+    canonical = "&".join(
+        f"{urllib.parse.quote(k)}={urllib.parse.quote(fields[k])}"
+        for k in sorted(fields)
+    )
+    expected = hmac.new(secret.encode(), canonical.encode(), hashlib.sha256).hexdigest()
+    return sig == expected</pre>
+
+<pre>// Go
+func verifySignature(body map[string]string, secret string) bool {
+    expected := body["signature"]
     keys := []string{}
-    for k := range params {
-        if k != "signature" { keys = append(keys, k) }
+    for k := range body {
+        if k != "signature" && k != "image" { keys = append(keys, k) }
     }
     sort.Strings(keys)
     var buf strings.Builder
     for i, k := range keys {
         if i > 0 { buf.WriteByte('&') }
-        buf.WriteString(url.QueryEscape(k) + "=" + url.QueryEscape(params.Get(k)))
+        buf.WriteString(url.QueryEscape(k) + "=" + url.QueryEscape(body[k]))
     }
     mac := hmac.New(sha256.New, []byte(secret))
     mac.Write([]byte(buf.String()))
     return hex.EncodeToString(mac.Sum(nil)) == expected
 }</pre>
 
-<pre>// Python жишээ
-import hmac, hashlib, urllib.parse
-def verify(params, secret):
-    sig = params.pop('signature', '')
-    canonical = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(params[k])}'
-                         for k in sorted(params))
-    expected = hmac.new(secret.encode(), canonical.encode(), hashlib.sha256).hexdigest()
-    return sig == expected</pre>
-
-<div class="note"><strong>Анхааруулга:</strong> <code>timestamp</code> 5 минутаас хэтэрсэн бол хүлээж авахгүй байхыг зөвлөж байна (replay attack-аас хамгаалах).</div>
+<div class="note"><strong>Анхааруулга:</strong> <code>timestamp</code> 5 минутаас хэтэрсэн бол хүлээж авахгүй байхыг зөвлөж байна (replay attack-аас хамгаалах). <code>image</code> field HMAC тооцоололд оролцохгүй (хэт том).</div>
 </div>
 </body>
 </html>`
