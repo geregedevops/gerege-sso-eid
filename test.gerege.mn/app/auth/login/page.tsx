@@ -38,12 +38,6 @@ export default async function LoginPage() {
         >
           DAN Verify (sso.gov.mn)
         </a>
-        <a
-          href={`https://dan.gerege.mn/verify-full?client_id=${process.env.DAN_CLIENT_ID || "dan_a088dd8fac47c7aeb9654b9563ac8d67"}&callback_url=${encodeURIComponent((process.env.NEXT_PUBLIC_APP_URL || "https://test.gerege.mn") + "/api/dan/callback-full")}`}
-          className="block w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
-        >
-          DAN Verify + Зураг
-        </a>
       </div>
     </main>
   );

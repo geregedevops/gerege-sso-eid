@@ -20,70 +20,9 @@ import (
 	"syscall"
 	"time"
 
-	"sync"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
-
-// =====================
-// Citizen token store (in-memory, one-time, 5 min TTL)
-// =====================
-
-type citizenEntry struct {
-	Data      map[string]string
-	RawJSON   string
-	ExpiresAt time.Time
-}
-
-var (
-	citizenStore   = make(map[string]*citizenEntry)
-	citizenStoreMu sync.Mutex
-)
-
-func storeCitizenData(citizen map[string]string, rawJSON string) string {
-	token := randomString(32)
-	citizenStoreMu.Lock()
-	citizenStore[token] = &citizenEntry{
-		Data:      citizen,
-		RawJSON:   rawJSON,
-		ExpiresAt: time.Now().Add(5 * time.Minute),
-	}
-	citizenStoreMu.Unlock()
-	return token
-}
-
-func fetchCitizenData(token string) (*citizenEntry, bool) {
-	citizenStoreMu.Lock()
-	defer citizenStoreMu.Unlock()
-	entry, ok := citizenStore[token]
-	if !ok {
-		return nil, false
-	}
-	// One-time use: delete after fetch
-	delete(citizenStore, token)
-	if time.Now().After(entry.ExpiresAt) {
-		return nil, false
-	}
-	return entry, true
-}
-
-// cleanupExpired removes expired entries periodically
-func startCleanup() {
-	go func() {
-		for {
-			time.Sleep(1 * time.Minute)
-			citizenStoreMu.Lock()
-			now := time.Now()
-			for k, v := range citizenStore {
-				if now.After(v.ExpiresAt) {
-					delete(citizenStore, k)
-				}
-			}
-			citizenStoreMu.Unlock()
-		}
-	}()
-}
 
 // --- Config ---
 
@@ -151,17 +90,13 @@ func main() {
 		}
 	}
 
-	startCleanup()
-
 	mux := http.NewServeMux()
 
 	// Public pages
 	mux.HandleFunc("GET /", indexHandler(cfg))
 	mux.HandleFunc("GET /docs", docsHandler)
 	mux.HandleFunc("GET /verify", verifyHandler(cfg, db))
-	mux.HandleFunc("GET /verify-full", verifyFullHandler(cfg, db))
 	mux.HandleFunc("GET /authorized", authorizedHandler(cfg, db))
-	mux.HandleFunc("GET /api/citizen", citizenAPIHandler())
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok","service":"dan.gerege.mn"}`))
@@ -216,15 +151,8 @@ func indexHandler(cfg config) http.HandlerFunc {
 			http.NotFound(w, r)
 			return
 		}
-		nonce := randomString(16)
-		loginURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
-			url.QueryEscape(nonce),
-			url.QueryEscape(cfg.DANClientID),
-			url.QueryEscape(cfg.DANScope),
-			url.QueryEscape(cfg.DANCallbackURI),
-		)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, indexPage, loginURL)
+		fmt.Fprint(w, indexPage)
 	}
 }
 
@@ -273,83 +201,6 @@ func verifyHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// verifyFullHandler starts DAN verification that includes citizen photo.
-// GET /verify-full?client_id=XXX&callback_url=XXX
-// Same as /verify but marks include_image=true in state.
-// After verification, citizen data is stored server-side and a one-time
-// token is passed to callback_url instead of all fields as query params.
-func verifyFullHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		callbackURL := r.URL.Query().Get("callback_url")
-		clientID := r.URL.Query().Get("client_id")
-
-		if callbackURL == "" {
-			renderError(w, "Алдаа", "callback_url параметр шаардлагатай.")
-			return
-		}
-
-		if db != nil {
-			if clientID == "" {
-				renderError(w, "Алдаа", "client_id параметр шаардлагатай.")
-				return
-			}
-			client, err := getClient(db, clientID)
-			if err != nil || client == nil || !client.Active {
-				renderError(w, "Алдаа", "Бүртгэлгүй эсвэл идэвхгүй client.")
-				return
-			}
-			if !matchCallbackURL(client.CallbackURLs, callbackURL) {
-				renderError(w, "Алдаа", "callback_url бүртгэлгүй байна.")
-				return
-			}
-		}
-
-		stateJSON, _ := json.Marshal(map[string]string{
-			"callback_url":  callbackURL,
-			"client_id":     clientID,
-			"include_image": "true",
-		})
-		stateB64 := base64.RawURLEncoding.EncodeToString(stateJSON)
-
-		loginURL := fmt.Sprintf("https://sso.gov.mn/login?state=%s&grant_type=authorization_code&response_type=code&client_id=%s&scope=%s&redirect_uri=%s",
-			url.QueryEscape(stateB64),
-			url.QueryEscape(cfg.DANClientID),
-			url.QueryEscape(cfg.DANScope),
-			url.QueryEscape(cfg.DANCallbackURI),
-		)
-
-		slog.Info("verify-full: redirecting", "client_id", clientID, "callback_url", callbackURL)
-		http.Redirect(w, r, loginURL, http.StatusFound)
-	}
-}
-
-// citizenAPIHandler returns full citizen data (including photo) for a one-time token.
-// GET /api/citizen?token=XXX
-func citizenAPIHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.URL.Query().Get("token")
-		if token == "" {
-			jsonErr(w, 400, "token параметр шаардлагатай")
-			return
-		}
-
-		entry, ok := fetchCitizenData(token)
-		if !ok {
-			jsonErr(w, 404, "Token олдсонгүй эсвэл хугацаа дууссан. Нэг удаа ашиглагдана, 5 мин хүчинтэй.")
-			return
-		}
-
-		slog.Info("api/citizen: token fetched", "reg_no", entry.Data["reg_no"])
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{
-			"success": true,
-			"citizen": entry.Data,
-			"raw":     json.RawMessage(entry.RawJSON),
-		})
-	}
-}
-
 func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
@@ -366,7 +217,7 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		citizen, rawJSON, err := getCitizenData(cfg, accessToken)
+		citizen, _, err := getCitizenData(cfg, accessToken)
 		if err != nil {
 			slog.Error("authorized: citizen data failed", "error", err)
 			renderError(w, "Мэдээлэл авах алдаа", fmt.Sprintf("Иргэний мэдээлэл авахад алдаа: %v", err))
@@ -386,32 +237,7 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 				if cbURL := state["callback_url"]; cbURL != "" {
 					clientID := state["client_id"]
 
-					// Full mode: store data with image, redirect with token
-					if state["include_image"] == "true" {
-						token := storeCitizenData(citizen, rawJSON)
-						redirectURL, err := url.Parse(cbURL)
-						if err == nil {
-							params := redirectURL.Query()
-							params.Set("token", token)
-							params.Set("timestamp", fmt.Sprintf("%d", time.Now().Unix()))
-							if clientID != "" {
-								params.Set("client_id", clientID)
-							}
-							if clientID != "" && db != nil {
-								client, _ := getClient(db, clientID)
-								if client != nil {
-									sig := computeHMAC(params, client.SecretHash)
-									params.Set("signature", sig)
-								}
-							}
-							redirectURL.RawQuery = params.Encode()
-							slog.Info("authorized: full mode redirect", "client_id", clientID, "token", token[:8]+"...")
-							http.Redirect(w, r, redirectURL.String(), http.StatusFound)
-							return
-						}
-					}
-
-					// Standard mode: redirect with query params (no image)
+					// Redirect with query params (no image)
 					redirectURL, err := url.Parse(cbURL)
 					if err == nil {
 						params := redirectURL.Query()
@@ -440,7 +266,7 @@ func authorizedHandler(cfg config, db *pgxpool.Pool) http.HandlerFunc {
 			}
 		}
 
-		renderResult(w, citizen, rawJSON)
+		renderError(w, "Алдаа", "callback_url байхгүй байна. Зөвхөн бүртгэлтэй client-ээр дамжуулан ашиглана.")
 	}
 }
 
@@ -766,35 +592,6 @@ func getCitizenData(cfg config, accessToken string) (map[string]string, string, 
 // HTML RENDERING
 // =====================
 
-func renderResult(w http.ResponseWriter, citizen map[string]string, rawJSON string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	fields := []struct{ Key, Label string }{
-		{"reg_no", "Регистрийн дугаар"}, {"family_name", "Овог"}, {"given_name", "Нэр"},
-		{"surname", "Ургийн овог"}, {"civil_id", "Иргэний ID"}, {"gender", "Хүйс"},
-		{"birth_date", "Төрсөн огноо"}, {"birth_place", "Төрсөн газар"},
-		{"nationality", "Үндэс"}, {"aimag_name", "Аймаг/Хот"}, {"sum_name", "Сум/Дүүрэг"},
-		{"bag_name", "Баг/Хороо"}, {"address_detail", "Хаяг"}, {"passport_address", "Паспортын хаяг"},
-		{"apartment_name", "Байр"}, {"street_name", "Гудамж"},
-		{"passport_issue_date", "Паспорт олгосон"}, {"passport_expire_date", "Паспорт дуусах"},
-		{"aimag_code", "Аймаг код"}, {"sum_code", "Сум код"}, {"bag_code", "Баг код"},
-	}
-
-	photoHTML := ""
-	if img, ok := citizen["image"]; ok && img != "" {
-		photoHTML = fmt.Sprintf(`<div style="text-align:center;margin-bottom:24px"><img src="data:image/jpeg;base64,%s" style="width:160px;height:200px;object-fit:cover;border-radius:12px;border:3px solid #e2e8f0" alt="photo"></div>`, img)
-	}
-
-	var rows string
-	for _, f := range fields {
-		if v, ok := citizen[f.Key]; ok && v != "" {
-			rows += fmt.Sprintf(`<tr><td style="padding:10px 16px;font-weight:600;color:#475569;white-space:nowrap;border-bottom:1px solid #f1f5f9">%s</td><td style="padding:10px 16px;color:#1e293b;border-bottom:1px solid #f1f5f9">%s</td></tr>`, f.Label, v)
-		}
-	}
-
-	fmt.Fprintf(w, resultPage, photoHTML, rows, rawJSON)
-}
-
 func renderError(w http.ResponseWriter, title, msg string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(502)
@@ -972,30 +769,17 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
     3-р тал нэвтрэлт нэгтгэхдээ <a href="https://sso.gerege.mn">sso.gerege.mn SSO</a> ашиглана.</p>
   </div>
 
-  <div class="section-title">Хоёр горим</div>
+  <div class="section-title">Verify Flow</div>
   <div class="modes">
-    <div class="mode">
-      <span class="mode-badge std">Стандарт</span>
-      <h3>DAN Verify</h3>
-      <code>/verify</code>
+    <div class="mode" style="max-width:420px;margin:0 auto">
+      <h3>GET /verify</h3>
+      <code style="display:block;margin-top:8px">/verify?client_id=XXX&amp;callback_url=XXX</code>
       <p>Иргэний мэдээлэл callback URL-д query param-р дамжина.</p>
       <ul>
         <li>РД, нэр, овог, хүйс, огноо</li>
         <li>Хаяг (аймаг, сум, баг)</li>
-        <li>HMAC signature</li>
-        <li>Зураг дамжуулахгүй</li>
-      </ul>
-    </div>
-    <div class="mode">
-      <span class="mode-badge full">Full</span>
-      <h3>DAN Verify Full</h3>
-      <code>/verify-full</code>
-      <p>Callback-д зөвхөн token дамжина. API-р бүтэн data + зураг авна.</p>
-      <ul>
-        <li>Бүх мэдээлэл + иргэний зураг</li>
-        <li>Token: нэг удаа, 5 мин</li>
-        <li>GET /api/citizen?token=xxx</li>
-        <li>JSON response (base64 зураг)</li>
+        <li>HMAC-SHA256 signature</li>
+        <li>Timestamp (replay хамгаалалт)</li>
       </ul>
     </div>
   </div>
@@ -1003,9 +787,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   <div class="section-title">API Endpoints</div>
   <div class="endpoints">
     <div class="ep"><span class="method get">GET</span><span class="path">/verify</span><span class="desc">DAN verify (зургүй)</span></div>
-    <div class="ep"><span class="method get">GET</span><span class="path">/verify-full</span><span class="desc">DAN verify (зураг бүхий)</span></div>
     <div class="ep"><span class="method get">GET</span><span class="path">/authorized</span><span class="desc">sso.gov.mn callback</span></div>
-    <div class="ep"><span class="method get">GET</span><span class="path">/api/citizen?token=xxx</span><span class="desc">Бүтэн data + зураг</span></div>
     <div class="ep"><span class="method get">GET</span><span class="path">/api/clients</span><span class="desc">Client жагсаалт (admin)</span></div>
     <div class="ep"><span class="method post">POST</span><span class="path">/api/clients</span><span class="desc">Client бүртгэх (admin)</span></div>
     <div class="ep"><span class="method del">DEL</span><span class="path">/api/clients/{id}</span><span class="desc">Client устгах (admin)</span></div>
@@ -1026,7 +808,6 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
         <tr><td>sum_name</td><td>Сум/Дүүрэг</td></tr>
         <tr><td>bag_name</td><td>Баг/Хороо</td></tr>
         <tr><td>address_detail</td><td>Дэлгэрэнгүй хаяг</td></tr>
-        <tr><td>image</td><td>Зураг (base64) — зөвхөн /verify-full</td></tr>
         <tr><td>signature</td><td>HMAC-SHA256</td></tr>
         <tr><td>timestamp</td><td>Unix timestamp</td></tr>
       </tbody>
@@ -1037,7 +818,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   <div class="features">
     <div class="feature"><h4>Client бүртгэл</h4><p>Бүртгэлтэй client_id + callback URL шалгалт. Admin dashboard-аас удирдана.</p></div>
     <div class="feature"><h4>HMAC баталгаажуулалт</h4><p>HMAC-SHA256 signature-р мэдээллийн бүрэн бүтэн байдлыг шалгана.</p></div>
-    <div class="feature"><h4>Зураг бүхий горим</h4><p>One-time token-р сервер-сервер дамжуулалт. Зураг URL-д багтахгүй ч API-р авна.</p></div>
+    <div class="feature"><h4>Хурдан холболт</h4><p>Нэг URL дуудахад хангалттай. sso.gov.mn credential шаардлагагүй.</p></div>
     <div class="feature"><h4>Replay хамгаалалт</h4><p>Timestamp 5 мин + token нэг удаа. Replay attack-аас хамгаална.</p></div>
   </div>
 
@@ -1045,49 +826,6 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 
 <div class="footer">
   <a href="https://docs.gerege.mn/dan/overview">Docs</a> &middot; <a href="/docs">Холболтын заавар</a> &middot; <a href="https://gerege.mn">gerege.mn</a>
-</div>
-</body>
-</html>`
-
-const resultPage = `<!DOCTYPE html>
-<html lang="mn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAN - Иргэний мэдээлэл</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4ff;color:#1e293b;min-height:100vh;padding:32px 16px}
-.container{max-width:720px;margin:0 auto}
-.header{text-align:center;margin-bottom:32px}
-.icon{width:56px;height:56px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:24px}
-h1{font-size:22px;font-weight:700;margin-bottom:4px}
-.subtitle{color:#64748b;font-size:14px}
-.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#dcfce7;color:#166534;margin-top:8px}
-.card{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:24px}
-.card-title{padding:16px 20px;font-size:14px;font-weight:700;background:#f8fafc;border-bottom:1px solid #f1f5f9;color:#475569}
-table{width:100%%;border-collapse:collapse}
-.raw{padding:16px 20px}
-pre{background:#f8fafc;border-radius:10px;padding:16px;font-size:12px;overflow-x:auto;color:#334155;line-height:1.6;max-height:400px;overflow-y:auto}
-.actions{text-align:center;margin-top:24px}
-.btn{display:inline-block;padding:12px 32px;background:#2563eb;color:#fff;font-weight:600;font-size:14px;border-radius:12px;text-decoration:none}
-.footer{text-align:center;margin-top:32px;font-size:12px;color:#94a3b8}
-.footer a{color:#2563eb;text-decoration:none}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <div class="icon">&#10003;</div>
-    <h1>Иргэний мэдээлэл амжилттай авлаа</h1>
-    <p class="subtitle">sso.gov.mn-р баталгаажуулсан</p>
-    <span class="badge">DAN Verified</span>
-  </div>
-  %s
-  <div class="card"><div class="card-title">Иргэний мэдээлэл</div><table>%s</table></div>
-  <div class="card"><div class="card-title">JSON</div><div class="raw"><pre>%s</pre></div></div>
-  <div class="actions"><a href="/" class="btn">Дахин шалгах</a></div>
-  <div class="footer"><a href="https://gerege.mn">gerege.mn</a></div>
 </div>
 </body>
 </html>`
