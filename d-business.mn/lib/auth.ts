@@ -8,8 +8,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "e-ID Mongolia",
       type: "oidc",
       issuer: process.env.NEXT_PUBLIC_SSO_URL || "https://sso.gerege.mn",
-      clientId: process.env.EID_CLIENT_ID!,
-      clientSecret: process.env.EID_CLIENT_SECRET!,
+      clientId: process.env.GEREGE_SSO_CLIENT!,
+      clientSecret: process.env.GEREGE_SSO_SECRET!,
       authorization: {
         params: { scope: "openid profile" },
       },

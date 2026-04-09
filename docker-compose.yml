@@ -159,8 +159,8 @@ services:
       NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
       NEXTAUTH_URL: https://d-business.mn
       NEXTAUTH_SECRET: ${DBIZ_NEXTAUTH_SECRET}
-      EID_CLIENT_ID: ${DBIZ_EID_CLIENT_ID}
-      EID_CLIENT_SECRET: ${DBIZ_EID_CLIENT_SECRET}
+      GEREGE_SSO_CLIENT: ${DBIZ_GEREGE_SSO_CLIENT}
+      GEREGE_SSO_SECRET: ${DBIZ_GEREGE_SSO_SECRET}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       API_URL: http://api:8080
     networks:
