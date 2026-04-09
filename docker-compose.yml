@@ -144,6 +144,16 @@ services:
     networks:
       - gerege
 
+  # === Docs Wiki (Next.js) ===
+  docs:
+    build:
+      context: ./docs.gerege.mn
+      dockerfile: Dockerfile
+    container_name: gerege-docs
+    restart: unless-stopped
+    networks:
+      - gerege
+
   # === G-Sign Gateway (Go) ===
   gsign:
     build:
@@ -171,6 +181,7 @@ services:
       - test
       - dan
       - gsign
+      - docs
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
