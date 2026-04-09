@@ -1,6 +1,0 @@
-export async function GET() {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#16a34a"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700" font-size="20">B</text></svg>`;
-  return new Response(svg, {
-    headers: { "Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=86400" },
-  });
-}
