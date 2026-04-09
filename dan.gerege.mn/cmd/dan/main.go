@@ -876,26 +876,64 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 .nav-links{display:flex;gap:24px}
 .nav-links a{color:#94a3b8;font-size:13px;text-decoration:none;font-weight:500}
 .nav-links a:hover{color:#fff}
-.hero{text-align:center;padding:80px 24px 48px}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:24px;font-size:12px;color:#60a5fa;font-weight:500;margin-bottom:32px}
-.hero h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:20px;color:#fff}
+.hero{text-align:center;padding:64px 24px 40px;max-width:720px;margin:0 auto}
+.internal-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:24px;font-size:12px;color:#fbbf24;font-weight:600;margin-bottom:28px}
+.hero h1{font-size:42px;font-weight:800;line-height:1.15;margin-bottom:16px;color:#fff}
 .hero h1 span{background:linear-gradient(135deg,#3b82f6,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{max-width:600px;margin:0 auto 16px;color:#94a3b8;font-size:16px;line-height:1.7}
-.hero .sub{font-size:13px;color:#64748b;margin-bottom:40px}
-.verify-btn{display:inline-flex;align-items:center;gap:10px;padding:18px 40px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;font-size:17px;border-radius:14px;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(37,99,235,.3)}
-.verify-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(37,99,235,.4)}
-.verify-btn svg{width:22px;height:22px}
-.verify-hint{margin-top:16px;font-size:12px;color:#475569}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:900px;margin:60px auto 0;padding:0 24px}
-.feature{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:28px}
-.feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:20px}
-.feature-icon.blue{background:rgba(37,99,235,.1);color:#60a5fa}
-.feature-icon.green{background:rgba(22,163,74,.1);color:#4ade80}
-.feature-icon.amber{background:rgba(245,158,11,.1);color:#fbbf24}
-.feature h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
-.feature p{font-size:13px;color:#94a3b8;line-height:1.6;margin:0}
+.hero p{max-width:560px;margin:0 auto 12px;color:#94a3b8;font-size:15px;line-height:1.7}
+.hero .sub{font-size:13px;color:#64748b;margin-bottom:32px}
+.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:8px}
+.btn{padding:14px 32px;font-weight:700;font-size:15px;border-radius:12px;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,.4)}
+.btn-outline{border:1px solid rgba(255,255,255,.15);color:#fff;background:transparent}
+.btn-outline:hover{background:rgba(255,255,255,.05)}
+.verify-hint{margin-top:12px;font-size:12px;color:#475569}
+
+.sections{max-width:960px;margin:0 auto;padding:0 24px}
+.section-title{font-size:13px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:48px 0 16px;text-align:center}
+
+.warning-box{max-width:640px;margin:0 auto;padding:16px 20px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:12px;display:flex;align-items:flex-start;gap:12px}
+.warning-box .icon{font-size:18px;color:#f87171;margin-top:2px}
+.warning-box p{font-size:13px;color:#fca5a5;line-height:1.6;margin:0}
+.warning-box a{color:#60a5fa;text-decoration:none}
+.warning-box a:hover{text-decoration:underline}
+.warning-box strong{color:#f87171}
+
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px;margin:0 auto}
+.mode{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:24px;position:relative}
+.mode-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;position:absolute;top:16px;right:16px}
+.mode-badge.std{background:rgba(37,99,235,.15);color:#60a5fa}
+.mode-badge.full{background:rgba(22,163,74,.15);color:#4ade80}
+.mode h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.mode code{font-size:12px;color:#60a5fa;background:rgba(37,99,235,.1);padding:2px 8px;border-radius:4px}
+.mode p{font-size:12px;color:#94a3b8;line-height:1.6;margin-top:10px}
+.mode ul{font-size:12px;color:#94a3b8;padding-left:16px;margin-top:8px;line-height:1.8}
+
+.endpoints{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;max-width:640px;margin:0 auto}
+.ep{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
+.ep:last-child{border-bottom:none}
+.ep .method{font-family:monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;min-width:44px;text-align:center}
+.ep .method.get{background:rgba(37,99,235,.15);color:#60a5fa}
+.ep .method.post{background:rgba(245,158,11,.12);color:#fbbf24}
+.ep .method.del{background:rgba(239,68,68,.12);color:#f87171}
+.ep .path{font-family:monospace;color:#e2e8f0;font-size:12px}
+.ep .desc{color:#64748b;font-size:11px;margin-left:auto}
+
+.data-table{max-width:640px;margin:0 auto;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+.data-table table{width:100%%;border-collapse:collapse;font-size:12px}
+.data-table th{text-align:left;padding:10px 16px;background:rgba(255,255,255,.04);color:#94a3b8;font-weight:600}
+.data-table td{padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.03);color:#e2e8f0}
+.data-table td:first-child{font-family:monospace;color:#60a5fa;font-size:11px}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:700px;margin:0 auto}
+.feature{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px}
+.feature h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
+.feature p{font-size:12px;color:#94a3b8;line-height:1.6;margin:0}
+
 .footer{text-align:center;padding:48px 24px 32px;font-size:12px;color:#475569}
 .footer a{color:#60a5fa;text-decoration:none}
+@media(max-width:640px){.hero h1{font-size:28px}.modes{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -906,27 +944,108 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   </div>
   <div class="nav-links">
     <a href="/">Тойм</a>
-    <a href="/docs">Холболтын заавар</a>
+    <a href="/docs">Заавар</a>
     <a href="/admin">Admin</a>
+    <a href="https://docs.gerege.mn/dan/overview">Wiki</a>
   </div>
 </nav>
+
 <div class="hero">
-  <div class="badge">Gerege Systems LLC</div>
+  <div class="internal-badge">&#9888; Зөвхөн Gerege дотоод platform</div>
   <h1>DAN <span>Verify</span></h1>
-  <p>Монгол Улсын ДАН системтэй холбогдох OAuth2 gateway. sso.gov.mn-р дамжуулан иргэний мэдээллийг баталгаажуулна.</p>
-  <p class="sub">Зөвхөн бүртгэлтэй клиент аппликейшнүүдэд зориулагдсан.</p>
-  <a href="%s" class="verify-btn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-    DAN Verify
-  </a>
+  <p>sso.gov.mn-ийн ДАН системээр иргэний бүртгэлийн мэдээлэл баталгаажуулах OAuth2 gateway. Регистрийн дугаар, нэр, хаяг, зураг зэргийг авна.</p>
+  <p class="sub">sso.gov.mn OAuth2 &middot; HMAC-SHA256 &middot; One-time Token</p>
+  <div class="cta-row">
+    <a href="%s" class="btn btn-primary">DAN Verify</a>
+    <a href="/docs" class="btn btn-outline">Холболтын заавар</a>
+    <a href="/admin" class="btn btn-outline">Admin</a>
+  </div>
   <p class="verify-hint">sso.gov.mn руу чиглүүлэн иргэний мэдээлэл авна</p>
 </div>
-<div class="features">
-  <div class="feature"><div class="feature-icon blue">&#128196;</div><h3>Client бүртгэл</h3><p>3-р талын аппликейшнүүд бүртгүүлж client_id, client_secret авна. Зөвшөөрөгдсөн callback URL-ууд хянагдана.</p></div>
-  <div class="feature"><div class="feature-icon green">&#9989;</div><h3>HMAC баталгаажуулалт</h3><p>Callback дээр HMAC-SHA256 signature дамжуулна. Клиент secret ашиглан мэдээллийн бүрэн бүтэн байдлыг шалгана.</p></div>
-  <div class="feature"><div class="feature-icon amber">&#9889;</div><h3>Хурдан холболт</h3><p>Нэг URL дуудахад хангалттай. OAuth2 бүртгэл, sso.gov.mn credential шаардлагагүй.</p></div>
+
+<div class="sections">
+
+  <div class="warning-box">
+    <span class="icon">&#9888;</span>
+    <p><strong>DAN Verify-ийн мэдээллийг 3-р талд дамжуулах хориотой.</strong>
+    sso.gov.mn-ийн зөвшөөрлийн дагуу зөвхөн Gerege Systems-ийн дотоод platform-ууд ашиглах эрхтэй.
+    3-р тал нэвтрэлт нэгтгэхдээ <a href="https://sso.gerege.mn">sso.gerege.mn SSO</a> ашиглана.</p>
+  </div>
+
+  <div class="section-title">Хоёр горим</div>
+  <div class="modes">
+    <div class="mode">
+      <span class="mode-badge std">Стандарт</span>
+      <h3>DAN Verify</h3>
+      <code>/verify</code>
+      <p>Иргэний мэдээлэл callback URL-д query param-р дамжина.</p>
+      <ul>
+        <li>РД, нэр, овог, хүйс, огноо</li>
+        <li>Хаяг (аймаг, сум, баг)</li>
+        <li>HMAC signature</li>
+        <li>Зураг дамжуулахгүй</li>
+      </ul>
+    </div>
+    <div class="mode">
+      <span class="mode-badge full">Full</span>
+      <h3>DAN Verify Full</h3>
+      <code>/verify-full</code>
+      <p>Callback-д зөвхөн token дамжина. API-р бүтэн data + зураг авна.</p>
+      <ul>
+        <li>Бүх мэдээлэл + иргэний зураг</li>
+        <li>Token: нэг удаа, 5 мин</li>
+        <li>GET /api/citizen?token=xxx</li>
+        <li>JSON response (base64 зураг)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">API Endpoints</div>
+  <div class="endpoints">
+    <div class="ep"><span class="method get">GET</span><span class="path">/verify</span><span class="desc">DAN verify (зургүй)</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/verify-full</span><span class="desc">DAN verify (зураг бүхий)</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/authorized</span><span class="desc">sso.gov.mn callback</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/api/citizen?token=xxx</span><span class="desc">Бүтэн data + зураг</span></div>
+    <div class="ep"><span class="method get">GET</span><span class="path">/api/clients</span><span class="desc">Client жагсаалт (admin)</span></div>
+    <div class="ep"><span class="method post">POST</span><span class="path">/api/clients</span><span class="desc">Client бүртгэх (admin)</span></div>
+    <div class="ep"><span class="method del">DEL</span><span class="path">/api/clients/{id}</span><span class="desc">Client устгах (admin)</span></div>
+  </div>
+
+  <div class="section-title">Иргэний мэдээлэл (Callback параметрүүд)</div>
+  <div class="data-table">
+    <table>
+      <thead><tr><th>Параметр</th><th>Тайлбар</th></tr></thead>
+      <tbody>
+        <tr><td>reg_no</td><td>Регистрийн дугаар</td></tr>
+        <tr><td>given_name</td><td>Нэр</td></tr>
+        <tr><td>family_name</td><td>Овог</td></tr>
+        <tr><td>civil_id</td><td>Иргэний ID</td></tr>
+        <tr><td>gender</td><td>Хүйс</td></tr>
+        <tr><td>birth_date</td><td>Төрсөн огноо</td></tr>
+        <tr><td>aimag_name</td><td>Аймаг/Хот</td></tr>
+        <tr><td>sum_name</td><td>Сум/Дүүрэг</td></tr>
+        <tr><td>bag_name</td><td>Баг/Хороо</td></tr>
+        <tr><td>address_detail</td><td>Дэлгэрэнгүй хаяг</td></tr>
+        <tr><td>image</td><td>Зураг (base64) — зөвхөн /verify-full</td></tr>
+        <tr><td>signature</td><td>HMAC-SHA256</td></tr>
+        <tr><td>timestamp</td><td>Unix timestamp</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Онцлог</div>
+  <div class="features">
+    <div class="feature"><h4>Client бүртгэл</h4><p>Бүртгэлтэй client_id + callback URL шалгалт. Admin dashboard-аас удирдана.</p></div>
+    <div class="feature"><h4>HMAC баталгаажуулалт</h4><p>HMAC-SHA256 signature-р мэдээллийн бүрэн бүтэн байдлыг шалгана.</p></div>
+    <div class="feature"><h4>Зураг бүхий горим</h4><p>One-time token-р сервер-сервер дамжуулалт. Зураг URL-д багтахгүй ч API-р авна.</p></div>
+    <div class="feature"><h4>Replay хамгаалалт</h4><p>Timestamp 5 мин + token нэг удаа. Replay attack-аас хамгаална.</p></div>
+  </div>
+
 </div>
-<div class="footer"><a href="https://gerege.mn">gerege.mn</a></div>
+
+<div class="footer">
+  <a href="https://docs.gerege.mn/dan/overview">Docs</a> &middot; <a href="/docs">Холболтын заавар</a> &middot; <a href="https://gerege.mn">gerege.mn</a>
+</div>
 </body>
 </html>`
 
