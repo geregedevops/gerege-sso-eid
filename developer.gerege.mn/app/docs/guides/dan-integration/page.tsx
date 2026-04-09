@@ -2,33 +2,56 @@ export default function DANIntegrationGuidePage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-12 space-y-10">
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-4">
-          DAN Gateway
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-4">
+          Зөвхөн Gerege дотоод platform
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">DAN Verify нэгтгэх заавар</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">DAN Verify (дотоод заавар)</h1>
         <p className="text-slate-400">
           dan.gerege.mn gateway-р дамжуулан sso.gov.mn-ийн ДАН системээс
           иргэний бүртгэлийн мэдээлэл (регистрийн дугаар, нэр, хаяг, зураг) авна.
         </p>
       </div>
 
+      <div className="p-5 bg-red-500/5 border border-red-500/20 rounded-xl">
+        <div className="flex items-start gap-3">
+          <span className="text-red-400 text-lg mt-0.5">&#9888;</span>
+          <div>
+            <p className="font-bold text-red-400 text-sm">DAN Verify нь зөвхөн Gerege-ийн дотоод platform-уудад зориулагдсан</p>
+            <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+              sso.gov.mn-ийн ДАН системийн зөвшөөрлийн дагуу иргэний нарийвчилсан мэдээлэл
+              (регистрийн дугаар, хаяг, зураг г.м.) зөвхөн Gerege Systems-ийн дотоод platform-ууд
+              ашиглах эрхтэй. 3-р талын системд DAN мэдээлэл дамжуулах, хуваалцах нь <strong className="text-red-300">хориотой</strong>.
+            </p>
+            <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+              3-р талын систем нэвтрэлт нэгтгэх бол{" "}
+              <a href="/docs/guides/sso-integration" className="text-primary hover:underline font-semibold">
+                e-ID SSO нэгтгэл
+              </a>{" "}
+              ашиглана уу — бүх platform-д нээлттэй, стандарт OIDC.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Section title="SSO нэвтрэлт vs DAN Verify">
         <div className="grid sm:grid-cols-2 gap-4">
-          <div className="p-4 bg-primary/5 border border-primary/15 rounded-xl">
-            <h4 className="font-semibold text-white text-sm mb-2">SSO нэвтрэлт (sso.gerege.mn)</h4>
+          <div className="p-4 bg-green-500/5 border border-green-500/15 rounded-xl">
+            <h4 className="font-semibold text-green-400 text-sm mb-2">SSO нэвтрэлт — Нээлттэй</h4>
             <ul className="text-xs text-slate-400 space-y-1 list-disc list-inside">
               <li>e-ID Mongolia смарт картаар нэвтрэх</li>
               <li>OIDC стандарт (access_token, id_token)</li>
-              <li>Session удирдлага</li>
-              <li>Зориулалт: app нэвтрэлт</li>
+              <li>Аливаа 3-р талын систем ашиглаж болно</li>
+              <li>developer.gerege.mn-ээс app бүртгүүлнэ</li>
+              <li>Зориулалт: нэвтрэлт, хэрэглэгч таних</li>
             </ul>
           </div>
-          <div className="p-4 bg-blue-500/5 border border-blue-500/15 rounded-xl">
-            <h4 className="font-semibold text-white text-sm mb-2">DAN Verify (dan.gerege.mn)</h4>
+          <div className="p-4 bg-amber-500/5 border border-amber-500/15 rounded-xl">
+            <h4 className="font-semibold text-amber-400 text-sm mb-2">DAN Verify — Зөвхөн дотоод</h4>
             <ul className="text-xs text-slate-400 space-y-1 list-disc list-inside">
               <li>sso.gov.mn ДАН системээр баталгаажуулах</li>
               <li>Иргэний бүтэн мэдээлэл (РД, хаяг, зураг)</li>
-              <li>Нэг удаагийн шалгалт</li>
+              <li className="text-red-300 font-semibold">Зөвхөн Gerege дотоод platform</li>
+              <li className="text-red-300 font-semibold">3-р талд дамжуулах хориотой</li>
               <li>Зориулалт: KYC, бүртгэл, баталгаажуулалт</li>
             </ul>
           </div>
