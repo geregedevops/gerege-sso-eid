@@ -24,7 +24,6 @@ type Config struct {
 	Cache       store.Cache
 	OCSP        *ocspChecker.Checker
 	TokenIssuer *token.Issuer
-	DANAdminKey string
 }
 
 type Handler struct {

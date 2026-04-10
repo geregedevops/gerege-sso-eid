@@ -28,9 +28,10 @@ func main() {
 	}
 
 	stateSecret := envOrDefault("DAN_STATE_SECRET", "change-me-in-production")
+	adminKey := envOrDefault("DAN_ADMIN_KEY", "")
 	allowedOrigin := envOrDefault("CORS_ORIGIN", "https://dan.gerege.mn")
 	port := envOrDefault("PORT", "8444")
-	databaseURL := envOrDefault("DATABASE_URL", "")
+	databaseURL := envOrDefault("DAN_DATABASE_URL", "")
 
 	if cfg.ClientID == "" || cfg.ClientSecret == "" {
 		slog.Error("DAN_CLIENT_ID and DAN_CLIENT_SECRET are required")
@@ -52,12 +53,18 @@ func main() {
 	defer db.Close()
 	slog.Info("connected to database")
 
+	// Auto-migrate
+	if err := db.Migrate(ctx); err != nil {
+		slog.Warn("migration error", "error", err)
+	}
+
 	// Handler
 	h := handler.New(handler.Config{
 		DAN:           cfg,
 		DB:            db,
 		StateSecret:   stateSecret,
 		AllowedOrigin: allowedOrigin,
+		AdminKey:      adminKey,
 	})
 
 	// Router
@@ -65,6 +72,9 @@ func main() {
 	mux.HandleFunc("GET /verify", h.Verify)
 	mux.HandleFunc("GET /authorized", h.Authorized)
 	mux.HandleFunc("GET /try", h.Try)
+	mux.HandleFunc("GET /api/clients", h.ListClients)
+	mux.HandleFunc("POST /api/clients", h.CreateClient)
+	mux.HandleFunc("DELETE /api/clients/{id}", h.DeactivateClient)
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)

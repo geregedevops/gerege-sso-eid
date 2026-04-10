@@ -49,19 +49,8 @@ CREATE TABLE IF NOT EXISTS tenant_members (
 );
 
 -- =====================
--- DAN Gateway tables
+-- DAN Gateway tables — moved to gerege_dan_db (auto-migrated by dan-api)
 -- =====================
-CREATE TABLE IF NOT EXISTS dan_clients (
-    id            TEXT PRIMARY KEY,
-    secret_hash   TEXT NOT NULL,
-    hmac_key      TEXT NOT NULL DEFAULT '',
-    name          TEXT NOT NULL,
-    callback_urls TEXT[] NOT NULL,
-    active        BOOLEAN NOT NULL DEFAULT true,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS idx_dan_clients_active ON dan_clients(active);
 
 -- =====================
 -- Developer Portal tables

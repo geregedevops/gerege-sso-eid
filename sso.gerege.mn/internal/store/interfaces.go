@@ -25,9 +25,4 @@ type DB interface {
 	GetTenantPlan(ctx context.Context, tenantID string) (string, error)
 	RecordIssuedToken(ctx context.Context, clientID, sub, scope string, expiresAt time.Time) error
 
-	// DAN clients
-	GetDANClient(ctx context.Context, clientID string) (*model.DANClient, error)
-	ListDANClients(ctx context.Context) ([]model.DANClient, error)
-	CreateDANClient(ctx context.Context, id, secretHash, hmacKey, name string, callbackURLs []string) error
-	DeactivateDANClient(ctx context.Context, clientID string) error
 }

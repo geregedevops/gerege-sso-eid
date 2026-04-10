@@ -11,10 +11,11 @@ import (
 )
 
 type Config struct {
-	DAN          dan.Config
-	DB           *store.Postgres
-	StateSecret  string // HMAC key for signing state parameter
+	DAN           dan.Config
+	DB            *store.Postgres
+	StateSecret   string // HMAC key for signing state parameter
 	AllowedOrigin string
+	AdminKey      string // DAN admin API key
 }
 
 type Handler struct {

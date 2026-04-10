@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-dan-db.sh:/docker-entrypoint-initdb.d/00-init-dan-db.sh:ro
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -52,7 +53,6 @@ services:
       EID_BASE_URL: https://e-id.mn
       OCSP_URL: ""
       CA_ISSUING_URL: ""
-      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
       PORT: 8443
     volumes:
       - ./keys:/etc/gerege/sso:ro
@@ -69,8 +69,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      sso:
-        condition: service_started
     environment:
       DAN_CLIENT_ID: ${DAN_CLIENT_ID}
       DAN_CLIENT_SECRET: ${DAN_CLIENT_SECRET}
@@ -79,7 +77,8 @@ services:
       DAN_TOKEN_URL: ${DAN_TOKEN_URL}
       DAN_SERVICE_URL: ${DAN_SERVICE_URL}
       DAN_STATE_SECRET: ${DAN_STATE_SECRET}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
+      DAN_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/gerege_dan_db
       CORS_ORIGIN: https://dan.gerege.mn
       PORT: 8444
     networks:
@@ -93,13 +92,15 @@ services:
     container_name: gerege-dan-web
     restart: unless-stopped
     depends_on:
+      dan-api:
+        condition: service_started
       sso:
         condition: service_started
     environment:
       NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
       GEREGE_SSO_CLIENT: ${DAN_WEB_SSO_CLIENT}
       GEREGE_SSO_SECRET: ${DAN_WEB_SSO_SECRET}
-      SSO_API_URL: http://sso:8443
+      SSO_API_URL: http://dan-api:8444
       DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
       AUTH_SECRET: ${DAN_WEB_AUTH_SECRET}
       AUTH_URL: https://dan.gerege.mn
