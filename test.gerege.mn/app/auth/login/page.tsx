@@ -33,7 +33,7 @@ export default async function LoginPage() {
           </div>
         </div>
         <a
-          href={`https://dan.gerege.mn/verify?client_id=${process.env.DAN_CLIENT_ID || "dan_a088dd8fac47c7aeb9654b9563ac8d67"}&callback_url=${encodeURIComponent((process.env.NEXT_PUBLIC_APP_URL || "https://test.gerege.mn") + "/api/dan/callback")}`}
+          href={`https://dan.gerege.mn/verify?client_id=${process.env.DAN_CLIENT_ID || "dan_8b2a7b8e256e812ef98fda52062c2046"}&callback_url=${encodeURIComponent((process.env.NEXT_PUBLIC_APP_URL || "https://test.gerege.mn") + "/api/dan/callback")}`}
           className="block w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 transition-colors"
         >
           DAN Verify (sso.gov.mn)

@@ -168,6 +168,7 @@ services:
       EID_CLIENT_ID: ${TEST_EID_CLIENT_ID}
       EID_CLIENT_SECRET: ${TEST_EID_CLIENT_SECRET}
       DAN_URL: http://dan-api:8444
+      DAN_CLIENT_ID: ${TEST_DAN_CLIENT_ID}
     networks:
       - gerege
 
