@@ -39,7 +39,7 @@ func (h *Handler) UserInfo(w http.ResponseWriter, r *http.Request) {
 			resp["given_name"] = atData.GivenName
 			resp["family_name"] = atData.FamilyName
 			resp["locale"] = "mn-MN"
-			resp["cert_serial"] = ""
+			resp["cert_serial"] = atData.CertSerial
 			resp["cert_type"] = "AUTH"
 			resp["identity_assurance_level"] = "high"
 		case "pos":

@@ -23,8 +23,14 @@ sso.gerege.mn   → Gerege OIDC server (энэ repo)
 openssl ecparam -name prime256v1 -genkey -noout -out ec-private.pem
 openssl ec -in ec-private.pem -pubout -out ec-public.pem
 
+## DAN Client Admin API
+- GET /api/dan/clients — list (DAN_ADMIN_KEY Bearer auth)
+- POST /api/dan/clients — create (returns secret + hmac_key once)
+- DELETE /api/dan/clients/{id} — deactivate
+
 ## Migrations
 psql $DATABASE_URL -f migrations/001_clients.sql
 psql $DATABASE_URL -f migrations/002_sessions.sql
 psql $DATABASE_URL -f migrations/003_tenants.sql
+psql $DATABASE_URL -f migrations/004_dan_clients.sql
 psql $DATABASE_URL -f seed.sql

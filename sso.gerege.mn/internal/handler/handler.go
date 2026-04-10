@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
+	"sso.gerege.mn/internal/model"
 	ocspChecker "sso.gerege.mn/internal/ocsp"
 	"sso.gerege.mn/internal/store"
 	"sso.gerege.mn/internal/token"
@@ -22,6 +24,7 @@ type Config struct {
 	Cache       store.Cache
 	OCSP        *ocspChecker.Checker
 	TokenIssuer *token.Issuer
+	DANAdminKey string
 }
 
 type Handler struct {
@@ -225,4 +228,28 @@ func (h *Handler) Favicon(w http.ResponseWriter, r *http.Request) {
 
 func logErr(msg string, err error) {
 	slog.Error(msg, "error", err)
+}
+
+// authenticateClient extracts and validates client credentials from a request.
+// Returns the client on success, or nil if an error response was already sent.
+func (h *Handler) authenticateClient(w http.ResponseWriter, r *http.Request) *model.Client {
+	clientID, clientSecret, ok := r.BasicAuth()
+	if !ok {
+		clientID = r.FormValue("client_id")
+		clientSecret = r.FormValue("client_secret")
+	}
+	if clientID == "" || clientSecret == "" {
+		h.jsonError(w, 401, "invalid_client", "client credentials required")
+		return nil
+	}
+	client, err := h.cfg.DB.GetClient(r.Context(), clientID)
+	if err != nil || client == nil || !client.IsActive {
+		h.jsonError(w, 401, "invalid_client", "unknown client")
+		return nil
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(client.SecretHash), []byte(clientSecret)); err != nil {
+		h.jsonError(w, 401, "invalid_client", "invalid client credentials")
+		return nil
+	}
+	return client
 }

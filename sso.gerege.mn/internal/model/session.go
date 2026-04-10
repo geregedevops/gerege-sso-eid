@@ -31,6 +31,7 @@ type AccessTokenData struct {
 	Name       string `json:"name"`
 	GivenName  string `json:"given_name"`
 	FamilyName string `json:"family_name"`
+	CertSerial string `json:"cert_serial,omitempty"`
 	RegNo      string `json:"reg_no,omitempty"`
 	TenantID   string `json:"tenant_id,omitempty"`
 	TenantRole string `json:"tenant_role,omitempty"`

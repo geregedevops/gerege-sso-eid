@@ -34,6 +34,7 @@ func main() {
 	port := envOrDefault("PORT", "8443")
 	tlsCert := os.Getenv("TLS_CERT")
 	tlsKey := os.Getenv("TLS_KEY")
+	danAdminKey := os.Getenv("DAN_ADMIN_KEY")
 	devMode := os.Getenv("DEV_MODE") == "true"
 
 	// Load EC key pair
@@ -80,6 +81,7 @@ func main() {
 		Cache:          cache,
 		OCSP:           ocsp,
 		TokenIssuer:    tokenIssuer,
+		DANAdminKey:    danAdminKey,
 	})
 
 	// Router
@@ -92,6 +94,9 @@ func main() {
 	mux.HandleFunc("POST /oauth/revoke", h.Revoke)
 	mux.HandleFunc("POST /oauth/introspect", h.Introspect)
 	mux.HandleFunc("GET /callback/eid", h.EIDCallback)
+	mux.HandleFunc("GET /api/dan/clients", h.ListDANClients)
+	mux.HandleFunc("POST /api/dan/clients", h.CreateDANClient)
+	mux.HandleFunc("DELETE /api/dan/clients/{id}", h.DeactivateDANClient)
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)

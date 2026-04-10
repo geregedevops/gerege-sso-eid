@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS dan_clients (
     id            TEXT PRIMARY KEY,
     secret_hash   TEXT NOT NULL,
+    hmac_key      TEXT NOT NULL,
     name          TEXT NOT NULL,
     callback_urls TEXT[] NOT NULL DEFAULT '{}',
     active        BOOLEAN NOT NULL DEFAULT true,

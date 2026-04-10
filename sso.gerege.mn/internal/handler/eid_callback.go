@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 
 	"sso.gerege.mn/internal/model"
@@ -40,10 +41,13 @@ func (h *Handler) EIDCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// OCSP check on cert_serial (non-blocking — log only if fails)
+	// OCSP check on cert_serial (fail closed — reject revoked certificates)
 	if certSerial != "" && h.cfg.OCSP != nil {
 		if err := h.cfg.OCSP.Check(r.Context(), certSerial); err != nil {
-			logErr("eid_callback: OCSP check failed (continuing)", err)
+			logErr("eid_callback: OCSP check failed", err)
+			h.cfg.Cache.Del(r.Context(), "sso:"+sessionID)
+			redirectWithError(w, r, session.RedirectURI, session.State, "access_denied", "certificate validation failed")
+			return
 		}
 	}
 
@@ -76,9 +80,12 @@ func (h *Handler) EIDCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func redirectWithCode(w http.ResponseWriter, r *http.Request, redirectURI, code, state string) {
-	u := redirectURI + "?code=" + code
+	u, _ := url.Parse(redirectURI)
+	q := u.Query()
+	q.Set("code", code)
 	if state != "" {
-		u += "&state=" + state
+		q.Set("state", state)
 	}
-	http.Redirect(w, r, u, http.StatusFound)
+	u.RawQuery = q.Encode()
+	http.Redirect(w, r, u.String(), http.StatusFound)
 }

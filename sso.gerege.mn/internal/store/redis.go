@@ -69,7 +69,9 @@ func (r *Redis) Incr(ctx context.Context, key string, ttl time.Duration) (int64,
 	}
 	if val == 1 {
 		expCmd := r.client.B().Expire().Key(key).Seconds(int64(ttl.Seconds())).Build()
-		r.client.Do(ctx, expCmd)
+		if err := r.client.Do(ctx, expCmd).Error(); err != nil {
+			return val, fmt.Errorf("redis.Incr expire: %w", err)
+		}
 	}
 	return val, nil
 }

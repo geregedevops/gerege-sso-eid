@@ -52,32 +52,57 @@ services:
       EID_BASE_URL: https://e-id.mn
       OCSP_URL: ""
       CA_ISSUING_URL: ""
+      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
       PORT: 8443
     volumes:
       - ./keys:/etc/gerege/sso:ro
     networks:
       - gerege
 
-  # === DAN Gateway (Go) ===
-  dan:
+  # === DAN API Gateway (Go) ===
+  dan-api:
     build:
-      context: ./dan.gerege.mn
+      context: ./dan.gerege.mn/api
       dockerfile: Dockerfile
-    container_name: gerege-dan
+    container_name: gerege-dan-api
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
+      sso:
+        condition: service_started
     environment:
       DAN_CLIENT_ID: ${DAN_CLIENT_ID}
       DAN_CLIENT_SECRET: ${DAN_CLIENT_SECRET}
       DAN_SCOPE: ${DAN_SCOPE}
-      DAN_CALLBACK_URI: ${DAN_CALLBACK_URI}
+      DAN_CALLBACK_URI: https://dan.gerege.mn/authorized
       DAN_TOKEN_URL: ${DAN_TOKEN_URL}
       DAN_SERVICE_URL: ${DAN_SERVICE_URL}
+      DAN_STATE_SECRET: ${DAN_STATE_SECRET}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
+      CORS_ORIGIN: https://dan.gerege.mn
       PORT: 8444
+    networks:
+      - gerege
+
+  # === DAN Web Dashboard (Next.js) ===
+  dan-web:
+    build:
+      context: ./dan.gerege.mn/web
+      dockerfile: Dockerfile
+    container_name: gerege-dan-web
+    restart: unless-stopped
+    depends_on:
+      sso:
+        condition: service_started
+    environment:
+      NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
+      GEREGE_SSO_CLIENT: ${DAN_WEB_SSO_CLIENT}
+      GEREGE_SSO_SECRET: ${DAN_WEB_SSO_SECRET}
+      SSO_API_URL: http://sso:8443
+      DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
+      AUTH_SECRET: ${DAN_WEB_AUTH_SECRET}
+      AUTH_URL: https://dan.gerege.mn
     networks:
       - gerege
 
@@ -141,7 +166,7 @@ services:
       NEXTAUTH_SECRET: ${TEST_NEXTAUTH_SECRET}
       EID_CLIENT_ID: ${TEST_EID_CLIENT_ID}
       EID_CLIENT_SECRET: ${TEST_EID_CLIENT_SECRET}
-      DAN_URL: http://dan:8444
+      DAN_URL: http://dan-api:8444
     networks:
       - gerege
 
@@ -202,7 +227,8 @@ services:
       - api
       - developer
       - test
-      - dan
+      - dan-api
+      - dan-web
       - gsign
       - docs
       - dbusiness

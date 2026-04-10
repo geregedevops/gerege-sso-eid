@@ -12,7 +12,7 @@ func (h *Handler) Revoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Client authentication
+	// RFC 7009: revocation endpoint always returns 200 to avoid leaking client info
 	clientID, clientSecret, ok := r.BasicAuth()
 	if !ok {
 		clientID = r.FormValue("client_id")
@@ -20,18 +20,17 @@ func (h *Handler) Revoke(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if clientID == "" || clientSecret == "" {
-		h.jsonError(w, 401, "invalid_client", "client credentials required")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	client, err := h.cfg.DB.GetClient(r.Context(), clientID)
 	if err != nil || client == nil {
-		// RFC 7009: always return 200
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(client.SecretHash), []byte(clientSecret)); err != nil {
-		h.jsonError(w, 401, "invalid_client", "invalid client credentials")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -40,6 +39,5 @@ func (h *Handler) Revoke(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Cache.Del(r.Context(), "at:"+token)
 	}
 
-	// RFC 7009: always 200 OK
 	w.WriteHeader(http.StatusOK)
 }

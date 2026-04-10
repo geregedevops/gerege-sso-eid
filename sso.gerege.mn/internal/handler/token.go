@@ -36,15 +36,7 @@ func (h *Handler) Token(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Rate limiting: 10 req/min per client
-	rlKey := "rl:token:" + clientID
-	count, err := h.cfg.Cache.Incr(r.Context(), rlKey, time.Minute)
-	if err == nil && count > 10 {
-		h.jsonError(w, 429, "rate_limit", "too many requests")
-		return
-	}
-
-	// Verify client
+	// Verify client first, then rate limit (so invalid client_ids don't exhaust counters)
 	client, err := h.cfg.DB.GetClient(r.Context(), clientID)
 	if err != nil || client == nil || !client.IsActive {
 		h.jsonError(w, 401, "invalid_client", "unknown client")
@@ -52,6 +44,14 @@ func (h *Handler) Token(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(client.SecretHash), []byte(clientSecret)); err != nil {
 		h.jsonError(w, 401, "invalid_client", "invalid client credentials")
+		return
+	}
+
+	// Rate limiting: 10 req/min per client (after validation)
+	rlKey := "rl:token:" + clientID
+	count, err := h.cfg.Cache.Incr(r.Context(), rlKey, time.Minute)
+	if err == nil && count > 10 {
+		h.jsonError(w, 429, "rate_limit", "too many requests")
 		return
 	}
 
@@ -121,6 +121,7 @@ func (h *Handler) Token(w http.ResponseWriter, r *http.Request) {
 		Name:       codeData.Name,
 		GivenName:  codeData.GivenName,
 		FamilyName: codeData.FamilyName,
+		CertSerial: codeData.CertSerial,
 		RegNo:      codeData.RegNo,
 		TenantID:   tenantID,
 		TenantRole: tenantRole,

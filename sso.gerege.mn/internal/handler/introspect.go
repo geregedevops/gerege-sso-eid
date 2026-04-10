@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
 	"sso.gerege.mn/internal/model"
 )
 
@@ -13,25 +12,7 @@ func (h *Handler) Introspect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Client authentication (Basic auth)
-	clientID, clientSecret, ok := r.BasicAuth()
-	if !ok {
-		clientID = r.FormValue("client_id")
-		clientSecret = r.FormValue("client_secret")
-	}
-
-	if clientID == "" || clientSecret == "" {
-		h.jsonError(w, 401, "invalid_client", "client credentials required")
-		return
-	}
-
-	client, err := h.cfg.DB.GetClient(r.Context(), clientID)
-	if err != nil || client == nil {
-		h.jsonError(w, 401, "invalid_client", "unknown client")
-		return
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(client.SecretHash), []byte(clientSecret)); err != nil {
-		h.jsonError(w, 401, "invalid_client", "invalid client credentials")
+	if h.authenticateClient(w, r) == nil {
 		return
 	}
 
