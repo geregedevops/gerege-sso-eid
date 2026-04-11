@@ -1,35 +1,8 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import {
-  SESSION_COOKIE,
-  SESSION_MAX_AGE,
-  createSessionValue,
-  constantTimeEqual,
-} from "@/lib/session";
-
 export default function LoginPage({
   searchParams,
 }: {
   searchParams: { error?: string };
 }) {
-  async function handleLogin(formData: FormData) {
-    "use server";
-    const password = (formData.get("password") as string) || "";
-    const expected = process.env.DAN_ADMIN_KEY || "";
-    if (!expected || !constantTimeEqual(password, expected)) {
-      redirect("/auth/login?error=1");
-    }
-    const value = await createSessionValue();
-    cookies().set(SESSION_COOKIE, value, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: SESSION_MAX_AGE,
-    });
-    redirect("/admin");
-  }
-
   return (
     <div className="flex min-h-[80vh] items-center justify-center">
       <div className="w-full max-w-sm bg-surface border border-white/[0.06] rounded-2xl p-8">
@@ -42,7 +15,7 @@ export default function LoginPage({
             DAN client удирдлагын самбарт нэвтрэх
           </p>
         </div>
-        <form action={handleLogin} className="space-y-4">
+        <form action="/api/auth/login" method="post" className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
               Admin password
