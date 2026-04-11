@@ -1,11 +1,6 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { listDANClients, deactivateDANClient } from "@/lib/api";
 
 export default async function AdminPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/auth/login");
-
   const clients = await listDANClients();
 
   return (

@@ -12,7 +12,7 @@ dan.gerege.mn/
 │       └── store/   → postgres.go (dan_clients CRUD + auto-migrate)
 ├── web/             → Next.js admin dashboard (:3000)
 │   ├── app/         → Pages (admin, docs, auth)
-│   └── lib/         → auth.ts (NextAuth), api.ts (DAN API client)
+│   └── lib/         → session.ts (HMAC cookie), api.ts (DAN API client)
 └── CLAUDE.md
 ```
 
@@ -62,9 +62,14 @@ DAN_DATABASE_URL — postgres://...gerege_dan_db
 CORS_ORIGIN, PORT
 
 ## Env vars (web)
-GEREGE_SSO_CLIENT, GEREGE_SSO_SECRET — SSO OIDC credentials
-NEXT_PUBLIC_SSO_URL, SSO_API_URL — SSO endpoints
-DAN_ADMIN_KEY, AUTH_SECRET, AUTH_URL
+DAN_API_URL — dan-api internal URL
+DAN_ADMIN_KEY — admin login password + HMAC cookie signing key + DAN API auth (one secret)
+
+## Admin login (web)
+- SSO-оос бүрэн салсан, тусдаа password-based login
+- Password = DAN_ADMIN_KEY
+- Session cookie: HMAC-SHA256 signed, 8 цагийн хугацаатай
+- Middleware /admin/:path* → cookie шалгах, үгүй бол /auth/login
 
 ## Production
 - sso.gov.mn redirect_uri: http:// (https биш!)

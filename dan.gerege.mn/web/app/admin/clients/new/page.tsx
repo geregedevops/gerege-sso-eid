@@ -1,11 +1,7 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { createDANClient } from "@/lib/api";
 
-export default async function NewClientPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/auth/login");
-
+export default function NewClientPage() {
   async function handleCreate(formData: FormData) {
     "use server";
 

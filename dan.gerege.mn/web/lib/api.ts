@@ -1,4 +1,4 @@
-const DAN_API_URL = process.env.SSO_API_URL || "http://dan-api:8444";
+const DAN_API_URL = process.env.DAN_API_URL || "http://dan-api:8444";
 const DAN_ADMIN_KEY = process.env.DAN_ADMIN_KEY || "";
 
 async function danFetch(path: string, options: RequestInit = {}) {

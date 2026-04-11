@@ -94,16 +94,9 @@ services:
     depends_on:
       dan-api:
         condition: service_started
-      sso:
-        condition: service_started
     environment:
-      NEXT_PUBLIC_SSO_URL: https://sso.gerege.mn
-      GEREGE_SSO_CLIENT: ${DAN_WEB_SSO_CLIENT}
-      GEREGE_SSO_SECRET: ${DAN_WEB_SSO_SECRET}
-      SSO_API_URL: http://dan-api:8444
+      DAN_API_URL: http://dan-api:8444
       DAN_ADMIN_KEY: ${DAN_ADMIN_KEY}
-      AUTH_SECRET: ${DAN_WEB_AUTH_SECRET}
-      AUTH_URL: https://dan.gerege.mn
     networks:
       - gerege
 

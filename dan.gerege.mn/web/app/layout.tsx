@@ -20,10 +20,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <span className="font-bold text-white">DAN Gateway</span>
           </div>
-          <div className="flex gap-6 text-sm text-slate-400">
+          <div className="flex gap-6 text-sm text-slate-400 items-center">
             <a href="/" className="hover:text-white">Нүүр</a>
             <a href="/admin" className="hover:text-white">Admin</a>
             <a href="/docs" className="hover:text-white">Заавар</a>
+            <form action="/api/auth/logout" method="post">
+              <button type="submit" className="hover:text-white">Гарах</button>
+            </form>
           </div>
         </nav>
         {children}
