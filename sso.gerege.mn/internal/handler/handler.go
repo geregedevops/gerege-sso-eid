@@ -16,7 +16,8 @@ import (
 
 type Config struct {
 	Issuer      string
-	EIDBaseURL  string
+	EIDBaseURL    string
+	EIDRPApiKey  string
 	PrivKey     *ecdsa.PrivateKey
 	PubKey      *ecdsa.PublicKey
 	KID         string

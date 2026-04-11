@@ -27,6 +27,7 @@ func main() {
 	issuer := envOrDefault("SSO_ISSUER", "https://sso.gerege.mn")
 	privKeyPath := envOrDefault("SSO_PRIVATE_KEY_PATH", "ec-private.pem")
 	eidBaseURL := envOrDefault("EID_BASE_URL", "https://e-id.mn")
+	eidRPApiKey := envOrDefault("EID_RP_API_KEY", "")
 	ocspURL := envOrDefault("OCSP_URL", "")
 	caIssuingURL := envOrDefault("CA_ISSUING_URL", "")
 	databaseURL := envOrDefault("DATABASE_URL", "postgres://sso:pass@localhost:5432/gerege_sso_db")
@@ -73,6 +74,7 @@ func main() {
 	h := handler.New(handler.Config{
 		Issuer:         issuer,
 		EIDBaseURL:     eidBaseURL,
+		EIDRPApiKey:    eidRPApiKey,
 		PrivKey:        privKey,
 		PubKey:         pubKey,
 		KID:            kid,
@@ -92,6 +94,9 @@ func main() {
 	mux.HandleFunc("POST /oauth/revoke", h.Revoke)
 	mux.HandleFunc("POST /oauth/introspect", h.Introspect)
 	mux.HandleFunc("GET /callback/eid", h.EIDCallback)
+	mux.HandleFunc("POST /api/auth/initiate", h.AuthInitiateAPI)
+	mux.HandleFunc("GET /api/auth/poll", h.AuthPollAPI)
+	mux.HandleFunc("GET /user/profile", h.ProfilePage)
 	mux.HandleFunc("GET /health", h.Health)
 	mux.HandleFunc("GET /favicon.ico", h.Favicon)
 	mux.HandleFunc("GET /", h.Index)
