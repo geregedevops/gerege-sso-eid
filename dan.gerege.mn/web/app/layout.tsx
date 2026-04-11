@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <div className="flex gap-6 text-sm text-slate-400">
             <a href="/" className="hover:text-white">Нүүр</a>
-            <a href="/dashboard" className="hover:text-white">Dashboard</a>
+            <a href="/admin" className="hover:text-white">Admin</a>
             <a href="/docs" className="hover:text-white">Заавар</a>
           </div>
         </nav>

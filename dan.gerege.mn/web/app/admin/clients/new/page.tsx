@@ -28,7 +28,7 @@ export default async function NewClientPage() {
       hmac_key: result.hmac_key,
       name: result.name,
     });
-    redirect(`/dashboard/clients/new?created=${params.toString()}`);
+    redirect(`/admin/clients/new?created=${params.toString()}`);
   }
 
   return (
@@ -76,8 +76,8 @@ export default async function NewClientPage() {
       </form>
 
       <div className="mt-6">
-        <a href="/dashboard" className="text-sm text-slate-400 hover:text-white">
-          &larr; Dashboard руу буцах
+        <a href="/admin" className="text-sm text-slate-400 hover:text-white">
+          &larr; Admin руу буцах
         </a>
       </div>
     </div>

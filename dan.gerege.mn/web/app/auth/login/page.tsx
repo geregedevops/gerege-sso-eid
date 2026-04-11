@@ -14,7 +14,7 @@ export default function LoginPage() {
         <form
           action={async () => {
             "use server";
-            await signIn("gerege-sso", { redirectTo: "/dashboard" });
+            await signIn("gerege-sso", { redirectTo: "/admin" });
           }}
         >
           <button

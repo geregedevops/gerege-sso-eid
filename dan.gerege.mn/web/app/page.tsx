@@ -21,8 +21,8 @@ export default function HomePage() {
         <a href="/docs" className="px-8 py-3 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all">
           Холболтын заавар
         </a>
-        <a href="/dashboard" className="px-8 py-3 border border-white/15 text-white font-bold rounded-xl hover:bg-white/5 transition-all">
-          Admin Dashboard
+        <a href="/admin" className="px-8 py-3 border border-white/15 text-white font-bold rounded-xl hover:bg-white/5 transition-all">
+          Admin
         </a>
       </div>
       <p className="text-slate-600 text-xs mt-3">

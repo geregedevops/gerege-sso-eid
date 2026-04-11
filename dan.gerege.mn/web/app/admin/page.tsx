@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { listDANClients, deactivateDANClient } from "@/lib/api";
 
-export default async function DashboardPage() {
+export default async function AdminPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
 
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <a
-          href="/dashboard/clients/new"
+          href="/admin/clients/new"
           className="px-5 py-2.5 bg-primary hover:bg-primary-light text-white font-bold text-sm rounded-xl transition-all"
         >
           + Шинэ Client
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
                           "use server";
                           await deactivateDANClient(c.id);
                           const { redirect } = await import("next/navigation");
-                          redirect("/dashboard");
+                          redirect("/admin");
                         }}
                       >
                         <button

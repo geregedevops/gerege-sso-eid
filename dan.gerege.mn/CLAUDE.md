@@ -10,8 +10,8 @@ dan.gerege.mn/
 │       ├── dan/     → token.go, citizen.go, hmac.go (sso.gov.mn API)
 │       ├── middleware/ → logger (status code), cors (restricted)
 │       └── store/   → postgres.go (dan_clients CRUD + auto-migrate)
-├── web/             → Next.js admin dashboard (:3000) (deploy хийгдээгүй)
-│   ├── app/         → Pages (dashboard, docs, auth)
+├── web/             → Next.js admin dashboard (:3000)
+│   ├── app/         → Pages (admin, docs, auth)
 │   └── lib/         → auth.ts (NextAuth), api.ts (DAN API client)
 └── CLAUDE.md
 ```
@@ -69,5 +69,5 @@ DAN_ADMIN_KEY, AUTH_SECRET, AUTH_URL
 ## Production
 - sso.gov.mn redirect_uri: http:// (https биш!)
 - DAN_CALLBACK_URI=http://dan.gerege.mn/authorized
-- nginx: /verify, /authorized, /try, /api/clients → dan-api:8444
-- nginx: / → dan-api:8444 (Next.js deploy болтол)
+- nginx: /verify, /authorized, /try, /api/clients, / → dan-api:8444
+- nginx: /admin, /auth, /api/auth, /_next → dan-web:3000
