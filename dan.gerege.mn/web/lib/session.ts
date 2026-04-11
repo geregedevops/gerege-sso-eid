@@ -2,7 +2,9 @@ export const SESSION_COOKIE = "dan_admin_session";
 export const SESSION_MAX_AGE = 60 * 60 * 8; // 8 hours
 
 function b64urlEncode(bytes: ArrayBuffer): string {
-  const bin = String.fromCharCode(...new Uint8Array(bytes));
+  const arr = new Uint8Array(bytes);
+  let bin = "";
+  for (let i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
