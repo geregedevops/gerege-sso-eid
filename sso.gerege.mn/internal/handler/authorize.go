@@ -71,11 +71,17 @@ func (h *Handler) Authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect to e-id.mn
-	eidURL := fmt.Sprintf("%s/auth?session=%s&callback_uri=%s/callback/eid&purpose=sso:%s",
+	// purpose → displayed in e-id.mn activity log as "SSO: <purpose>"
+	// Use client name (falls back to client_id) so each RP shows its own platform name
+	purpose := client.Name
+	if purpose == "" {
+		purpose = clientID
+	}
+	eidURL := fmt.Sprintf("%s/auth?session=%s&callback_uri=%s/callback/eid&purpose=%s",
 		h.cfg.EIDBaseURL,
 		url.QueryEscape(sessionID),
 		url.QueryEscape(h.cfg.Issuer),
-		url.QueryEscape(clientID),
+		url.QueryEscape(purpose),
 	)
 	http.Redirect(w, r, eidURL, http.StatusFound)
 }
