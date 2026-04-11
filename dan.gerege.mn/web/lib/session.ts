@@ -8,13 +8,14 @@ function b64urlEncode(bytes: ArrayBuffer): string {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function b64urlDecode(s: string): Uint8Array {
+function b64urlDecode(s: string): ArrayBuffer {
   const pad = (4 - (s.length % 4)) % 4;
   const b64 = s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat(pad);
   const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
+  const buf = new ArrayBuffer(bin.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
+  return buf;
 }
 
 async function hmacKey(): Promise<CryptoKey> {
