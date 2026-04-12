@@ -50,7 +50,7 @@ services:
       SSO_PRIVATE_KEY_PATH: /etc/gerege/sso/ec-private.pem
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
-      EID_BASE_URL: https://gerege.mn
+      EID_BASE_URL: https://dapi.gerege.mn
       OCSP_URL: ""
       CA_ISSUING_URL: ""
       PORT: 8443
