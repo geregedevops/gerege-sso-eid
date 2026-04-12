@@ -63,7 +63,7 @@ export default async function AppDetailPage({ params }: { params: { appId: strin
 {`// NextAuth.js
 providers: [{
   id: "gerege-sso",
-  name: "e-ID Mongolia",
+  name: "GeregeID",
   type: "oidc",
   issuer: "https://sso.gerege.mn",
   clientId: "${app.clientId}",

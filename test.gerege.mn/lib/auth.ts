@@ -4,7 +4,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     {
       id: "gerege-sso",
-      name: "e-ID Mongolia",
+      name: "GeregeID",
       type: "oidc",
       issuer: process.env.NEXT_PUBLIC_SSO_URL || "https://sso.gerege.mn",
       clientId: process.env.EID_CLIENT_ID!,

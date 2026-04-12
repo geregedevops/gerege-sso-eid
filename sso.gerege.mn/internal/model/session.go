@@ -9,7 +9,7 @@ type AuthSession struct {
 	Nonce       string `json:"nonce"`
 }
 
-// AuthCode is stored in Redis after e-id.mn or DAN callback
+// AuthCode is stored in Redis after gerege.mn or DAN callback
 type AuthCode struct {
 	Sub         string `json:"sub"`
 	Name        string `json:"name"`

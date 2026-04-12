@@ -9,11 +9,11 @@ export default async function LoginPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white mb-2">Байгууллагын цахим тамга</h1>
-          <p className="text-sm text-slate-400">e-ID Mongolia-р нэвтрэн байгууллагынхаа баримт бичигт цахим гарын үсэг зурна.</p>
+          <p className="text-sm text-slate-400">GeregeID-р нэвтрэн байгууллагынхаа баримт бичигт цахим гарын үсэг зурна.</p>
         </div>
         <form action={async () => { "use server"; await signIn("gerege-sso", { redirectTo: "/dashboard" }); }}>
           <button type="submit" className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors">
-            e-ID Mongolia-р нэвтрэх
+            GeregeID-р нэвтрэх
           </button>
         </form>
       </div>

@@ -11,7 +11,7 @@ export default function NextJSGuidePage() {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [{
     id: "gerege-sso",
-    name: "e-ID Mongolia",
+    name: "GeregeID",
     type: "oidc",
     issuer: "https://sso.gerege.mn",
     clientId: process.env.EID_CLIENT_ID!,
@@ -48,7 +48,7 @@ export default function LoginPage() {
       "use server"
       await signIn("gerege-sso")
     }}>
-      <button type="submit">e-ID Mongolia-р нэвтрэх</button>
+      <button type="submit">GeregeID-р нэвтрэх</button>
     </form>
   )
 }`}</Code>

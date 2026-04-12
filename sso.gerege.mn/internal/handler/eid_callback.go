@@ -30,7 +30,7 @@ func (h *Handler) EIDCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Handle error from e-id.mn (user cancelled, timeout, etc.)
+	// Handle error from gerege.mn (user cancelled, timeout, etc.)
 	if errParam := q.Get("error"); errParam != "" || sub == "" {
 		h.cfg.Cache.Del(r.Context(), "sso:"+sessionID)
 		errType := errParam

@@ -21,7 +21,7 @@ func main() {
 
 	port := env("PORT", "8080")
 	jwksURI := env("SSO_JWKS_URI", "https://sso.gerege.mn/.well-known/jwks.json")
-	eidURL := env("EID_API_URL", "https://api.e-id.mn")
+	eidURL := env("EID_API_URL", "https://dapi.gerege.mn")
 	storagePath := env("STORAGE_PATH", "/var/api/signed-docs")
 	databaseURL := env("DATABASE_URL", "postgres://sso:pass@localhost:5432/gerege_sso_db")
 	redisURL := env("REDIS_URL", "redis://localhost:6379/3")

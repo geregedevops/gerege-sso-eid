@@ -11,7 +11,7 @@ export default function DocsPage() {
       <div>
         <h2 className="text-lg font-bold text-white mb-3">3-р талын нэгтгэл</h2>
         <div className="grid sm:grid-cols-2 gap-4 mb-8">
-          <DocCard href="/docs/guides/sso-integration" title="e-ID SSO нэгтгэх" desc="Бүх platform-д нээлттэй — OIDC Authorization Code Flow" highlight />
+          <DocCard href="/docs/guides/sso-integration" title="GeregeID SSO нэгтгэх" desc="Бүх platform-д нээлттэй — OIDC Authorization Code Flow" highlight />
           <DocCard href="/docs/guides/dan-integration" title="DAN Verify (дотоод)" desc="Зөвхөн Gerege platform — иргэний мэдээлэл + зураг" />
         </div>
       </div>

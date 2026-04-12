@@ -89,7 +89,7 @@ func (h *Handler) AuthInitiateAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Resolve client name for display_text (e-id.mn activity log)
+	// Resolve client name for display_text (gerege.mn activity log)
 	displayText := "SSO нэвтрэлт"
 	if c, _ := h.cfg.DB.GetClient(r.Context(), session.ClientID); c != nil && c.Name != "" {
 		displayText = c.Name
@@ -99,7 +99,7 @@ func (h *Handler) AuthInitiateAPI(w http.ResponseWriter, r *http.Request) {
 	eidResp, err := h.eidAuthInitiate(body.NationalID, displayText)
 	if err != nil {
 		logErr("auth_initiate: eid api failed", err)
-		h.jsonError(w, 502, "server_error", "e-ID холболт амжилтгүй")
+		h.jsonError(w, 502, "server_error", "GeregeID холболт амжилтгүй")
 		return
 	}
 
@@ -131,7 +131,7 @@ func (h *Handler) AuthPollAPI(w http.ResponseWriter, r *http.Request) {
 	eidStatus, err := h.eidAuthStatus(eidSessionID)
 	if err != nil {
 		logErr("auth_poll: eid status failed", err)
-		h.jsonError(w, 502, "server_error", "e-ID холболт амжилтгүй")
+		h.jsonError(w, 502, "server_error", "GeregeID холболт амжилтгүй")
 		return
 	}
 
@@ -143,12 +143,22 @@ func (h *Handler) AuthPollAPI(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Parse FullName into GivenName / FamilyName
+		fullName := eidStatus.Identity.FullName
+		givenName, familyName := "", ""
+		if parts := strings.SplitN(fullName, " ", 2); len(parts) == 2 {
+			familyName = parts[0]
+			givenName = parts[1]
+		} else if fullName != "" {
+			givenName = fullName
+		}
+
 		authCode := generateRandomString(32)
 		codeData := model.AuthCode{
 			Sub:         eidStatus.Identity.NationalID,
-			Name:        eidStatus.Identity.FullName,
-			GivenName:   "",
-			FamilyName:  "",
+			Name:        fullName,
+			GivenName:   givenName,
+			FamilyName:  familyName,
 			CertSerial:  eidStatus.Certificate.SerialNumber,
 			ClientID:    session.ClientID,
 			RedirectURI: session.RedirectURI,
@@ -159,14 +169,18 @@ func (h *Handler) AuthPollAPI(w http.ResponseWriter, r *http.Request) {
 		h.cfg.Cache.Del(r.Context(), "sso:"+ssoSessionID)
 		h.cfg.Cache.Del(r.Context(), "sso-eid:"+ssoSessionID)
 
-		redirectURL := session.RedirectURI + "?code=" + authCode
+		// Build redirect URL safely with url.Values
+		redirectParsed, _ := url.Parse(session.RedirectURI)
+		rq := redirectParsed.Query()
+		rq.Set("code", authCode)
 		if session.State != "" {
-			redirectURL += "&state=" + url.QueryEscape(session.State)
+			rq.Set("state", session.State)
 		}
+		redirectParsed.RawQuery = rq.Encode()
 
 		h.jsonOK(w, map[string]interface{}{
 			"status":       "complete",
-			"redirect_url": redirectURL,
+			"redirect_url": redirectParsed.String(),
 		})
 		return
 	}
@@ -176,7 +190,9 @@ func (h *Handler) AuthPollAPI(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ── e-ID RP API calls ──────────────────────────────────────────────
+// ── GeregeID RP API calls ──────────────────────────────────────────
+
+var eidHTTPClient = &http.Client{Timeout: 15 * time.Second}
 
 type eidAuthResp struct {
 	SessionID        string `json:"session_id"`
@@ -208,7 +224,7 @@ func (h *Handler) eidAuthInitiate(nationalID, displayText string) (*eidAuthResp,
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+h.cfg.EIDRPApiKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := eidHTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("eid request: %w", err)
 	}
@@ -220,7 +236,9 @@ func (h *Handler) eidAuthInitiate(nationalID, displayText string) (*eidAuthResp,
 	}
 
 	var result eidAuthResp
-	json.Unmarshal(respBody, &result)
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return nil, fmt.Errorf("eid parse: %w", err)
+	}
 	return &result, nil
 }
 
@@ -228,7 +246,7 @@ func (h *Handler) eidAuthStatus(sessionID string) (*eidStatusResp, error) {
 	req, _ := http.NewRequest("GET", h.cfg.EIDBaseURL+"/rp/v1/auth/session/"+sessionID+"?timeout_ms=5000", nil)
 	req.Header.Set("Authorization", "Bearer "+h.cfg.EIDRPApiKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := eidHTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("eid request: %w", err)
 	}
@@ -240,7 +258,9 @@ func (h *Handler) eidAuthStatus(sessionID string) (*eidStatusResp, error) {
 	}
 
 	var result eidStatusResp
-	json.Unmarshal(respBody, &result)
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return nil, fmt.Errorf("eid parse: %w", err)
+	}
 	return &result, nil
 }
 

@@ -48,8 +48,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 <div class="card">
   <div class="header">
-    <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="rgba(255,255,255,.2)"/><text x="50%%%%" y="55%%%%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="800" font-size="18">eID</text></svg>
-    <h1>e-ID Mongolia</h1>
+    <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="rgba(255,255,255,.2)"/><text x="50%%%%" y="55%%%%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="800" font-size="16">G</text></svg>
+    <h1>GeregeID</h1>
     <p>%s рүү нэвтрэх</p>
   </div>
   <div class="body">
@@ -69,17 +69,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="error-section" class="error"></div>
   </div>
   <div class="footer">
-    Powered by <a href="https://e-id.mn">e-ID Mongolia</a> · <a href="https://gerege.mn">GeregeID.mn</a>
+    Powered by <a href="https://gerege.mn">GeregeID</a>
   </div>
 </div>
 
 <script>
 const SESSION_ID = "%s";
 let pollTimer = null;
+let pollTimeout = null;
 
 async function initAuth() {
   const nid = document.getElementById('national-id').value.trim().toUpperCase();
-  if (nid.length < 10) { showError('Регистрийн дугаар 10 тэмдэгт байх ёстой'); return; }
+  if (!/^[\u0410-\u042F\u04E8\u04AE]{2}\d{8}$/.test(nid)) { showError('Регистрийн дугаар буруу формат (жнь: УБ12345678)'); return; }
 
   document.getElementById('submit-btn').disabled = true;
   document.getElementById('submit-btn').textContent = 'Холбогдож байна...';
@@ -113,16 +114,33 @@ function startPolling() {
       const resp = await fetch('/api/auth/poll?session_id=' + SESSION_ID);
       const data = await resp.json();
       if (data.status === 'complete' && data.redirect_url) {
-        clearInterval(pollTimer);
+        stopPolling();
         document.getElementById('status-text').textContent = 'Амжилттай! Буцааж чиглүүлж байна...';
         window.location.href = data.redirect_url;
       } else if (data.status === 'EXPIRED' || data.status === 'CANCELLED') {
-        clearInterval(pollTimer);
+        stopPolling();
         showError('Хугацаа дууссан эсвэл цуцлагдсан');
-        document.getElementById('status-section').classList.remove('show');
+        showForm();
       }
     } catch(e) {}
   }, 2000);
+  pollTimeout = setTimeout(() => {
+    stopPolling();
+    showError('Хугацаа дууслаа (3 минут). Дахин оролдоно уу.');
+    showForm();
+  }, 180000);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (pollTimeout) { clearTimeout(pollTimeout); pollTimeout = null; }
+}
+
+function showForm() {
+  document.getElementById('form-section').style.display = '';
+  document.getElementById('code-section').classList.remove('show');
+  document.getElementById('status-section').classList.remove('show');
+  resetBtn();
 }
 
 function showError(msg) { const el = document.getElementById('error-section'); el.textContent = msg; el.classList.add('show'); }

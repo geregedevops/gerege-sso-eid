@@ -16,9 +16,21 @@ export default function NewOrgPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function validate(): string | null {
+    if (name.trim().length < 2) return "Байгууллагын нэр хэт богино";
+    if (!/^\d{5,10}$/.test(regNo.trim())) return "Регистрийн дугаар 5-10 оронтой тоо байх ёстой";
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Имэйл хаяг буруу формат";
+    if (phone && !/^[\d\-+() ]{4,20}$/.test(phone)) return "Утасны дугаар буруу формат";
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    const validationError = validate();
+    if (validationError) { setError(validationError); return; }
+
     setLoading(true);
 
     try {

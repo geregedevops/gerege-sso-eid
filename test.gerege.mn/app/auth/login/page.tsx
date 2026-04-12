@@ -9,7 +9,7 @@ export default async function LoginPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white mb-2">API Sandbox</h1>
-          <p className="text-sm text-slate-400">e-ID Mongolia-р нэвтрэн Gerege API-г sandbox орчинд туршина.</p>
+          <p className="text-sm text-slate-400">GeregeID-р нэвтрэн Gerege API-г sandbox орчинд туршина.</p>
         </div>
         <form
           action={async () => {
@@ -21,7 +21,7 @@ export default async function LoginPage() {
             type="submit"
             className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors"
           >
-            e-ID Mongolia-р нэвтрэх
+            GeregeID-р нэвтрэх
           </button>
         </form>
         <div className="relative">

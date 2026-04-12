@@ -25,7 +25,7 @@ export default function DANIntegrationGuidePage() {
             <p className="text-slate-400 text-xs mt-2 leading-relaxed">
               3-р талын систем нэвтрэлт нэгтгэх бол{" "}
               <a href="/docs/guides/sso-integration" className="text-primary hover:underline font-semibold">
-                e-ID SSO нэгтгэл
+                GeregeID SSO нэгтгэл
               </a>{" "}
               ашиглана уу — бүх platform-д нээлттэй, стандарт OIDC.
             </p>
@@ -38,7 +38,7 @@ export default function DANIntegrationGuidePage() {
           <div className="p-4 bg-green-500/5 border border-green-500/15 rounded-xl">
             <h4 className="font-semibold text-green-400 text-sm mb-2">SSO нэвтрэлт — Нээлттэй</h4>
             <ul className="text-xs text-slate-400 space-y-1 list-disc list-inside">
-              <li>e-ID Mongolia смарт картаар нэвтрэх</li>
+              <li>GeregeID смарт картаар нэвтрэх</li>
               <li>OIDC стандарт (access_token, id_token)</li>
               <li>Аливаа 3-р талын систем ашиглаж болно</li>
               <li>developer.gerege.mn-ээс app бүртгүүлнэ</li>

@@ -5,9 +5,9 @@ export default function SSOIntegrationGuidePage() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold mb-4">
           Нээлттэй — Бүх platform-д зориулсан
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">e-ID SSO нэгтгэх заавар</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">GeregeID SSO нэгтгэх заавар</h1>
         <p className="text-slate-400">
-          Таны platform дээр sso.gerege.mn-р дамжуулан e-ID Mongolia нэвтрэлт нэмнэ.
+          Таны platform дээр sso.gerege.mn-р дамжуулан GeregeID нэвтрэлт нэмнэ.
           OpenID Connect (OIDC) стандартаар ажиллана. Аливаа 3-р талын систем чөлөөтэй холбогдох боломжтой.
         </p>
       </div>
@@ -19,15 +19,15 @@ export default function SSOIntegrationGuidePage() {
           developer.gerege.mn дээр app бүртгүүлж client_id авахад хангалттай.
           Хэлний болон framework-ийн хязгаарлалтгүй — стандарт OIDC дэмжсэн дурын технологи ашиглаж болно.</p>
         </div>
-        <p>sso.gerege.mn нь OpenID Connect 1.0 provider бөгөөд e-ID Mongolia
+        <p>sso.gerege.mn нь OpenID Connect 1.0 provider бөгөөд GeregeID
         смарт картаар баталгаажуулсан иргэний мэдээллийг OAuth 2.0 Authorization Code Flow-р
         3-р талын системд дамжуулна.</p>
         <div className="mt-4 p-4 bg-primary/5 border border-primary/15 rounded-xl text-sm space-y-2">
           <p className="font-semibold text-white">Flow:</p>
           <ol className="list-decimal list-inside text-slate-400 space-y-1">
-            <li>Хэрэглэгч таны сайт дээр &quot;e-ID-р нэвтрэх&quot; товч дарна</li>
+            <li>Хэрэглэгч таны сайт дээр &quot;GeregeID-р нэвтрэх&quot; товч дарна</li>
             <li>sso.gerege.mn руу redirect хийгдэнэ</li>
-            <li>e-ID Mongolia смарт картаар нэвтэрнэ</li>
+            <li>GeregeID смарт картаар нэвтэрнэ</li>
             <li>Таны callback URL руу authorization code-тэй буцна</li>
             <li>Сервер талаас code → access_token + id_token солилцоно</li>
             <li>ID token-оос иргэний мэдээлэл уншина</li>
@@ -162,7 +162,7 @@ import NextAuth from "next-auth"
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [{
     id: "gerege-sso",
-    name: "e-ID Mongolia",
+    name: "GeregeID",
     type: "oidc",
     issuer: "https://sso.gerege.mn",
     clientId: process.env.EID_CLIENT_ID!,

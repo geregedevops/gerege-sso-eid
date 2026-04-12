@@ -21,7 +21,7 @@ import NextAuth from "next-auth"
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [{
     id: "gerege-sso",
-    name: "e-ID Mongolia",
+    name: "GeregeID",
     type: "oidc",
     issuer: "https://sso.gerege.mn",
     clientId: process.env.EID_CLIENT_ID,
@@ -43,7 +43,7 @@ config := oauth2.Config{
 
         <Step n={5} title="Тест хийх">
           <p className="text-slate-400">
-            App-аа ажиллуулж &quot;e-ID Mongolia-р нэвтрэх&quot; товч дарна. SmartID апп-д push ирнэ.
+            App-аа ажиллуулж &quot;GeregeID-р нэвтрэх&quot; товч дарна. SmartID апп-д push ирнэ.
             PIN1 оруулж баталгаажуулсны дараа ID Token + access_token авна.
           </p>
         </Step>

@@ -9,7 +9,7 @@ export default function LoginPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white mb-2">Developer Portal</h1>
-          <p className="text-sm text-slate-400">e-ID Mongolia-р нэвтрэн app бүртгүүлж, API key авна уу.</p>
+          <p className="text-sm text-slate-400">GeregeID-р нэвтрэн app бүртгүүлж, API key авна уу.</p>
         </div>
         <form
           action={async () => {
@@ -21,7 +21,7 @@ export default function LoginPage() {
             type="submit"
             className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors flex items-center justify-center gap-2"
           >
-            e-ID Mongolia-р нэвтрэх
+            GeregeID-р нэвтрэх
           </button>
         </form>
         <p className="text-xs text-slate-500">

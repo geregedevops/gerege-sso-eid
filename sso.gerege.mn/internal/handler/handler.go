@@ -71,7 +71,7 @@ const indexHTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sso.gerege.mn — e-ID SSO Provider</title>
+<title>sso.gerege.mn — GeregeID SSO Provider</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b1120;color:#e2e8f0;min-height:100vh}
@@ -147,8 +147,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 
 <div class="hero">
   <div class="open-badge">&#10003; Бүх platform-д нээлттэй</div>
-  <h1>e-ID <span>SSO</span> Provider</h1>
-  <p>OpenID Connect сервер — e-ID Mongolia смарт картаар баталгаажуулна. Аливаа 3-р талын систем чөлөөтэй холбогдож, иргэний мэдээллийг стандарт OIDC-р авна.</p>
+  <h1>GeregeID <span>SSO</span> Provider</h1>
+  <p>OpenID Connect сервер — GeregeID смарт картаар баталгаажуулна. Аливаа 3-р талын систем чөлөөтэй холбогдож, иргэний мэдээллийг стандарт OIDC-р авна.</p>
   <p class="sub">ES256 JWT &middot; OAuth 2.0 Authorization Code Flow &middot; OIDC Discovery</p>
   <div class="cta-row">
     <a href="https://developer.gerege.mn/dashboard/apps/new" class="btn btn-primary">App бүртгүүлэх</a>
@@ -163,7 +163,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
   <div class="flow">
     <div class="flow-step"><div class="flow-num">1</div><h4>App бүртгэл</h4><p>developer.gerege.mn дээр client_id авах</p></div>
     <div class="flow-step"><div class="flow-num">2</div><h4>Authorize</h4><p>/oauth/authorize руу redirect</p></div>
-    <div class="flow-step"><div class="flow-num">3</div><h4>e-ID нэвтрэх</h4><p>SmartID PIN1 оруулах</p></div>
+    <div class="flow-step"><div class="flow-num">3</div><h4>GeregeID нэвтрэх</h4><p>SmartID PIN1 оруулах</p></div>
     <div class="flow-step"><div class="flow-num">4</div><h4>Token</h4><p>code &#8594; access_token + id_token</p></div>
   </div>
 
@@ -205,7 +205,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 
   <div class="section-title">Яагаад sso.gerege.mn?</div>
   <div class="features">
-    <div class="feature"><h4>e-ID Mongolia</h4><p>SmartID.mn смарт картаар баталгаажуулсан, X.509 сертификат суурилсан</p></div>
+    <div class="feature"><h4>GeregeID</h4><p>SmartID смарт картаар баталгаажуулсан, X.509 сертификат суурилсан</p></div>
     <div class="feature"><h4>Стандарт OIDC</h4><p>OpenID Connect Discovery, JWKS, token introspection — ямар ч хэл, framework дэмждэг</p></div>
     <div class="feature"><h4>Нэг API</h4><p>POS, Social, Payment бүгд нэг access token-р — tenant бүр тусдаа scope</p></div>
     <div class="feature"><h4>Үнэгүй</h4><p>developer.gerege.mn дээр бүртгүүлэхэд үнэгүй. Rate limit: 1000 req/min</p></div>
@@ -215,7 +215,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 3
 
 <div class="footer">
   Issuer: <code style="background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;font-size:12px;color:#16a34a">{{ISSUER}}</code><br><br>
-  <a href="https://e-id.mn">e-ID Mongolia</a> &middot; <a href="https://developer.gerege.mn">Developer Portal</a> &middot; <a href="https://docs.gerege.mn">Docs</a> &middot; <a href="https://gerege.mn">gerege.mn</a>
+  <a href="https://gerege.mn">GeregeID</a> &middot; <a href="https://developer.gerege.mn">Developer Portal</a> &middot; <a href="https://docs.gerege.mn">Docs</a> &middot; <a href="https://gerege.mn">gerege.mn</a>
 </div>
 </body>
 </html>`

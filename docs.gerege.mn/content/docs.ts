@@ -22,13 +22,13 @@ export const sections: DocSection[] = [
         description: "Gerege platform-ийн тойм",
         content: `# Gerege Platform
 
-Gerege нь Монгол Улсын e-ID дэд бүтцэд суурилсан нэгдсэн platform юм.
+Gerege нь Монгол Улсын GeregeID дэд бүтцэд суурилсан нэгдсэн platform юм.
 
 ## Platform-ийн бүрэлдэхүүн
 
 | Service | URL | Зориулалт |
 |---------|-----|-----------|
-| **SSO Server** | sso.gerege.mn | OpenID Connect provider, e-ID нэвтрэлт |
+| **SSO Server** | sso.gerege.mn | OpenID Connect provider, GeregeID нэвтрэлт |
 | **Developer Portal** | developer.gerege.mn | App бүртгэл, API docs, dashboard |
 | **API Server** | api.gerege.mn | PDF signing, баримт бичиг API |
 | **DAN Gateway** | dan.gerege.mn | ДАН иргэний мэдээлэл (дотоод) |
@@ -108,7 +108,7 @@ docker compose logs -f sso
         description: "OpenID Connect provider",
         content: `# SSO Server (sso.gerege.mn)
 
-OpenID Connect 1.0 provider — e-ID Mongolia смарт картаар баталгаажуулна.
+OpenID Connect 1.0 provider — GeregeID смарт картаар баталгаажуулна.
 
 ## Нээлттэй — бүх 3-р талын platform-д
 
@@ -162,7 +162,7 @@ developer.gerege.mn дээр app бүртгүүлж client_id авахад ха�
 | \`SSO_PRIVATE_KEY_PATH\` | EC private key path |
 | \`DATABASE_URL\` | PostgreSQL connection string |
 | \`REDIS_URL\` | Redis connection string |
-| \`EID_BASE_URL\` | e-ID Mongolia API URL |`,
+| \`EID_BASE_URL\` | GeregeID API URL |`,
       },
       {
         slug: "sso/integration",
@@ -187,7 +187,7 @@ import NextAuth from "next-auth"
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [{
     id: "gerege-sso",
-    name: "e-ID Mongolia",
+    name: "GeregeID",
     type: "oidc",
     issuer: "https://sso.gerege.mn",
     clientId: process.env.EID_CLIENT_ID!,
@@ -321,7 +321,7 @@ JWKS URI: \`https://sso.gerege.mn/.well-known/jwks.json\`
 | Variable | Тайлбар |
 |----------|---------|
 | \`SSO_JWKS_URI\` | JWT шалгах JWKS endpoint |
-| \`EID_API_URL\` | e-ID Mongolia API |
+| \`EID_API_URL\` | GeregeID API (https://dapi.gerege.mn) |
 | \`STORAGE_PATH\` | Гарын үсэг зурсан файлын хадгалах зам |
 | \`DATABASE_URL\` | PostgreSQL connection |
 | \`REDIS_URL\` | Redis connection |`,

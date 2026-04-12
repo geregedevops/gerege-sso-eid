@@ -20,7 +20,7 @@ export default function LandingPage() {
             href="/auth/login"
             className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors"
           >
-            e-ID Mongolia-р нэвтрэх
+            GeregeID-р нэвтрэх
           </Link>
           <Link
             href="/docs/quickstart"
@@ -47,7 +47,7 @@ export default function LandingPage() {
             desc="QPay, SocialPay, eBarimt нэгтгэл"
           />
           <FeatureCard
-            title="e-ID нэвтрэлт"
+            title="GeregeID нэвтрэлт"
             desc="SmartID + X.509, eIDAS High"
           />
         </div>
@@ -60,7 +60,7 @@ export default function LandingPage() {
 {`// next-auth.config.ts
 providers: [{
   id: "gerege-sso",
-  name: "e-ID Mongolia",
+  name: "GeregeID",
   type: "oidc",
   issuer: "https://sso.gerege.mn",
   clientId: process.env.EID_CLIENT_ID,
@@ -71,7 +71,7 @@ providers: [{
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-8 text-center text-xs text-slate-500">
-        Gerege Developer Portal &middot; Powered by e-ID Mongolia &middot; sso.gerege.mn
+        Gerege Developer Portal &middot; Powered by GeregeID &middot; sso.gerege.mn
       </footer>
     </main>
   );

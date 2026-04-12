@@ -45,7 +45,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-white/10 py-8 text-center text-xs text-slate-500">
-        Gerege API Sandbox &middot; Powered by e-ID Mongolia &middot; sso.gerege.mn
+        Gerege API Sandbox &middot; Powered by GeregeID &middot; sso.gerege.mn
       </footer>
     </main>
   );

@@ -336,7 +336,7 @@ func TestAuthorize_MissingOpenIDScope(t *testing.T) {
 	}
 }
 
-func TestAuthorize_EID_RedirectsToEID(t *testing.T) {
+func TestAuthorize_RendersLoginPage(t *testing.T) {
 	h, db, _, _ := testHandler(t)
 	addTestClient(db, "c1", "secret", []string{"http://app.test/callback"})
 
@@ -344,12 +344,12 @@ func TestAuthorize_EID_RedirectsToEID(t *testing.T) {
 	rec := httptest.NewRecorder()
 	h.Authorize(rec, req)
 
-	if rec.Code != http.StatusFound {
-		t.Fatalf("expected 302, got %d", rec.Code)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
 	}
-	loc := rec.Header().Get("Location")
-	if !strings.HasPrefix(loc, "https://e-id.mn/auth") {
-		t.Fatalf("expected redirect to e-id.mn, got %s", loc)
+	body := rec.Body.String()
+	if !strings.Contains(body, "GeregeID") {
+		t.Fatalf("expected login page with GeregeID branding, got %s", body[:200])
 	}
 }
 
@@ -919,7 +919,7 @@ func TestIntrospect_ValidToken(t *testing.T) {
 
 // --- Revoke ---
 
-func TestRevoke_MissingCredentials(t *testing.T) {
+func TestRevoke_MissingCredentials_Returns200(t *testing.T) {
 	h, _, _, _ := testHandler(t)
 	form := url.Values{"token": {"abc"}}
 	req := httptest.NewRequest("POST", "/oauth/revoke", strings.NewReader(form.Encode()))
@@ -927,8 +927,9 @@ func TestRevoke_MissingCredentials(t *testing.T) {
 	rec := httptest.NewRecorder()
 	h.Revoke(rec, req)
 
-	if rec.Code != 401 {
-		t.Fatalf("expected 401, got %d", rec.Code)
+	// RFC 7009: always 200 to avoid leaking client info
+	if rec.Code != 200 {
+		t.Fatalf("expected 200 (RFC 7009), got %d", rec.Code)
 	}
 }
 

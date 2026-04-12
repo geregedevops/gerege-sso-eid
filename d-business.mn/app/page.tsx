@@ -12,15 +12,15 @@ export default function LandingPage() {
         </h1>
         <p className="text-lg text-slate-400 max-w-xl mx-auto mb-4">
           Монголын байгууллагуудад зориулсан цахим тамга (e-Seal) платформ.
-          Баримт бичигт e-ID-р гарын үсэг зурж, баталгаажуулна.
+          Баримт бичигт GeregeID-р гарын үсэг зурж, баталгаажуулна.
         </p>
         <p className="text-sm text-slate-500 max-w-lg mx-auto mb-10">
-          Estonia-ийн e-Stamp загварыг Монголын e-ID дэд бүтцэд нийцүүлсэн.
+          Estonia-ийн e-Stamp загварыг Монголын GeregeID дэд бүтцэд нийцүүлсэн.
           SmartID PIN2-оор баталгаажуулсан цахим гарын үсэг.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/auth/login" className="px-8 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-light transition-colors">
-            e-ID Mongolia-р нэвтрэх
+            GeregeID-р нэвтрэх
           </Link>
           <Link href="/verify" className="px-8 py-3 border border-white/15 text-white font-medium rounded-xl hover:bg-white/5 transition-colors">
             Баримт шалгах
@@ -47,7 +47,7 @@ export default function LandingPage() {
 
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <FeatureCard title="e-ID баталгаажуулалт" desc="SmartID + X.509 сертификатаар иргэний хувийн мэдээллийг баталгаажуулна." />
+          <FeatureCard title="GeregeID баталгаажуулалт" desc="SmartID + X.509 сертификатаар иргэний хувийн мэдээллийг баталгаажуулна." />
           <FeatureCard title="PDF гарын үсэг" desc="Байгууллагын нэрийн тамгаар баримт бичгийг цахимаар баталгаажуулна." />
           <FeatureCard title="Сертификат удирдлага" desc="Байгууллагын e-Seal сертификат олгох, хяналт, хүчингүй болгох." />
           <FeatureCard title="Баримт шалгалт" desc="Гарын үсэг зурсан баримтын бүрэн бүтэн байдлыг шалгана." />
@@ -58,7 +58,7 @@ export default function LandingPage() {
         <div className="bg-surface border border-white/10 rounded-2xl p-8 text-center">
           <h2 className="text-xl font-bold text-white mb-4">Яаж ажилладаг вэ?</h2>
           <div className="text-sm text-slate-400 space-y-3 text-left max-w-lg mx-auto">
-            <p><strong className="text-white">1. Бүртгэл:</strong> e-ID Mongolia-р нэвтэрч байгууллагаа бүртгүүлнэ (нэр, регистрийн дугаар, төрөл).</p>
+            <p><strong className="text-white">1. Бүртгэл:</strong> GeregeID-р нэвтэрч байгууллагаа бүртгүүлнэ (нэр, регистрийн дугаар, төрөл).</p>
             <p><strong className="text-white">2. Сертификат:</strong> Байгууллагын e-Seal сертификат хүсэлт илгээнэ. Баталгаажсны дараа цахим тамга ашиглах боломжтой.</p>
             <p><strong className="text-white">3. Гарын үсэг:</strong> PDF баримт upload хийж, SmartID PIN2 оруулан цахим гарын үсэг зурна. api.gerege.mn-р дамжуулан баталгаажуулалт хийгдэнэ.</p>
             <p><strong className="text-white">4. Шалгалт:</strong> Хэн ч гарын үсэг зурсан баримтыг upload хийж бүрэн бүтэн байдлыг шалгаж болно.</p>
