@@ -48,8 +48,15 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 	}
 	defer resp.Body.Close()
 
+	// Upstream returns 400 with {"status":"error"} when not found
 	if resp.StatusCode != http.StatusOK {
+		var upstream struct {
+			Status string `json:"status"`
+		}
 		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		if json.Unmarshal(respBody, &upstream) == nil && upstream.Status == "error" {
+			return nil, nil // not found
+		}
 		return nil, fmt.Errorf("org lookup status %d: %s", resp.StatusCode, string(respBody))
 	}
 

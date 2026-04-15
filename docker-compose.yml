@@ -227,7 +227,7 @@ services:
         condition: service_healthy
     environment:
       PORT: 8446
-      VERIFY_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/gerege_verify_db
+      VERIFY_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/gerege_verify_db?sslmode=disable
       VERIFY_REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/4
       VERIFY_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
       UPSTREAM_API_URL: ${UPSTREAM_API_URL}

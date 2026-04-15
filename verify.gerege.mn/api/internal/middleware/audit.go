@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"log/slog"
 	"net/http"
@@ -52,9 +53,9 @@ func Audit(db *store.Postgres) func(http.Handler) http.Handler {
 				IPAddress:    ip,
 			}
 
-			// Async insert
+			// Async insert — background context since request ctx may cancel
 			go func() {
-				if err := db.InsertAudit(r.Context(), entry); err != nil {
+				if err := db.InsertAudit(context.Background(), entry); err != nil {
 					slog.Error("audit insert failed", "error", err)
 				}
 			}()
