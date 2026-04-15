@@ -1,4 +1,4 @@
-const VERIFY_API_URL = process.env.VERIFY_API_URL || "http://verify-api:8446";
+const VERIFY_API_URL = process.env.VERIFY_API_URL || "http://xyp-api:8446";
 const VERIFY_ADMIN_KEY = process.env.VERIFY_WEB_ADMIN_KEY || "";
 
 async function verifyFetch(path: string, options: RequestInit = {}) {

@@ -11,7 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-dan-db.sh:/docker-entrypoint-initdb.d/00-init-dan-db.sh:ro
-      - ./verify.gerege.mn/init-verify-db.sh:/docker-entrypoint-initdb.d/01-init-verify-db.sh:ro
+      - ./xyp.gerege.mn/init-verify-db.sh:/docker-entrypoint-initdb.d/01-init-verify-db.sh:ro
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -214,11 +214,11 @@ services:
       - gerege
 
   # === Verify API (Go) ===
-  verify-api:
+  xyp-api:
     build:
-      context: ./verify.gerege.mn/api
+      context: ./xyp.gerege.mn/api
       dockerfile: Dockerfile
-    container_name: gerege-verify-api
+    container_name: gerege-xyp-api
     restart: unless-stopped
     depends_on:
       postgres:
@@ -237,17 +237,17 @@ services:
       - gerege
 
   # === Verify Admin Dashboard (Next.js) ===
-  verify-web:
+  xyp-web:
     build:
-      context: ./verify.gerege.mn/web
+      context: ./xyp.gerege.mn/web
       dockerfile: Dockerfile
-    container_name: gerege-verify-web
+    container_name: gerege-xyp-web
     restart: unless-stopped
     depends_on:
-      verify-api:
+      xyp-api:
         condition: service_started
     environment:
-      VERIFY_API_URL: http://verify-api:8446
+      VERIFY_API_URL: http://xyp-api:8446
       VERIFY_WEB_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
       UPSTREAM_API_URL: ${UPSTREAM_API_URL}
     networks:
@@ -268,8 +268,8 @@ services:
       - gsign
       - docs
       - dbusiness
-      - verify-api
-      - verify-web
+      - xyp-api
+      - xyp-web
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
