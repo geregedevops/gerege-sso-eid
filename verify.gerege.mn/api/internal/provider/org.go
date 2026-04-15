@@ -90,6 +90,32 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 		ceo = r.GeneralR.LastName + " " + r.GeneralR.FirstName
 	}
 
+	// Phone and address from active address entry
+	var phone, address string
+	for _, addr := range r.Address {
+		if addr.AddressStatus == "Тийм" {
+			phone = addr.PhoneNumber
+			parts := []string{}
+			if addr.StateCity.Name != "" {
+				parts = append(parts, addr.StateCity.Name)
+			}
+			if addr.SoumDistrict.Name != "" {
+				parts = append(parts, addr.SoumDistrict.Name)
+			}
+			if addr.BagKhoroo.Name != "" {
+				parts = append(parts, addr.BagKhoroo.Name)
+			}
+			if addr.Region.Name != "" {
+				parts = append(parts, addr.Region.Name)
+			}
+			if addr.Door != "" {
+				parts = append(parts, addr.Door)
+			}
+			address = strings.Join(parts, ", ")
+			break
+		}
+	}
+
 	// Active industries
 	var industries []string
 	for _, ind := range r.Induty {
@@ -103,6 +129,8 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 		Name:     name,
 		Type:     companyType,
 		CEO:      ceo,
+		Phone:    phone,
+		Address:  address,
 		Industry: industries,
 	}, nil
 }

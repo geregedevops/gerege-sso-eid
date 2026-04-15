@@ -41,17 +41,36 @@ type CitizenVerifyReq struct {
 
 // OrgInfo is our normalized output for the org lookup endpoint.
 type OrgInfo struct {
-	RegNo     string   `json:"reg_no"`
-	Name      string   `json:"name"`
-	Type      string   `json:"type,omitempty"`
-	CEO       string   `json:"ceo,omitempty"`
-	Industry  []string `json:"industry,omitempty"`
+	RegNo    string   `json:"reg_no"`
+	Name     string   `json:"name"`
+	Type     string   `json:"type,omitempty"`
+	CEO      string   `json:"ceo,omitempty"`
+	Phone    string   `json:"phone,omitempty"`
+	Address  string   `json:"address,omitempty"`
+	Industry []string `json:"industry,omitempty"`
 }
 
 // orgResult maps the upstream /legalentity/info result object.
 type orgResult struct {
 	ResultCode int    `json:"resultCode"`
 	GeneralR   orgCEO `json:"generalR"`
+	Address    []struct {
+		AddressStatus string `json:"addressStatus"`
+		PhoneNumber   string `json:"phoneNumber"`
+		StateCity     struct {
+			Name string `json:"name"`
+		} `json:"stateCity"`
+		SoumDistrict struct {
+			Name string `json:"name"`
+		} `json:"soumDistrict"`
+		BagKhoroo struct {
+			Name string `json:"name"`
+		} `json:"bagKhoroo"`
+		Region struct {
+			Name string `json:"name"`
+		} `json:"region"`
+		Door string `json:"door"`
+	} `json:"address"`
 	ChangeName []struct {
 		RequestedName string `json:"requestedName"`
 		CompanyType   string `json:"companyType"`
