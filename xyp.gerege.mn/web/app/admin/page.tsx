@@ -13,7 +13,7 @@ export default async function DashboardPage() {
         Verify API ашиглалтын тойм
       </p>
 
-      <div className="mb-6 flex gap-3">
+      <div className="mb-6 flex gap-3 flex-wrap">
         <a
           href="/admin/verify"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white font-bold text-sm rounded-xl transition-all"
@@ -25,6 +25,12 @@ export default async function DashboardPage() {
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] hover:bg-white/[0.1] text-white font-bold text-sm rounded-xl transition-all"
         >
           Дэлгэрэнгүй хайлт →
+        </a>
+        <a
+          href="/admin/clients"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] hover:bg-white/[0.1] text-white font-bold text-sm rounded-xl transition-all"
+        >
+          Client удирдлага →
         </a>
       </div>
 
