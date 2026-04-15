@@ -13,6 +13,15 @@ export default async function DashboardPage() {
         Verify API ашиглалтын тойм
       </p>
 
+      <div className="mb-6">
+        <a
+          href="/admin/lookup"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white font-bold text-sm rounded-xl transition-all"
+        >
+          Дэлгэрэнгүй хайлт →
+        </a>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6">
           <p className="text-sm text-slate-400 mb-1">Нийт Client</p>

@@ -173,7 +173,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Citizen result */}
+        {/* Citizen result — public: limited info only */}
         {citizenResult && (
           <div className="mt-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
             {!citizenResult.found ? (
@@ -192,30 +192,12 @@ export default function HomePage() {
                   <span className="text-slate-400 text-sm">Нэр</span>
                   <span className="text-white font-semibold">{citizenResult.citizen.first_name}</span>
                 </div>
-                {citizenResult.citizen.surname && (
-                  <div className="px-5 py-3 flex justify-between">
-                    <span className="text-slate-400 text-sm">Ургийн овог</span>
-                    <span className="text-white">{citizenResult.citizen.surname}</span>
-                  </div>
-                )}
-                <div className="px-5 py-3 flex justify-between">
-                  <span className="text-slate-400 text-sm">Хүйс</span>
-                  <span className="text-white">{citizenResult.citizen.gender}</span>
-                </div>
-                <div className="px-5 py-3 flex justify-between">
-                  <span className="text-slate-400 text-sm">Төрсөн огноо</span>
-                  <span className="text-white">{citizenResult.citizen.birth_date}</span>
-                </div>
-                <div className="px-5 py-3 flex justify-between">
-                  <span className="text-slate-400 text-sm">Үндэс угсаа</span>
-                  <span className="text-white">{citizenResult.citizen.nationality}</span>
-                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* Org result */}
+        {/* Org result — public: limited info only */}
         {orgResult && (
           <div className="mt-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
             {!orgResult.found ? (
@@ -234,12 +216,6 @@ export default function HomePage() {
                   <span className="text-slate-400 text-sm">Төрөл</span>
                   <span className="text-white text-sm">{orgResult.organization.type}</span>
                 </div>
-                {orgResult.organization.capital && (
-                  <div className="px-5 py-3 flex justify-between">
-                    <span className="text-slate-400 text-sm">Дүрмийн сан</span>
-                    <span className="text-white">{Number(orgResult.organization.capital).toLocaleString()}₮</span>
-                  </div>
-                )}
                 {orgResult.organization.ceo && (
                   <div className="px-5 py-3 flex justify-between">
                     <span className="text-slate-400 text-sm">
@@ -254,61 +230,10 @@ export default function HomePage() {
                     <span className="text-white font-mono text-sm">{orgResult.organization.ceo_reg_no}</span>
                   </div>
                 )}
-                {orgResult.organization.phone && (
-                  <div className="px-5 py-3 flex justify-between">
-                    <span className="text-slate-400 text-sm">Утас</span>
-                    <span className="text-white">{orgResult.organization.phone}</span>
-                  </div>
-                )}
                 {orgResult.organization.address && (
                   <div className="px-5 py-3 flex justify-between">
                     <span className="text-slate-400 text-sm">Хаяг</span>
                     <span className="text-white text-sm text-right max-w-[60%]">{orgResult.organization.address}</span>
-                  </div>
-                )}
-                {orgResult.organization.industry?.length > 0 && (
-                  <div className="px-5 py-3">
-                    <span className="text-slate-400 text-sm block mb-2">Үйл ажиллагааны чиглэл</span>
-                    <div className="flex flex-wrap gap-2">
-                      {orgResult.organization.industry.map((ind, i) => (
-                        <span key={i} className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-lg">
-                          {ind}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {orgResult.organization.founders?.length > 0 && (
-                  <div className="px-5 py-3">
-                    <span className="text-slate-400 text-sm block mb-2">Үүсгэн байгуулагчид</span>
-                    <div className="space-y-2">
-                      {orgResult.organization.founders.map((f, i) => (
-                        <div key={i} className="flex items-center justify-between bg-white/[0.02] rounded-lg px-3 py-2">
-                          <div>
-                            <span className="text-white text-sm">{f.name}</span>
-                            <span className="text-slate-500 text-xs ml-2">({f.type})</span>
-                            <span className="text-slate-500 font-mono text-xs ml-2">{f.reg_no}</span>
-                          </div>
-                          <span className="text-primary font-semibold text-sm">{f.share_percent}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {orgResult.organization.stake_holders?.length > 0 && (
-                  <div className="px-5 py-3">
-                    <span className="text-slate-400 text-sm block mb-2">ТУЗ гишүүд</span>
-                    <div className="space-y-2">
-                      {orgResult.organization.stake_holders.map((s, i) => (
-                        <div key={i} className="flex items-center justify-between bg-white/[0.02] rounded-lg px-3 py-2">
-                          <div>
-                            <span className="text-white text-sm">{s.name}</span>
-                            <span className="text-slate-500 font-mono text-xs ml-2">{s.reg_no}</span>
-                          </div>
-                          <span className="text-slate-400 text-xs">{s.position}</span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
