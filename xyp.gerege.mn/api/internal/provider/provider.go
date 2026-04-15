@@ -2,14 +2,6 @@ package provider
 
 import "context"
 
-// upstreamResponse is the common wrapper for both citizen and org APIs.
-type upstreamResponse struct {
-	Code    int    `json:"code"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Result  any    `json:"-"` // decoded separately per type
-}
-
 // CitizenInfo is our normalized output for the citizen lookup endpoint.
 type CitizenInfo struct {
 	RegNo       string `json:"reg_no"`
@@ -23,14 +15,14 @@ type CitizenInfo struct {
 
 // citizenResult maps the upstream /user/validate result object.
 type citizenResult struct {
-	Firstname    string `json:"firstname"`
-	Lastname     string `json:"lastname"`
-	Surname      string `json:"surname"`
-	Regnum       string `json:"regnum"`
-	Gender       string `json:"gender"`
-	BirthDate    string `json:"birthDateAsText"`
-	Nationality  string `json:"nationality"`
-	ResultCode   int    `json:"resultCode"`
+	Firstname   string `json:"firstname"`
+	Lastname    string `json:"lastname"`
+	Surname     string `json:"surname"`
+	Regnum      string `json:"regnum"`
+	Gender      string `json:"gender"`
+	BirthDate   string `json:"birthDateAsText"`
+	Nationality string `json:"nationality"`
+	ResultCode  int    `json:"resultCode"`
 }
 
 type CitizenVerifyReq struct {
@@ -41,15 +33,31 @@ type CitizenVerifyReq struct {
 
 // OrgInfo is our normalized output for the org lookup endpoint.
 type OrgInfo struct {
-	RegNo      string   `json:"reg_no"`
-	Name       string   `json:"name"`
-	Type       string   `json:"type,omitempty"`
-	CEO        string   `json:"ceo,omitempty"`
-	CEORegNo   string   `json:"ceo_reg_no,omitempty"`
-	CEOPosition string  `json:"ceo_position,omitempty"`
-	Phone      string   `json:"phone,omitempty"`
-	Address    string   `json:"address,omitempty"`
-	Industry   []string `json:"industry,omitempty"`
+	RegNo        string         `json:"reg_no"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type,omitempty"`
+	Capital      string         `json:"capital,omitempty"`
+	CEO          string         `json:"ceo,omitempty"`
+	CEORegNo     string         `json:"ceo_reg_no,omitempty"`
+	CEOPosition  string         `json:"ceo_position,omitempty"`
+	Phone        string         `json:"phone,omitempty"`
+	Address      string         `json:"address,omitempty"`
+	Industry     []string       `json:"industry,omitempty"`
+	Founders     []OrgFounder   `json:"founders,omitempty"`
+	StakeHolders []OrgStakeHolder `json:"stake_holders,omitempty"`
+}
+
+type OrgFounder struct {
+	Name         string `json:"name"`
+	RegNo        string `json:"reg_no"`
+	Type         string `json:"type"`
+	SharePercent string `json:"share_percent"`
+}
+
+type OrgStakeHolder struct {
+	Name     string `json:"name"`
+	RegNo    string `json:"reg_no"`
+	Position string `json:"position"`
 }
 
 // orgResult maps the upstream /legalentity/info result object.
@@ -73,16 +81,34 @@ type orgResult struct {
 		} `json:"region"`
 		Door string `json:"door"`
 	} `json:"address"`
+	Capital []struct {
+		RowStatusName string `json:"rowStatusName"`
+		TotalAmount   string `json:"totalAmount"`
+	} `json:"capital"`
 	ChangeName []struct {
 		RequestedName string `json:"requestedName"`
 		CompanyType   string `json:"companyType"`
 		CompanyRegnum string `json:"companyRegnum"`
-		CreatedDate   string `json:"createdDate"`
 	} `json:"changeName"`
 	Induty []struct {
 		IndustryName   string `json:"industryName"`
 		IndustryStatus string `json:"industryStatus"`
 	} `json:"induty"`
+	Founder []struct {
+		FirstName           string `json:"firstName"`
+		LastName            string `json:"lastName"`
+		StakeHolderRegnum   string `json:"stakeHolderRegnum"`
+		StakeHolderTypeName string `json:"stakeHolderTypeName"`
+		SharePercent        string `json:"sharePercent"`
+		Status              string `json:"status"`
+	} `json:"founder"`
+	StakeHolders []struct {
+		Firstname    string `json:"firstname"`
+		Lastname     string `json:"lastname"`
+		StateRegnum  string `json:"stateRegnum"`
+		PositionName string `json:"positionName"`
+		Status       string `json:"status"`
+	} `json:"stakeHolders"`
 }
 
 type orgCEO struct {

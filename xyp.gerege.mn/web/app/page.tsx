@@ -15,18 +15,34 @@ type CitizenResult = {
   } | null;
 };
 
+type OrgFounder = {
+  name: string;
+  reg_no: string;
+  type: string;
+  share_percent: string;
+};
+
+type OrgStakeHolder = {
+  name: string;
+  reg_no: string;
+  position: string;
+};
+
 type OrgResult = {
   found: boolean;
   organization: {
     reg_no: string;
     name: string;
     type: string;
+    capital: string;
     ceo: string;
     ceo_reg_no: string;
     ceo_position: string;
     phone: string;
     address: string;
     industry: string[];
+    founders: OrgFounder[];
+    stake_holders: OrgStakeHolder[];
   } | null;
 };
 
@@ -218,6 +234,12 @@ export default function HomePage() {
                   <span className="text-slate-400 text-sm">Төрөл</span>
                   <span className="text-white text-sm">{orgResult.organization.type}</span>
                 </div>
+                {orgResult.organization.capital && (
+                  <div className="px-5 py-3 flex justify-between">
+                    <span className="text-slate-400 text-sm">Дүрмийн сан</span>
+                    <span className="text-white">{Number(orgResult.organization.capital).toLocaleString()}₮</span>
+                  </div>
+                )}
                 {orgResult.organization.ceo && (
                   <div className="px-5 py-3 flex justify-between">
                     <span className="text-slate-400 text-sm">
@@ -252,6 +274,39 @@ export default function HomePage() {
                         <span key={i} className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-lg">
                           {ind}
                         </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {orgResult.organization.founders?.length > 0 && (
+                  <div className="px-5 py-3">
+                    <span className="text-slate-400 text-sm block mb-2">Үүсгэн байгуулагчид</span>
+                    <div className="space-y-2">
+                      {orgResult.organization.founders.map((f, i) => (
+                        <div key={i} className="flex items-center justify-between bg-white/[0.02] rounded-lg px-3 py-2">
+                          <div>
+                            <span className="text-white text-sm">{f.name}</span>
+                            <span className="text-slate-500 text-xs ml-2">({f.type})</span>
+                            <span className="text-slate-500 font-mono text-xs ml-2">{f.reg_no}</span>
+                          </div>
+                          <span className="text-primary font-semibold text-sm">{f.share_percent}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {orgResult.organization.stake_holders?.length > 0 && (
+                  <div className="px-5 py-3">
+                    <span className="text-slate-400 text-sm block mb-2">ТУЗ гишүүд</span>
+                    <div className="space-y-2">
+                      {orgResult.organization.stake_holders.map((s, i) => (
+                        <div key={i} className="flex items-center justify-between bg-white/[0.02] rounded-lg px-3 py-2">
+                          <div>
+                            <span className="text-white text-sm">{s.name}</span>
+                            <span className="text-slate-500 font-mono text-xs ml-2">{s.reg_no}</span>
+                          </div>
+                          <span className="text-slate-400 text-xs">{s.position}</span>
+                        </div>
                       ))}
                     </div>
                   </div>

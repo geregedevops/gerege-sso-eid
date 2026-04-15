@@ -64,9 +64,31 @@ export async function POST(req: Request) {
       .filter((i: any) => i.industryStatus === "Тийм")
       .map((i: any) => i.industryName);
 
-    // CEO reg_no and position
     const ceoRegNo = r.generalR?.regnum || "";
     const ceoPosition = r.generalR?.positionName || "";
+
+    // Capital (active)
+    const capitalEntry = (r.capital || []).find((c: any) => c.rowStatusName === "Тийм");
+    const capital = capitalEntry?.totalAmount || "";
+
+    // Active founders
+    const founders = (r.founder || [])
+      .filter((f: any) => f.status === "Тийм")
+      .map((f: any) => ({
+        name: `${f.lastName || ""} ${f.firstName || ""}`.trim(),
+        reg_no: f.stakeHolderRegnum || "",
+        type: f.stakeHolderTypeName || "",
+        share_percent: f.sharePercent || "",
+      }));
+
+    // Active board members
+    const stake_holders = (r.stakeHolders || [])
+      .filter((s: any) => s.status === "Тийм")
+      .map((s: any) => ({
+        name: `${s.lastname || ""} ${s.firstname || ""}`.trim(),
+        reg_no: s.stateRegnum || "",
+        position: s.positionName || "",
+      }));
 
     return NextResponse.json({
       found: true,
@@ -74,12 +96,15 @@ export async function POST(req: Request) {
         reg_no: companyRegNo,
         name,
         type,
+        capital,
         ceo,
         ceo_reg_no: ceoRegNo,
         ceo_position: ceoPosition,
         phone,
         address,
         industry,
+        founders,
+        stake_holders,
       },
     });
   } catch (e: any) {

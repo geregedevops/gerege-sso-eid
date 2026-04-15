@@ -116,6 +116,15 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 		}
 	}
 
+	// Capital (active)
+	var capital string
+	for _, c := range r.Capital {
+		if c.RowStatusName == "Тийм" {
+			capital = c.TotalAmount
+			break
+		}
+	}
+
 	// Active industries
 	var industries []string
 	for _, ind := range r.Induty {
@@ -124,16 +133,46 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 		}
 	}
 
+	// Active founders
+	var founders []OrgFounder
+	for _, f := range r.Founder {
+		if f.Status == "Тийм" {
+			n := strings.TrimSpace(f.LastName + " " + f.FirstName)
+			founders = append(founders, OrgFounder{
+				Name:         n,
+				RegNo:        f.StakeHolderRegnum,
+				Type:         f.StakeHolderTypeName,
+				SharePercent: f.SharePercent,
+			})
+		}
+	}
+
+	// Active stake holders (board members)
+	var stakeHolders []OrgStakeHolder
+	for _, s := range r.StakeHolders {
+		if s.Status == "Тийм" {
+			n := strings.TrimSpace(s.Lastname + " " + s.Firstname)
+			stakeHolders = append(stakeHolders, OrgStakeHolder{
+				Name:     n,
+				RegNo:    s.StateRegnum,
+				Position: s.PositionName,
+			})
+		}
+	}
+
 	return &OrgInfo{
-		RegNo:       regNo,
-		Name:        name,
-		Type:        companyType,
-		CEO:         ceo,
-		CEORegNo:    r.GeneralR.Regnum,
-		CEOPosition: r.GeneralR.PositionName,
-		Phone:       phone,
-		Address:     address,
-		Industry: industries,
+		RegNo:        regNo,
+		Name:         name,
+		Type:         companyType,
+		Capital:      capital,
+		CEO:          ceo,
+		CEORegNo:     r.GeneralR.Regnum,
+		CEOPosition:  r.GeneralR.PositionName,
+		Phone:        phone,
+		Address:      address,
+		Industry:     industries,
+		Founders:     founders,
+		StakeHolders: stakeHolders,
 	}, nil
 }
 
