@@ -22,11 +22,32 @@ export async function POST(req: Request) {
     }
 
     const r = data.result;
-    const actualCeoRegNo = (r.generalR?.regnum || "").toLowerCase().trim();
-    const inputCeoRegNo = ceo_reg_no.toLowerCase().trim();
+    const input = ceo_reg_no.toLowerCase().trim();
 
-    if (actualCeoRegNo !== inputCeoRegNo) {
-      return NextResponse.json({ authenticated: false, reason: "ceo_reg_no does not match" });
+    // Check CEO match
+    const actualCeo = (r.generalR?.regnum || "").toLowerCase().trim();
+    const ceoMatch = actualCeo === input;
+
+    // Find largest shareholder
+    const activeFounders = (r.founder || []).filter((f: any) => f.status === "Тийм");
+    let topOwner: any = null;
+    let topPct = 0;
+    for (const f of activeFounders) {
+      const pct = parseFloat(f.sharePercent || "0");
+      if (!topOwner || pct > topPct) {
+        topOwner = f;
+        topPct = pct;
+      }
+    }
+
+    const ownerMatch = topOwner && (topOwner.stakeHolderRegnum || "").toLowerCase().trim() === input;
+
+    // Either one must match
+    if (!ceoMatch && !ownerMatch) {
+      return NextResponse.json({
+        authenticated: false,
+        reason: "ceo_reg_no does not match director or largest shareholder",
+      });
     }
 
     let name = "";
@@ -41,7 +62,7 @@ export async function POST(req: Request) {
       ceo = `${r.generalR.lastName || ""} ${r.generalR.firstName}`.trim();
     }
 
-    return NextResponse.json({
+    const result: any = {
       authenticated: true,
       organization: {
         reg_no: r.changeName?.[0]?.companyRegnum || reg_no,
@@ -51,7 +72,18 @@ export async function POST(req: Request) {
         ceo_reg_no: r.generalR?.regnum || "",
         ceo_position: r.generalR?.positionName || "",
       },
-    });
+    };
+
+    if (topOwner) {
+      result.owner = {
+        name: `${topOwner.lastName || ""} ${topOwner.firstName || ""}`.trim(),
+        reg_no: topOwner.stakeHolderRegnum || "",
+        type: topOwner.stakeHolderTypeName || "",
+        share_percent: topOwner.sharePercent || "",
+      };
+    }
+
+    return NextResponse.json(result);
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "upstream error" }, { status: 502 });
   }

@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"xyp.gerege.mn/api/internal/provider"
 )
 
 // AuthenticateCitizen accepts reg_no + phone, looks up citizen from XYP,
@@ -41,10 +44,6 @@ func (h *Handler) AuthenticateCitizen(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: phone validation — upstream does not provide phone data.
-	// Currently authenticates by reg_no existence only.
-	// Phone stored in request for audit trail.
-
 	writeJSON(w, http.StatusOK, map[string]any{
 		"authenticated": true,
 		"citizen": map[string]any{
@@ -59,8 +58,9 @@ func (h *Handler) AuthenticateCitizen(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// AuthenticateOrg accepts reg_no + ceo_reg_no, looks up org from XYP,
-// validates CEO reg_no matches, and returns limited verified info.
+// AuthenticateOrg accepts reg_no + ceo_reg_no, looks up org from XYP.
+// Validates: ceo_reg_no matches CEO OR largest shareholder (either one is valid).
+// Returns org info + ultimate owner (largest shareholder) info.
 func (h *Handler) AuthenticateOrg(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		RegNo    string `json:"reg_no"`
@@ -93,16 +93,25 @@ func (h *Handler) AuthenticateOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate CEO reg_no matches
-	if !strings.EqualFold(strings.TrimSpace(info.CEORegNo), strings.TrimSpace(req.CEORegNo)) {
+	inputRegNo := strings.ToLower(strings.TrimSpace(req.CEORegNo))
+
+	// Check if matches CEO
+	ceoMatch := strings.EqualFold(strings.TrimSpace(info.CEORegNo), inputRegNo)
+
+	// Check if matches largest shareholder
+	topOwner := findLargestFounder(info.Founders)
+	ownerMatch := topOwner != nil && strings.EqualFold(strings.TrimSpace(topOwner.RegNo), inputRegNo)
+
+	// Either one must match
+	if !ceoMatch && !ownerMatch {
 		writeJSON(w, http.StatusOK, map[string]any{
 			"authenticated": false,
-			"reason":        "ceo_reg_no does not match",
+			"reason":        "ceo_reg_no does not match director or largest shareholder",
 		})
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	result := map[string]any{
 		"authenticated": true,
 		"organization": map[string]any{
 			"reg_no":       info.RegNo,
@@ -112,5 +121,33 @@ func (h *Handler) AuthenticateOrg(w http.ResponseWriter, r *http.Request) {
 			"ceo_reg_no":   info.CEORegNo,
 			"ceo_position": info.CEOPosition,
 		},
-	})
+	}
+
+	// Always include owner info if available
+	if topOwner != nil {
+		result["owner"] = map[string]any{
+			"name":          topOwner.Name,
+			"reg_no":        topOwner.RegNo,
+			"type":          topOwner.Type,
+			"share_percent": topOwner.SharePercent,
+		}
+	}
+
+	writeJSON(w, http.StatusOK, result)
+}
+
+func findLargestFounder(founders []provider.OrgFounder) *provider.OrgFounder {
+	if len(founders) == 0 {
+		return nil
+	}
+	var top *provider.OrgFounder
+	var topPct float64
+	for i := range founders {
+		pct, _ := strconv.ParseFloat(founders[i].SharePercent, 64)
+		if top == nil || pct > topPct {
+			top = &founders[i]
+			topPct = pct
+		}
+	}
+	return top
 }

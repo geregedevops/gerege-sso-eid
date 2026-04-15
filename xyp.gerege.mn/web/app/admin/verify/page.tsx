@@ -65,6 +65,7 @@ export default function AdminVerifyPage() {
 
   const citizen = result?.citizen;
   const org = result?.organization;
+  const owner = result?.owner;
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
@@ -210,18 +211,34 @@ export default function AdminVerifyPage() {
 
       {/* Org result */}
       {result?.authenticated && org && (
-        <div className="bg-white/[0.03] border border-primary/30 rounded-2xl overflow-hidden">
-          <div className="px-5 py-3 bg-primary/10 border-b border-primary/20 flex items-center gap-2">
-            <span className="text-primary text-lg">✓</span>
-            <span className="text-primary font-semibold text-sm">Баталгаажсан — Захирлын РД таарч байна</span>
+        <div className="space-y-4">
+          <div className="bg-white/[0.03] border border-primary/30 rounded-2xl overflow-hidden">
+            <div className="px-5 py-3 bg-primary/10 border-b border-primary/20 flex items-center gap-2">
+              <span className="text-primary text-lg">✓</span>
+              <span className="text-primary font-semibold text-sm">Баталгаажсан</span>
+            </div>
+            <div className="divide-y divide-white/[0.06]">
+              <Row label="Регистр" value={org.reg_no} mono />
+              <Row label="Нэр" value={org.name} bold />
+              <Row label="Төрөл" value={org.type} />
+              <Row label={org.ceo_position || "Захирал"} value={org.ceo} />
+              <Row label="Захирлын РД" value={org.ceo_reg_no} mono />
+            </div>
           </div>
-          <div className="divide-y divide-white/[0.06]">
-            <Row label="Регистр" value={org.reg_no} mono />
-            <Row label="Нэр" value={org.name} bold />
-            <Row label="Төрөл" value={org.type} />
-            <Row label={org.ceo_position || "Захирал"} value={org.ceo} />
-            <Row label="Захирлын РД" value={org.ceo_reg_no} mono />
-          </div>
+
+          {owner && (
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
+              <div className="px-5 py-3 border-b border-white/[0.06]">
+                <h3 className="font-semibold text-white text-sm">Эцсийн өмчлөгч (хамгийн том хувьцаа эзэмшигч)</h3>
+              </div>
+              <div className="divide-y divide-white/[0.06]">
+                <Row label="Нэр" value={owner.name} bold />
+                <Row label="РД" value={owner.reg_no} mono />
+                <Row label="Төрөл" value={owner.type} />
+                <Row label="Хувь эзэмшил" value={`${owner.share_percent}%`} />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
