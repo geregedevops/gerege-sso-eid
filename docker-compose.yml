@@ -249,6 +249,7 @@ services:
     environment:
       VERIFY_API_URL: http://verify-api:8446
       VERIFY_WEB_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
+      UPSTREAM_API_URL: ${UPSTREAM_API_URL}
     networks:
       - gerege
 

@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
   title: "Verify API — verify.gerege.mn",
-  description: "Иргэн & байгууллага баталгаажуулах API удирдлагын самбар",
+  description: "Иргэн & байгууллага баталгаажуулах API",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -14,19 +14,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="mn" className="dark">
       <body className={inter.className}>
         <nav className="flex items-center justify-between px-8 py-4 border-b border-white/5">
-          <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xs">
               VFY
             </div>
             <span className="font-bold text-white">Verify API</span>
-          </div>
+          </a>
           <div className="flex gap-6 text-sm text-slate-400 items-center">
-            <a href="/admin" className="hover:text-white">Dashboard</a>
-            <a href="/admin/clients" className="hover:text-white">Clients</a>
-            <a href="/admin/usage" className="hover:text-white">Usage</a>
-            <form action="/api/auth/logout" method="post">
-              <button type="submit" className="hover:text-white">Гарах</button>
-            </form>
+            <a href="/" className="hover:text-white">Нүүр</a>
+            <a href="/docs" className="hover:text-white">API Заавар</a>
+            <a href="/admin" className="hover:text-white">Admin</a>
           </div>
         </nav>
         {children}
