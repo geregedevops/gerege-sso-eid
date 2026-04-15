@@ -11,6 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-dan-db.sh:/docker-entrypoint-initdb.d/00-init-dan-db.sh:ro
+      - ./verify.gerege.mn/init-verify-db.sh:/docker-entrypoint-initdb.d/01-init-verify-db.sh:ro
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -212,6 +213,45 @@ services:
     networks:
       - gerege
 
+  # === Verify API (Go) ===
+  verify-api:
+    build:
+      context: ./verify.gerege.mn/api
+      dockerfile: Dockerfile
+    container_name: gerege-verify-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 8446
+      VERIFY_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/gerege_verify_db
+      VERIFY_REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/4
+      VERIFY_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
+      UPSTREAM_API_URL: ${UPSTREAM_API_URL}
+      UPSTREAM_API_KEY: ${UPSTREAM_API_KEY}
+      VERIFY_CORS_ORIGIN: https://verify.gerege.mn
+    networks:
+      - gerege
+
+  # === Verify Admin Dashboard (Next.js) ===
+  verify-web:
+    build:
+      context: ./verify.gerege.mn/web
+      dockerfile: Dockerfile
+    container_name: gerege-verify-web
+    restart: unless-stopped
+    depends_on:
+      verify-api:
+        condition: service_started
+    environment:
+      VERIFY_API_URL: http://verify-api:8446
+      VERIFY_WEB_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
+    networks:
+      - gerege
+
   # === Nginx Reverse Proxy ===
   nginx:
     image: nginx:alpine
@@ -227,6 +267,8 @@ services:
       - gsign
       - docs
       - dbusiness
+      - verify-api
+      - verify-web
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
