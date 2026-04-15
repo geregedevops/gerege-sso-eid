@@ -2,13 +2,35 @@ package provider
 
 import "context"
 
-// CitizenInfo maps the response from the /user/validate upstream API.
+// upstreamResponse is the common wrapper for both citizen and org APIs.
+type upstreamResponse struct {
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Result  any    `json:"-"` // decoded separately per type
+}
+
+// CitizenInfo is our normalized output for the citizen lookup endpoint.
 type CitizenInfo struct {
 	RegNo       string `json:"reg_no"`
-	LastName    string `json:"last_name,omitempty"`
-	FirstName   string `json:"first_name,omitempty"`
-	DateOfBirth string `json:"date_of_birth,omitempty"`
+	LastName    string `json:"last_name"`
+	FirstName   string `json:"first_name"`
+	Surname     string `json:"surname,omitempty"`
 	Gender      string `json:"gender,omitempty"`
+	BirthDate   string `json:"birth_date,omitempty"`
+	Nationality string `json:"nationality,omitempty"`
+}
+
+// citizenResult maps the upstream /user/validate result object.
+type citizenResult struct {
+	Firstname    string `json:"firstname"`
+	Lastname     string `json:"lastname"`
+	Surname      string `json:"surname"`
+	Regnum       string `json:"regnum"`
+	Gender       string `json:"gender"`
+	BirthDate    string `json:"birthDateAsText"`
+	Nationality  string `json:"nationality"`
+	ResultCode   int    `json:"resultCode"`
 }
 
 type CitizenVerifyReq struct {
@@ -17,14 +39,35 @@ type CitizenVerifyReq struct {
 	LastName  string `json:"last_name"`
 }
 
-// OrgInfo maps the response from the /legalentity/info upstream API.
+// OrgInfo is our normalized output for the org lookup endpoint.
 type OrgInfo struct {
-	RegNo           string `json:"reg_no"`
-	Name            string `json:"name"`
-	NameShort       string `json:"name_short,omitempty"`
-	Type            string `json:"type,omitempty"`
-	Status          string `json:"status,omitempty"`
-	EstablishedDate string `json:"established_date,omitempty"`
+	RegNo     string   `json:"reg_no"`
+	Name      string   `json:"name"`
+	Type      string   `json:"type,omitempty"`
+	CEO       string   `json:"ceo,omitempty"`
+	Industry  []string `json:"industry,omitempty"`
+}
+
+// orgResult maps the upstream /legalentity/info result object.
+type orgResult struct {
+	ResultCode int    `json:"resultCode"`
+	GeneralR   orgCEO `json:"generalR"`
+	ChangeName []struct {
+		RequestedName string `json:"requestedName"`
+		CompanyType   string `json:"companyType"`
+		CompanyRegnum string `json:"companyRegnum"`
+		CreatedDate   string `json:"createdDate"`
+	} `json:"changeName"`
+	Induty []struct {
+		IndustryName   string `json:"industryName"`
+		IndustryStatus string `json:"industryStatus"`
+	} `json:"induty"`
+}
+
+type orgCEO struct {
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	PositionName string `json:"positionName"`
 }
 
 type OrgVerifyReq struct {

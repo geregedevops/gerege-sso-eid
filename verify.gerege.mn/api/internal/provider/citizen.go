@@ -25,8 +25,8 @@ func NewCitizenHTTP(baseURL, apiKey string) *CitizenHTTP {
 	}
 }
 
-// Lookup calls the upstream user/validate API.
-// Upstream: POST {baseURL}/user/validate  body: {"reg_no":"АА12345678"}
+// Lookup calls POST {baseURL}/user/validate with {"reg_no":"..."}
+// Upstream wraps data in {"code":200,"status":"success","result":{...}}
 func (c *CitizenHTTP) Lookup(ctx context.Context, regNo string) (*CitizenInfo, error) {
 	if c.baseURL == "" {
 		return nil, fmt.Errorf("citizen API not configured")
@@ -48,26 +48,44 @@ func (c *CitizenHTTP) Lookup(ctx context.Context, regNo string) (*CitizenInfo, e
 	}
 	defer resp.Body.Close()
 
+	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+
 	// Upstream returns 400 with {"status":"error"} when not found
 	if resp.StatusCode != http.StatusOK {
-		var upstream struct {
+		var env struct {
 			Status string `json:"status"`
 		}
-		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
-		if json.Unmarshal(respBody, &upstream) == nil && upstream.Status == "error" {
-			return nil, nil // not found
+		if json.Unmarshal(respBody, &env) == nil && env.Status == "error" {
+			return nil, nil
 		}
 		return nil, fmt.Errorf("citizen lookup status %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	var info CitizenInfo
-	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+	// Parse envelope: {"code":200,"status":"success","result":{...}}
+	var env struct {
+		Code   int           `json:"code"`
+		Status string        `json:"status"`
+		Result citizenResult `json:"result"`
+	}
+	if err := json.Unmarshal(respBody, &env); err != nil {
 		return nil, fmt.Errorf("citizen lookup decode: %w", err)
 	}
-	return &info, nil
+	if env.Status != "success" || env.Result.ResultCode != 200 {
+		return nil, nil
+	}
+
+	r := env.Result
+	return &CitizenInfo{
+		RegNo:       r.Regnum,
+		LastName:    r.Lastname,
+		FirstName:   r.Firstname,
+		Surname:     r.Surname,
+		Gender:      r.Gender,
+		BirthDate:   r.BirthDate,
+		Nationality: r.Nationality,
+	}, nil
 }
 
-// Verify calls the upstream user/validate API and compares the name fields.
 func (c *CitizenHTTP) Verify(ctx context.Context, req CitizenVerifyReq) (bool, error) {
 	info, err := c.Lookup(ctx, req.RegNo)
 	if err != nil {

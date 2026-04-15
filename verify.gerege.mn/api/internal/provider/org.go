@@ -25,8 +25,8 @@ func NewOrgHTTP(baseURL, apiKey string) *OrgHTTP {
 	}
 }
 
-// Lookup calls the upstream legalentity/info API.
-// Upstream: POST {baseURL}/legalentity/info  body: {"reg_no":"6235972"}
+// Lookup calls POST {baseURL}/legalentity/info with {"reg_no":"..."}
+// Upstream wraps data in {"code":200,"status":"success","result":{...}}
 func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 	if o.baseURL == "" {
 		return nil, fmt.Errorf("org API not configured")
@@ -48,26 +48,65 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 	}
 	defer resp.Body.Close()
 
+	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 128*1024))
+
 	// Upstream returns 400 with {"status":"error"} when not found
 	if resp.StatusCode != http.StatusOK {
-		var upstream struct {
+		var env struct {
 			Status string `json:"status"`
 		}
-		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
-		if json.Unmarshal(respBody, &upstream) == nil && upstream.Status == "error" {
-			return nil, nil // not found
+		if json.Unmarshal(respBody, &env) == nil && env.Status == "error" {
+			return nil, nil
 		}
 		return nil, fmt.Errorf("org lookup status %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	var info OrgInfo
-	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+	// Parse envelope: {"code":200,"status":"success","result":{...}}
+	var env struct {
+		Code   int       `json:"code"`
+		Status string    `json:"status"`
+		Result orgResult `json:"result"`
+	}
+	if err := json.Unmarshal(respBody, &env); err != nil {
 		return nil, fmt.Errorf("org lookup decode: %w", err)
 	}
-	return &info, nil
+	if env.Status != "success" || env.Result.ResultCode != 200 {
+		return nil, nil
+	}
+
+	r := env.Result
+
+	// Get current company name from changeName (first entry is most recent)
+	var name, companyType string
+	if len(r.ChangeName) > 0 {
+		name = r.ChangeName[0].RequestedName
+		companyType = r.ChangeName[0].CompanyType
+		regNo = r.ChangeName[0].CompanyRegnum
+	}
+
+	// CEO info
+	var ceo string
+	if r.GeneralR.FirstName != "" {
+		ceo = r.GeneralR.LastName + " " + r.GeneralR.FirstName
+	}
+
+	// Active industries
+	var industries []string
+	for _, ind := range r.Induty {
+		if ind.IndustryStatus == "Тийм" {
+			industries = append(industries, ind.IndustryName)
+		}
+	}
+
+	return &OrgInfo{
+		RegNo:    regNo,
+		Name:     name,
+		Type:     companyType,
+		CEO:      ceo,
+		Industry: industries,
+	}, nil
 }
 
-// Verify calls the upstream legalentity/info API and compares the name.
 func (o *OrgHTTP) Verify(ctx context.Context, req OrgVerifyReq) (bool, error) {
 	info, err := o.Lookup(ctx, req.RegNo)
 	if err != nil {
@@ -77,6 +116,5 @@ func (o *OrgHTTP) Verify(ctx context.Context, req OrgVerifyReq) (bool, error) {
 		return false, nil
 	}
 
-	// Compare name case-insensitively
 	return strings.EqualFold(strings.TrimSpace(info.Name), strings.TrimSpace(req.Name)), nil
 }
