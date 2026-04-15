@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"verify.gerege.mn/api/internal/provider"
+	"xyp.gerege.mn/api/internal/provider"
 )
 
 func (h *Handler) OrgLookup(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"verify.gerege.mn/api/internal/store"
+	"xyp.gerege.mn/api/internal/store"
 )
 
 func RateLimit(rdb *store.Redis) func(http.Handler) http.Handler {

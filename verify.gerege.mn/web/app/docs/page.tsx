@@ -2,7 +2,7 @@ export default function DocsPage() {
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
       <h1 className="text-3xl font-bold text-white mb-2">API Заавар</h1>
-      <p className="text-slate-400 mb-10">verify.gerege.mn REST API ашиглах заавар</p>
+      <p className="text-slate-400 mb-10">xyp.gerege.mn REST API ашиглах заавар</p>
 
       {/* Auth */}
       <section className="mb-10">
@@ -26,7 +26,7 @@ export default function DocsPage() {
         <p className="text-sm text-slate-400 mb-3">Регистрийн дугаараар иргэний мэдээлэл хайна.</p>
         <h4 className="text-sm font-semibold text-slate-300 mb-2">Request</h4>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-green-400 font-mono overflow-x-auto mb-3">{`curl -u $CLIENT_ID:$SECRET \\
-  -X POST https://verify.gerege.mn/v1/citizen/lookup \\
+  -X POST https://xyp.gerege.mn/v1/citizen/lookup \\
   -H "Content-Type: application/json" \\
   -d '{"reg_no": "МА74101813"}'`}</pre>
         <h4 className="text-sm font-semibold text-slate-300 mb-2">Response</h4>
@@ -53,7 +53,7 @@ export default function DocsPage() {
         </div>
         <p className="text-sm text-slate-400 mb-3">Регистрийн дугаар + нэрийг тулгаж шалгана. Зөвхөн match true/false буцаана.</p>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-green-400 font-mono overflow-x-auto mb-3">{`curl -u $CLIENT_ID:$SECRET \\
-  -X POST https://verify.gerege.mn/v1/citizen/verify \\
+  -X POST https://xyp.gerege.mn/v1/citizen/verify \\
   -H "Content-Type: application/json" \\
   -d '{"reg_no":"МА74101813","first_name":"ЭРДЭНЭБАТ","last_name":"Цэнддорж"}'`}</pre>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto">{`{ "match": true, "reg_no": "МА74101813" }`}</pre>
@@ -68,7 +68,7 @@ export default function DocsPage() {
         </div>
         <p className="text-sm text-slate-400 mb-3">Регистрийн дугаараар байгууллагын мэдээлэл хайна.</p>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-green-400 font-mono overflow-x-auto mb-3">{`curl -u $CLIENT_ID:$SECRET \\
-  -X POST https://verify.gerege.mn/v1/org/lookup \\
+  -X POST https://xyp.gerege.mn/v1/org/lookup \\
   -H "Content-Type: application/json" \\
   -d '{"reg_no": "6235972"}'`}</pre>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto">{`{
@@ -93,7 +93,7 @@ export default function DocsPage() {
           <code className="text-primary text-sm">/v1/org/verify</code>
         </div>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-green-400 font-mono overflow-x-auto mb-3">{`curl -u $CLIENT_ID:$SECRET \\
-  -X POST https://verify.gerege.mn/v1/org/verify \\
+  -X POST https://xyp.gerege.mn/v1/org/verify \\
   -H "Content-Type: application/json" \\
   -d '{"reg_no":"6235972","name":"Гэрэгэ системс"}'`}</pre>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto">{`{ "match": true, "reg_no": "6235972" }`}</pre>

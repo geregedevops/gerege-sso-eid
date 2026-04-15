@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"verify.gerege.mn/api/internal/provider"
-	"verify.gerege.mn/api/internal/store"
+	"xyp.gerege.mn/api/internal/provider"
+	"xyp.gerege.mn/api/internal/store"
 )
 
 type Config struct {
@@ -25,7 +25,7 @@ func New(cfg Config) *Handler {
 }
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "verify.gerege.mn"})
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "xyp.gerege.mn"})
 }
 
 func writeJSON(w http.ResponseWriter, status int, data any) {

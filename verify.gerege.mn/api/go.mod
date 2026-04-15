@@ -1,4 +1,4 @@
-module verify.gerege.mn/api
+module xyp.gerege.mn/api
 
 go 1.24.0
 

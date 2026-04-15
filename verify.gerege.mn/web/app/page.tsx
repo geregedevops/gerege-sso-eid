@@ -318,7 +318,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-8 text-center text-sm text-slate-500">
-        Gerege Systems &copy; {new Date().getFullYear()} &middot; verify.gerege.mn
+        Gerege Systems &copy; {new Date().getFullYear()} &middot; xyp.gerege.mn
       </footer>
     </div>
   );

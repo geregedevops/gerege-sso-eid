@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"verify.gerege.mn/api/internal/store"
+	"xyp.gerege.mn/api/internal/store"
 )
 
 type statusWriter struct {

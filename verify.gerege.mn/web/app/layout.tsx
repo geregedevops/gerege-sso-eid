@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
-  title: "Verify API — verify.gerege.mn",
+  title: "Verify API — xyp.gerege.mn",
   description: "Иргэн & байгууллага баталгаажуулах API",
 };
 

@@ -9,20 +9,20 @@ import (
 	"syscall"
 	"time"
 
-	"verify.gerege.mn/api/internal/handler"
-	"verify.gerege.mn/api/internal/middleware"
-	"verify.gerege.mn/api/internal/provider"
-	"verify.gerege.mn/api/internal/store"
+	"xyp.gerege.mn/api/internal/handler"
+	"xyp.gerege.mn/api/internal/middleware"
+	"xyp.gerege.mn/api/internal/provider"
+	"xyp.gerege.mn/api/internal/store"
 )
 
 func main() {
-	slog.Info("starting verify.gerege.mn api")
+	slog.Info("starting xyp.gerege.mn api")
 
 	port := envOrDefault("PORT", "8446")
 	databaseURL := envOrDefault("VERIFY_DATABASE_URL", "")
 	redisURL := envOrDefault("VERIFY_REDIS_URL", "")
 	adminKey := envOrDefault("VERIFY_ADMIN_KEY", "")
-	allowedOrigin := envOrDefault("VERIFY_CORS_ORIGIN", "https://verify.gerege.mn")
+	allowedOrigin := envOrDefault("VERIFY_CORS_ORIGIN", "https://xyp.gerege.mn")
 
 	upstreamURL := envOrDefault("UPSTREAM_API_URL", "")
 	upstreamKey := envOrDefault("UPSTREAM_API_KEY", "")

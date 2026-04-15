@@ -11,7 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-dan-db.sh:/docker-entrypoint-initdb.d/00-init-dan-db.sh:ro
-      - ./verify.gerege.mn/init-verify-db.sh:/docker-entrypoint-initdb.d/01-init-verify-db.sh:ro
+      - ./xyp.gerege.mn/init-verify-db.sh:/docker-entrypoint-initdb.d/01-init-verify-db.sh:ro
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -216,7 +216,7 @@ services:
   # === Verify API (Go) ===
   verify-api:
     build:
-      context: ./verify.gerege.mn/api
+      context: ./xyp.gerege.mn/api
       dockerfile: Dockerfile
     container_name: gerege-verify-api
     restart: unless-stopped
@@ -232,14 +232,14 @@ services:
       VERIFY_ADMIN_KEY: ${VERIFY_ADMIN_KEY}
       UPSTREAM_API_URL: ${UPSTREAM_API_URL}
       UPSTREAM_API_KEY: ${UPSTREAM_API_KEY}
-      VERIFY_CORS_ORIGIN: https://verify.gerege.mn
+      VERIFY_CORS_ORIGIN: https://xyp.gerege.mn
     networks:
       - gerege
 
   # === Verify Admin Dashboard (Next.js) ===
   verify-web:
     build:
-      context: ./verify.gerege.mn/web
+      context: ./xyp.gerege.mn/web
       dockerfile: Dockerfile
     container_name: gerege-verify-web
     restart: unless-stopped

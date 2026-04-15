@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-	"verify.gerege.mn/api/internal/store"
+	"xyp.gerege.mn/api/internal/store"
 )
 
 type contextKey string
@@ -21,7 +21,7 @@ func APIKeyAuth(db *store.Postgres, rdb *store.Redis) func(http.Handler) http.Ha
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			clientID, clientSecret, ok := r.BasicAuth()
 			if !ok || clientID == "" || clientSecret == "" {
-				w.Header().Set("WWW-Authenticate", `Basic realm="verify.gerege.mn"`)
+				w.Header().Set("WWW-Authenticate", `Basic realm="xyp.gerege.mn"`)
 				jsonError(w, http.StatusUnauthorized, "missing credentials")
 				return
 			}
