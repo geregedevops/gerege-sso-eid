@@ -90,18 +90,45 @@ export default function AdminLookupPage() {
 
       {/* Citizen full result */}
       {tab === "citizen" && citizen && (
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/[0.06]">
-            <h2 className="font-semibold text-white">Иргэний бүрэн мэдээлэл</h2>
+        <div className="space-y-6">
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.06]">
+              <h2 className="font-semibold text-white">Иргэний бүрэн мэдээлэл</h2>
+            </div>
+            <div className="flex">
+              {/* Photo */}
+              {citizen.image && (
+                <div className="p-5 border-r border-white/[0.06] flex-shrink-0">
+                  <img
+                    src={`data:image/jpeg;base64,${citizen.image}`}
+                    alt="Иргэний зураг"
+                    className="w-32 h-40 object-cover rounded-xl"
+                  />
+                </div>
+              )}
+              {/* Info */}
+              <div className="flex-1 divide-y divide-white/[0.06]">
+                <Row label="Регистр" value={citizen.reg_no} mono />
+                <Row label="Овог" value={citizen.last_name} />
+                <Row label="Нэр" value={citizen.first_name} bold />
+                <Row label="Ургийн овог" value={citizen.surname} />
+                <Row label="Хүйс" value={citizen.gender} />
+                <Row label="Төрсөн огноо" value={citizen.birth_date} />
+                <Row label="Төрсөн газар" value={citizen.birth_place} />
+                <Row label="Үндэс угсаа" value={citizen.nationality} />
+              </div>
+            </div>
           </div>
-          <div className="divide-y divide-white/[0.06]">
-            <Row label="Регистр" value={citizen.reg_no} mono />
-            <Row label="Овог" value={citizen.last_name} />
-            <Row label="Нэр" value={citizen.first_name} bold />
-            <Row label="Ургийн овог" value={citizen.surname} />
-            <Row label="Хүйс" value={citizen.gender} />
-            <Row label="Төрсөн огноо" value={citizen.birth_date} />
-            <Row label="Үндэс угсаа" value={citizen.nationality} />
+
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.06]">
+              <h2 className="font-semibold text-white">Бичиг баримт</h2>
+            </div>
+            <div className="divide-y divide-white/[0.06]">
+              <Row label="Иргэний үнэмлэх №" value={citizen.civil_id} mono />
+              <Row label="Гадаад паспорт №" value={citizen.passport_num} mono />
+              <Row label="Оршин суугаа хаяг" value={citizen.passport_address} />
+            </div>
           </div>
         </div>
       )}

@@ -76,13 +76,18 @@ func (c *CitizenHTTP) Lookup(ctx context.Context, regNo string) (*CitizenInfo, e
 
 	r := env.Result
 	return &CitizenInfo{
-		RegNo:       r.Regnum,
-		LastName:    r.Lastname,
-		FirstName:   r.Firstname,
-		Surname:     r.Surname,
-		Gender:      r.Gender,
-		BirthDate:   r.BirthDate,
-		Nationality: r.Nationality,
+		RegNo:           r.Regnum,
+		LastName:        r.Lastname,
+		FirstName:       r.Firstname,
+		Surname:         r.Surname,
+		Gender:          r.Gender,
+		BirthDate:       r.BirthDate,
+		BirthPlace:      r.BirthPlace,
+		Nationality:     r.Nationality,
+		CivilID:         r.CivilID,
+		PassportNum:     r.PassportNum,
+		PassportAddress: r.PassportAddress,
+		Image:           r.Image,
 	}, nil
 }
 

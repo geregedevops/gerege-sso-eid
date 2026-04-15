@@ -4,25 +4,35 @@ import "context"
 
 // CitizenInfo is our normalized output for the citizen lookup endpoint.
 type CitizenInfo struct {
-	RegNo       string `json:"reg_no"`
-	LastName    string `json:"last_name"`
-	FirstName   string `json:"first_name"`
-	Surname     string `json:"surname,omitempty"`
-	Gender      string `json:"gender,omitempty"`
-	BirthDate   string `json:"birth_date,omitempty"`
-	Nationality string `json:"nationality,omitempty"`
+	RegNo           string `json:"reg_no"`
+	LastName        string `json:"last_name"`
+	FirstName       string `json:"first_name"`
+	Surname         string `json:"surname,omitempty"`
+	Gender          string `json:"gender,omitempty"`
+	BirthDate       string `json:"birth_date,omitempty"`
+	BirthPlace      string `json:"birth_place,omitempty"`
+	Nationality     string `json:"nationality,omitempty"`
+	CivilID         string `json:"civil_id,omitempty"`
+	PassportNum     string `json:"passport_num,omitempty"`
+	PassportAddress string `json:"passport_address,omitempty"`
+	Image           string `json:"image,omitempty"`
 }
 
 // citizenResult maps the upstream /user/validate result object.
 type citizenResult struct {
-	Firstname   string `json:"firstname"`
-	Lastname    string `json:"lastname"`
-	Surname     string `json:"surname"`
-	Regnum      string `json:"regnum"`
-	Gender      string `json:"gender"`
-	BirthDate   string `json:"birthDateAsText"`
-	Nationality string `json:"nationality"`
-	ResultCode  int    `json:"resultCode"`
+	Firstname       string `json:"firstname"`
+	Lastname        string `json:"lastname"`
+	Surname         string `json:"surname"`
+	Regnum          string `json:"regnum"`
+	Gender          string `json:"gender"`
+	BirthDate       string `json:"birthDateAsText"`
+	BirthPlace      string `json:"birthPlace"`
+	Nationality     string `json:"nationality"`
+	CivilID         string `json:"civilId"`
+	PassportNum     string `json:"passportNum"`
+	PassportAddress string `json:"passportAddress"`
+	Image           string `json:"image"`
+	ResultCode      int    `json:"resultCode"`
 }
 
 type CitizenVerifyReq struct {

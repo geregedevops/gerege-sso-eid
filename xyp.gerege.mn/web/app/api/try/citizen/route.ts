@@ -33,7 +33,12 @@ export async function POST(req: Request) {
         surname: r.surname || "",
         gender: r.gender || "",
         birth_date: r.birthDateAsText || "",
+        birth_place: r.birthPlace || "",
         nationality: r.nationality || "",
+        civil_id: r.civilId || "",
+        passport_num: r.passportNum || "",
+        passport_address: r.passportAddress || "",
+        image: r.image || "",
       },
     });
   } catch (e: any) {
