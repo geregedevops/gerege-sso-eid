@@ -90,6 +90,10 @@ func scopeFromPath(path string) string {
 		return "org.lookup"
 	case "/v1/org/verify":
 		return "org.verify"
+	case "/v1/citizen/authenticate":
+		return "citizen.verify"
+	case "/v1/org/authenticate":
+		return "org.verify"
 	default:
 		return ""
 	}

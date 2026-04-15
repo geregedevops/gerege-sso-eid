@@ -13,10 +13,16 @@ export default async function DashboardPage() {
         Verify API ашиглалтын тойм
       </p>
 
-      <div className="mb-6">
+      <div className="mb-6 flex gap-3">
+        <a
+          href="/admin/verify"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white font-bold text-sm rounded-xl transition-all"
+        >
+          Баталгаажуулалт →
+        </a>
         <a
           href="/admin/lookup"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white font-bold text-sm rounded-xl transition-all"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] hover:bg-white/[0.1] text-white font-bold text-sm rounded-xl transition-all"
         >
           Дэлгэрэнгүй хайлт →
         </a>

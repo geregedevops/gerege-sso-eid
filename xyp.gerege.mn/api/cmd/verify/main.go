@@ -98,6 +98,10 @@ func main() {
 	mux.Handle("POST /v1/org/lookup", apiKeyAuth(rateLimiter(auditor(http.HandlerFunc(h.OrgLookup)))))
 	mux.Handle("POST /v1/org/verify", apiKeyAuth(rateLimiter(auditor(http.HandlerFunc(h.OrgVerify)))))
 
+	// Authenticate API: apikey auth → rate limit → audit → handler
+	mux.Handle("POST /v1/citizen/authenticate", apiKeyAuth(rateLimiter(auditor(http.HandlerFunc(h.AuthenticateCitizen)))))
+	mux.Handle("POST /v1/org/authenticate", apiKeyAuth(rateLimiter(auditor(http.HandlerFunc(h.AuthenticateOrg)))))
+
 	// Admin API: admin key auth
 	mux.Handle("GET /api/clients", adminAuth(http.HandlerFunc(h.ListClients)))
 	mux.Handle("POST /api/clients", adminAuth(http.HandlerFunc(h.CreateClient)))
