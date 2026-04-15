@@ -41,13 +41,15 @@ type CitizenVerifyReq struct {
 
 // OrgInfo is our normalized output for the org lookup endpoint.
 type OrgInfo struct {
-	RegNo    string   `json:"reg_no"`
-	Name     string   `json:"name"`
-	Type     string   `json:"type,omitempty"`
-	CEO      string   `json:"ceo,omitempty"`
-	Phone    string   `json:"phone,omitempty"`
-	Address  string   `json:"address,omitempty"`
-	Industry []string `json:"industry,omitempty"`
+	RegNo      string   `json:"reg_no"`
+	Name       string   `json:"name"`
+	Type       string   `json:"type,omitempty"`
+	CEO        string   `json:"ceo,omitempty"`
+	CEORegNo   string   `json:"ceo_reg_no,omitempty"`
+	CEOPosition string  `json:"ceo_position,omitempty"`
+	Phone      string   `json:"phone,omitempty"`
+	Address    string   `json:"address,omitempty"`
+	Industry   []string `json:"industry,omitempty"`
 }
 
 // orgResult maps the upstream /legalentity/info result object.
@@ -86,6 +88,7 @@ type orgResult struct {
 type orgCEO struct {
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
+	Regnum       string `json:"regnum"`
 	PositionName string `json:"positionName"`
 }
 

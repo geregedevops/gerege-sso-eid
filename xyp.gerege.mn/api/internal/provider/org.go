@@ -125,12 +125,14 @@ func (o *OrgHTTP) Lookup(ctx context.Context, regNo string) (*OrgInfo, error) {
 	}
 
 	return &OrgInfo{
-		RegNo:    regNo,
-		Name:     name,
-		Type:     companyType,
-		CEO:      ceo,
-		Phone:    phone,
-		Address:  address,
+		RegNo:       regNo,
+		Name:        name,
+		Type:        companyType,
+		CEO:         ceo,
+		CEORegNo:    r.GeneralR.Regnum,
+		CEOPosition: r.GeneralR.PositionName,
+		Phone:       phone,
+		Address:     address,
 		Industry: industries,
 	}, nil
 }

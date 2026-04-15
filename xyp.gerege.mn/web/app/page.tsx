@@ -22,6 +22,8 @@ type OrgResult = {
     name: string;
     type: string;
     ceo: string;
+    ceo_reg_no: string;
+    ceo_position: string;
     phone: string;
     address: string;
     industry: string[];
@@ -218,8 +220,16 @@ export default function HomePage() {
                 </div>
                 {orgResult.organization.ceo && (
                   <div className="px-5 py-3 flex justify-between">
-                    <span className="text-slate-400 text-sm">Гүйцэтгэх захирал</span>
+                    <span className="text-slate-400 text-sm">
+                      {orgResult.organization.ceo_position || "Захирал"}
+                    </span>
                     <span className="text-white">{orgResult.organization.ceo}</span>
+                  </div>
+                )}
+                {orgResult.organization.ceo_reg_no && (
+                  <div className="px-5 py-3 flex justify-between">
+                    <span className="text-slate-400 text-sm">Захирлын РД</span>
+                    <span className="text-white font-mono text-sm">{orgResult.organization.ceo_reg_no}</span>
                   </div>
                 )}
                 {orgResult.organization.phone && (

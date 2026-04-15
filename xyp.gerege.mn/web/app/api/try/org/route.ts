@@ -64,6 +64,10 @@ export async function POST(req: Request) {
       .filter((i: any) => i.industryStatus === "Тийм")
       .map((i: any) => i.industryName);
 
+    // CEO reg_no and position
+    const ceoRegNo = r.generalR?.regnum || "";
+    const ceoPosition = r.generalR?.positionName || "";
+
     return NextResponse.json({
       found: true,
       organization: {
@@ -71,6 +75,8 @@ export async function POST(req: Request) {
         name,
         type,
         ceo,
+        ceo_reg_no: ceoRegNo,
+        ceo_position: ceoPosition,
         phone,
         address,
         industry,
