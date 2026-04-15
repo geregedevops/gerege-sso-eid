@@ -29,7 +29,7 @@ export default function NewClientPage({
     redirect("/admin/clients/new?created=1");
   }
 
-  // Read from cookie
+  // Read from cookie (maxAge=60, auto-expires)
   let newClient: { id: string; secret: string; name: string } | null = null;
   if (searchParams.created) {
     const raw = cookies().get("new_client")?.value;
@@ -37,8 +37,6 @@ export default function NewClientPage({
       try {
         newClient = JSON.parse(raw);
       } catch {}
-      // Clear after reading
-      cookies().delete("new_client");
     }
   }
 
