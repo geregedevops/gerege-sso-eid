@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/api";
 
 export default function NewClientPage({
@@ -18,16 +19,30 @@ export default function NewClientPage({
 
     const result = await createClient({ name, contact_email: contactEmail });
 
-    const params = new URLSearchParams({
+    // Store result in a cookie (shown once, then cleared)
+    cookies().set("new_client", JSON.stringify({
       id: result.client.id,
       secret: result.client_secret,
       name: result.client.name,
-    });
-    redirect(`/admin/clients/new?created=${params.toString()}`);
+    }), { maxAge: 60, httpOnly: true, path: "/admin/clients/new" });
+
+    redirect("/admin/clients/new?created=1");
   }
 
+  // Read from cookie
+  let newClient: { id: string; secret: string; name: string } | null = null;
   if (searchParams.created) {
-    const params = new URLSearchParams(searchParams.created);
+    const raw = cookies().get("new_client")?.value;
+    if (raw) {
+      try {
+        newClient = JSON.parse(raw);
+      } catch {}
+      // Clear after reading
+      cookies().delete("new_client");
+    }
+  }
+
+  if (newClient) {
     return (
       <div className="max-w-lg mx-auto px-6 py-10">
         <h1 className="text-2xl font-bold text-white mb-2">Client үүслээ</h1>
@@ -38,15 +53,15 @@ export default function NewClientPage({
         <div className="bg-surface border border-white/[0.06] rounded-2xl p-6 space-y-4">
           <div>
             <p className="text-xs text-slate-400 mb-1">Нэр</p>
-            <p className="text-white font-medium">{params.get("name")}</p>
+            <p className="text-white font-medium">{newClient.name}</p>
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Client ID</p>
-            <p className="font-mono text-sm text-primary break-all">{params.get("id")}</p>
+            <p className="font-mono text-sm text-primary break-all select-all">{newClient.id}</p>
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Client Secret</p>
-            <p className="font-mono text-sm text-yellow-400 break-all">{params.get("secret")}</p>
+            <p className="font-mono text-sm text-yellow-400 break-all select-all">{newClient.secret}</p>
           </div>
         </div>
 
@@ -69,9 +84,9 @@ export default function NewClientPage({
 
   return (
     <div className="max-w-lg mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold text-white mb-2">Шинэ Verify Client</h1>
+      <h1 className="text-2xl font-bold text-white mb-2">Шинэ Client</h1>
       <p className="text-sm text-slate-400 mb-8">
-        Баталгаажуулах API ашиглах шинэ client бүртгэх
+        API ашиглах шинэ client бүртгэх. Client ID болон Secret үүсгэнэ.
       </p>
 
       <form action={handleCreate} className="space-y-5">
