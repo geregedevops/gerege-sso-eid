@@ -108,14 +108,21 @@ export default function DocsPage() {
           <code className="text-primary text-sm">/v1/org/authenticate</code>
         </div>
         <p className="text-sm text-slate-400 mb-3">
-          Байгууллагын регистр + захирлын регистрийн дугаараар баталгаажуулна.
-          Захирлын РД таарвал байгууллагын мэдээллийг буцаана.
+          Байгууллагын регистр + <code className="text-primary">ceo_reg_no</code> хүлээж авна.
         </p>
+        <div className="mb-4 p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-slate-400">
+          <p className="font-semibold text-white mb-2">Шалгах логик:</p>
+          <p><code className="text-primary">ceo_reg_no</code> нь дараах хоёрын <span className="text-white font-semibold">аль нэгтэй</span> таарахад баталгаажна:</p>
+          <ul className="list-disc ml-5 mt-1 space-y-1">
+            <li>Гүйцэтгэх захирлын регистрийн дугаар</li>
+            <li>Хамгийн том хувьцаа эзэмшигчийн (эцсийн өмчлөгч) регистрийн дугаар</li>
+          </ul>
+        </div>
         <h4 className="text-sm font-semibold text-slate-300 mb-2">Request</h4>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-green-400 font-mono overflow-x-auto mb-3">{`curl -u $CLIENT_ID:$SECRET \\
   -X POST https://xyp.gerege.mn/v1/org/authenticate \\
   -H "Content-Type: application/json" \\
-  -d '{"reg_no": "6235972", "ceo_reg_no": "уш72060800"}'`}</pre>
+  -d '{"reg_no": "6235972", "ceo_reg_no": "ма74101813"}'`}</pre>
         <h4 className="text-sm font-semibold text-slate-300 mb-2">Response (амжилттай)</h4>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto mb-3">{`{
   "authenticated": true,
@@ -126,12 +133,18 @@ export default function DocsPage() {
     "ceo": "Нацагдорж Энхжаргал",
     "ceo_reg_no": "уш72060800",
     "ceo_position": "Гүйцэтгэх  Захирал"
+  },
+  "owner": {
+    "name": "цэнддорж эрдэнэбат",
+    "reg_no": "ма74101813",
+    "type": "Иргэн",
+    "share_percent": "42"
   }
 }`}</pre>
         <h4 className="text-sm font-semibold text-slate-300 mb-2">Response (таараагүй)</h4>
         <pre className="bg-black/30 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto">{`{
   "authenticated": false,
-  "reason": "ceo_reg_no does not match"
+  "reason": "ceo_reg_no does not match director or largest shareholder"
 }`}</pre>
       </section>
 
