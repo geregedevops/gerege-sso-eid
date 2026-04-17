@@ -19,7 +19,7 @@ INSERT INTO dan_clients (id, secret_hash, name, callback_urls, active, created_a
     'dan_c203a108a3241f5ada7227c4a591f289',
     '$2a$10$IM8AbWyGBMR543SSM91rHuJ/vBvja8n6jM5gNCGWhiuh55ClB9O2W',
     'GeregeID',
-    ARRAY['https://dapi.gerege.mn/mobile/v1/registration/kyc/dan/callback'],
+    ARRAY['https://ca.gerege.mn/mobile/v1/registration/kyc/dan/callback'],
     true,
     '2026-04-09 15:05:15.376751+00'
 ),

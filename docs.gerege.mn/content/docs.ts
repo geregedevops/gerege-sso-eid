@@ -321,7 +321,7 @@ JWKS URI: \`https://sso.gerege.mn/.well-known/jwks.json\`
 | Variable | Тайлбар |
 |----------|---------|
 | \`SSO_JWKS_URI\` | JWT шалгах JWKS endpoint |
-| \`EID_API_URL\` | GeregeID API (https://dapi.gerege.mn) |
+| \`EID_API_URL\` | GeregeID API (https://ca.gerege.mn) |
 | \`STORAGE_PATH\` | Гарын үсэг зурсан файлын хадгалах зам |
 | \`DATABASE_URL\` | PostgreSQL connection |
 | \`REDIS_URL\` | Redis connection |`,

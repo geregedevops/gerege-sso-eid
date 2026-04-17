@@ -26,7 +26,7 @@ func main() {
 	// Config
 	issuer := envOrDefault("SSO_ISSUER", "https://sso.gerege.mn")
 	privKeyPath := envOrDefault("SSO_PRIVATE_KEY_PATH", "ec-private.pem")
-	eidBaseURL := envOrDefault("EID_BASE_URL", "https://dapi.gerege.mn")
+	eidBaseURL := envOrDefault("EID_BASE_URL", "https://ca.gerege.mn")
 	eidRPApiKey := envOrDefault("EID_RP_API_KEY", "")
 	ocspURL := envOrDefault("OCSP_URL", "")
 	caIssuingURL := envOrDefault("CA_ISSUING_URL", "")
