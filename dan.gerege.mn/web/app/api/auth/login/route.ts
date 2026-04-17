@@ -14,7 +14,10 @@ export async function POST(req: Request) {
   const ok = !!expected && constantTimeEqual(password, expected);
   const target = ok ? "/admin" : "/auth/login?error=1";
 
-  const res = NextResponse.redirect(new URL(target, req.url), { status: 303 });
+  const res = new NextResponse(null, {
+    status: 303,
+    headers: { Location: target },
+  });
   if (ok) {
     const value = await createSessionValue();
     res.cookies.set(SESSION_COOKIE, value, {
