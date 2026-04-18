@@ -17,9 +17,15 @@ export async function POST(req: Request) {
       body: JSON.stringify({ reg_no: regNo }),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    let data: any = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return NextResponse.json({ found: false, organization: null });
+    }
 
-    if (data.status !== "success" || data.result?.resultCode !== 200) {
+    if (!res.ok || data?.status !== "success" || data?.result?.resultCode !== 200) {
       return NextResponse.json({ found: false, organization: null });
     }
 

@@ -16,8 +16,15 @@ export async function POST(req: Request) {
       body: JSON.stringify({ reg_no }),
     });
 
-    const data = await res.json();
-    if (data.status !== "success" || data.result?.resultCode !== 200) {
+    const text = await res.text();
+    let data: any = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return NextResponse.json({ authenticated: false, reason: "organization not found" });
+    }
+
+    if (!res.ok || data?.status !== "success" || data?.result?.resultCode !== 200) {
       return NextResponse.json({ authenticated: false, reason: "organization not found" });
     }
 
