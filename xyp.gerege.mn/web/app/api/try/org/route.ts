@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 
 const UPSTREAM = process.env.UPSTREAM_API_URL || "http://10.0.0.187:8000";
 
+function toArray<T = any>(v: any): T[] {
+  if (Array.isArray(v)) return v;
+  if (v === null || v === undefined) return [];
+  return [v];
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
   const regNo = body.reg_no;
@@ -30,55 +36,53 @@ export async function POST(req: Request) {
     }
 
     const r = data.result;
+    const changeNames = toArray(r.changeName);
+    const addresses = toArray(r.address);
+    const industries = toArray(r.induty);
+    const capitals = toArray(r.capital);
+    const founderList = toArray(r.founder);
+    const stakeList = toArray(r.stakeHolders);
 
-    // Company name from changeName
     let name = "";
     let type = "";
     let companyRegNo = regNo;
-    if (r.changeName?.length > 0) {
-      name = r.changeName[0].requestedName || "";
-      type = r.changeName[0].companyType || "";
-      companyRegNo = r.changeName[0].companyRegnum || regNo;
+    if (changeNames.length > 0) {
+      name = changeNames[0].requestedName || "";
+      type = changeNames[0].companyType || "";
+      companyRegNo = changeNames[0].companyRegnum || regNo;
     }
 
-    // CEO
     let ceo = "";
     if (r.generalR?.firstName) {
       ceo = `${r.generalR.lastName || ""} ${r.generalR.firstName}`.trim();
     }
 
-    // Phone and address from active address
     let phone = "";
     let address = "";
-    if (r.address) {
-      const active = r.address.find((a: any) => a.addressStatus === "Тийм");
-      if (active) {
-        phone = active.phoneNumber || "";
-        const parts = [
-          active.stateCity?.name,
-          active.soumDistrict?.name,
-          active.bagKhoroo?.name,
-          active.region?.name,
-          active.door,
-        ].filter(Boolean);
-        address = parts.join(", ");
-      }
+    const active = addresses.find((a: any) => a.addressStatus === "Тийм");
+    if (active) {
+      phone = active.phoneNumber || "";
+      const parts = [
+        active.stateCity?.name,
+        active.soumDistrict?.name,
+        active.bagKhoroo?.name,
+        active.region?.name,
+        active.door,
+      ].filter(Boolean);
+      address = parts.join(", ");
     }
 
-    // Active industries
-    const industry = (r.induty || [])
+    const industry = industries
       .filter((i: any) => i.industryStatus === "Тийм")
       .map((i: any) => i.industryName);
 
     const ceoRegNo = r.generalR?.regnum || "";
     const ceoPosition = r.generalR?.positionName || "";
 
-    // Capital (active)
-    const capitalEntry = (r.capital || []).find((c: any) => c.rowStatusName === "Тийм");
+    const capitalEntry = capitals.find((c: any) => c.rowStatusName === "Тийм");
     const capital = capitalEntry?.totalAmount || "";
 
-    // Active founders
-    const founders = (r.founder || [])
+    const founders = founderList
       .filter((f: any) => f.status === "Тийм")
       .map((f: any) => ({
         name: `${f.lastName || ""} ${f.firstName || ""}`.trim(),
@@ -87,8 +91,7 @@ export async function POST(req: Request) {
         share_percent: f.sharePercent || "",
       }));
 
-    // Active board members
-    const stake_holders = (r.stakeHolders || [])
+    const stake_holders = stakeList
       .filter((s: any) => s.status === "Тийм")
       .map((s: any) => ({
         name: `${s.lastname || ""} ${s.firstname || ""}`.trim(),

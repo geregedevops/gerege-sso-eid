@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 
 const UPSTREAM = process.env.UPSTREAM_API_URL || "http://10.0.0.187:8000";
 
+function toArray<T = any>(v: any): T[] {
+  if (Array.isArray(v)) return v;
+  if (v === null || v === undefined) return [];
+  return [v];
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
   const { reg_no, ceo_reg_no } = body;
@@ -30,13 +36,13 @@ export async function POST(req: Request) {
 
     const r = data.result;
     const input = ceo_reg_no.toLowerCase().trim();
+    const changeNames = toArray(r.changeName);
+    const founderList = toArray(r.founder);
 
-    // Check CEO match
     const actualCeo = (r.generalR?.regnum || "").toLowerCase().trim();
     const ceoMatch = actualCeo === input;
 
-    // Find largest shareholder
-    const activeFounders = (r.founder || []).filter((f: any) => f.status === "Тийм");
+    const activeFounders = founderList.filter((f: any) => f.status === "Тийм");
     let topOwner: any = null;
     let topPct = 0;
     for (const f of activeFounders) {
@@ -49,7 +55,6 @@ export async function POST(req: Request) {
 
     const ownerMatch = topOwner && (topOwner.stakeHolderRegnum || "").toLowerCase().trim() === input;
 
-    // Either one must match
     if (!ceoMatch && !ownerMatch) {
       return NextResponse.json({
         authenticated: false,
@@ -59,9 +64,9 @@ export async function POST(req: Request) {
 
     let name = "";
     let type = "";
-    if (r.changeName?.length > 0) {
-      name = r.changeName[0].requestedName || "";
-      type = r.changeName[0].companyType || "";
+    if (changeNames.length > 0) {
+      name = changeNames[0].requestedName || "";
+      type = changeNames[0].companyType || "";
     }
 
     let ceo = "";
